@@ -24,8 +24,7 @@ function LiveTiles({ match }) {
         value={match.runRate ?? '—'}
         unit="Now"
         label="Runs per over"
-        badge={chasing && match.requiredRate ? `${pace === 'down' ? 'Slower' : 'Faster'} than the ${match.requiredRate} needed` : null}
-        wrap
+        badge={chasing && match.requiredRate ? `${match.requiredRate} needed` : null}
         trend={pace}
       />
     </TileGrid>

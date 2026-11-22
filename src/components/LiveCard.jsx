@@ -60,22 +60,22 @@ export default function LiveSection({ matches, onAskCue }) {
           <Team team={m.bowling} />
         </div>
 
-        <div className="stats">
-          <div><small><I.Target size={12} />Target</small><b>{m.target}</b></div>
-          <div><small><I.Trend size={12} />Run rate</small><b>{m.runRate}</b></div>
-          <div><small><I.Gauge size={12} />Req. rate</small><b className="good">{m.requiredRate}</b></div>
+        <div className="card-foot">
+          <strong>
+            {need} to win · {m.ballsLeft} balls left
+          </strong>
+          <button type="button" className="ask" onClick={() => onAskCue(`Talk me through ${m.batting.name} v ${m.bowling.name}`)}>
+            <I.Spark size={14} />
+            Ask Cue
+          </button>
         </div>
       </article>
 
-      <button type="button" className="ribbon" onClick={() => onAskCue(`Talk me through ${m.batting.name} v ${m.bowling.name}`)}>
-        <span>
-          {need} to win · {m.ballsLeft} balls left
-        </span>
-        <span className="ask">
-          <I.Spark size={15} />
-          Ask Cue
-        </span>
-      </button>
+      <div className="stat-ribbon" aria-label="Match stats">
+        <div><small><I.Target size={12} />Target</small><b>{m.target}</b></div>
+        <div><small><I.Trend size={12} />Run rate</small><b>{m.runRate}</b></div>
+        <div><small><I.Gauge size={12} />Req. rate</small><b className="good">{m.requiredRate}</b></div>
+      </div>
     </section>
   );
 }

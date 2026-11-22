@@ -189,14 +189,24 @@ img { display: block; }
   font-size: 10px; font-weight: 600; color: var(--accent); background: var(--accent-tint);
   padding: 3px 7px; border-radius: 999px;
 }
-.stats {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--border);
-  border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+.card-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding-top: 14px; border-top: 1px solid var(--divider);
 }
-.stats > div { background: var(--surface); padding: 9px 12px; display: flex; flex-direction: column; gap: 2px; }
-.stats small { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
-.stats b { font-family: var(--font-head); font-size: 15px; }
-.stats .good { color: var(--accent); }
+.card-foot strong { font-size: 13px; font-weight: 600; }
+.card-foot .ask {
+  display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 13px; border-radius: 999px; flex: none;
+  border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: 13px; font-weight: 600;
+}
+.stat-ribbon {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; height: 58px; padding: 0 6px;
+  border-radius: 999px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
+}
+.stat-ribbon > div { display: flex; flex-direction: column; gap: 3px; padding: 0 14px; min-width: 0; }
+.stat-ribbon > div + div { border-left: 1px solid var(--border); }
+.stat-ribbon small { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.stat-ribbon b { font-family: var(--font-head); font-size: 15px; }
+.stat-ribbon .good { color: var(--accent); }
 
 /* ---------- Ribbons ---------- */
 .ribbon {

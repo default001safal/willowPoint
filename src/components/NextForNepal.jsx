@@ -32,11 +32,12 @@ function MatchTiles({ fixture: f, today, now, saved, onSave }) {
     <div className="match-tiles">
       <div className="mt-who">
         <span className="mt-flags" aria-hidden="true">
-          <span><TeamMark name={opp} size={22} /></span>
-          <span><TeamMark name="Nepal" size={22} /></span>
+          <span><TeamMark name={opp} size={18} /></span>
+          <i>v</i>
+          <span><TeamMark name="Nepal" size={18} /></span>
         </span>
         <strong>{opp}</strong>
-        <span className="mt-sub">{f.venue}</span>
+        <span className="mt-sub"><I.Pin size={12} />{f.venue}</span>
       </div>
       <div className="mt-when">
         <div className="mt-when-top">

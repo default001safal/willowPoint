@@ -594,3 +594,6 @@ img { display: block; }
 .fixture-week button { min-height: 76px; padding: 8px 0 10px; }
 .list-row { padding-block: 10px; }
 .date-block { height: 48px; }
+/* Experiment, cont.: big score text follows the tiles down ~10%. */
+.tile-value { font-size: 41px; }
+@media (max-width: 360px) { .tile-value { font-size: 34px; } }

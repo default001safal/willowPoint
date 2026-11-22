@@ -7,6 +7,7 @@ import DiscoverScreen from './screens/Discover.jsx';
 import CueScreen from './screens/Cue.jsx';
 import ProfileScreen from './screens/Profile.jsx';
 import Onboarding, { needsOnboarding } from './components/Onboarding.jsx';
+import Splash from './components/Splash.jsx';
 
 export default function App() {
   // ?tab=discover|cue|profile opens straight on that tab (handy for links and reviews).
@@ -22,6 +23,7 @@ export default function App() {
   const [pendingQuestion, setPendingQuestion] = useState(null);
   const prefs = useUserPrefs();
   const [welcome, setWelcome] = useState(needsOnboarding);
+  const [splash, setSplash] = useState(true);
 
   const go = (next, filter) => {
     if (next === 'discover') setDiscoverFilter(filter || 'All');
@@ -48,6 +50,7 @@ export default function App() {
         {tab === 'profile' && <ProfileScreen prefs={prefs} />}
         <BottomNav tab={tab} onChange={(t) => go(t)} />
         {welcome && <Onboarding prefs={prefs} onDone={() => setWelcome(false)} />}
+        {splash && <Splash onDone={() => setSplash(false)} />}
       </div>
     </ContentProvider>
   );

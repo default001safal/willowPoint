@@ -563,3 +563,13 @@ img { display: block; }
 .mt-steps > span { width: 6px; height: 6px; border-radius: 50%; background: #34383e; }
 .mt-steps > span.on { background: var(--accent); }
 .mt-steps > span.match { width: 20px; height: 20px; display: grid; place-items: center; background: var(--accent); color: var(--ink); }
+
+/* Launch splash */
+.splash { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: var(--bg); transition: opacity .28s ease; }
+.splash.leaving { opacity: 0; pointer-events: none; }
+.splash-logo { width: 236px; height: auto; }
+.splash-tag { font-size: 15px; font-weight: 300; letter-spacing: .02em; color: var(--muted); }
+.splash-bar { position: absolute; left: 50%; bottom: 72px; width: 96px; height: 3px; margin-left: -48px; border-radius: 999px; background: #262626; overflow: hidden; }
+.splash-bar span { display: block; width: 40%; height: 3px; border-radius: 999px; background: var(--accent); animation: splash-load 1.4s ease-in-out infinite; }
+@keyframes splash-load { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+@media (prefers-reduced-motion: reduce) { .splash-bar span { animation: none; } .splash { transition: none; } }

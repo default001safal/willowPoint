@@ -29,7 +29,7 @@ function Fixtures({ saved, toggleSaved, onSeeAll }) {
 
   return (
     <section className="section fixtures-bare" aria-label="Nepal's next matches">
-      <SectionHead title="Nepal's next matches">
+      <SectionHead title="Next for Nepal">
         <button type="button" className="section-link" onClick={onSeeAll}>
           All fixtures <I.ArrowUp size={11} style={{ transform: 'rotate(45deg)' }} />
         </button>
@@ -57,7 +57,7 @@ function Fixtures({ saved, toggleSaved, onSeeAll }) {
             <div>
               <h3>{f.title}</h3>
               <p>
-                {selected === 'all' && <><time dateTime={f.date}>{parts(f.date).date} {parts(f.date).month}</time><span aria-hidden="true">·</span></>}
+                <time dateTime={f.date}>{parts(f.date).date} {parts(f.date).month}</time><span aria-hidden="true">·</span>
                 <span>{f.time}</span><span aria-hidden="true">·</span><span>{f.venue}</span>
               </p>
             </div>

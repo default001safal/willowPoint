@@ -1,11 +1,9 @@
 // Pure helpers for the stat-style cards (Live now, Next for Nepal).
 
-// How an over's circle looks: big (11+), good (7–10), low (0–6), none (total unknown).
+// How an over's circle looks: big (10+ runs), low (under 10), none (total unknown).
 export function overTone(runs) {
   if (runs == null) return 'none';
-  if (runs >= 11) return 'big';
-  if (runs >= 7) return 'good';
-  return 'low';
+  return runs >= 10 ? 'big' : 'low';
 }
 
 // The over with the most runs so far (ties go to the later over), or -1.

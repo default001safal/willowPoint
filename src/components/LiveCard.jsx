@@ -85,9 +85,6 @@ function LiveStats({ match }) {
   const current = bat.find((m) => m.state === 'current');
   const oversIn = current?.over ?? bat.filter((m) => m.state === 'completed').length;
 
-  const crr = Number(match.runRate);
-  const rrr = Number(match.requiredRate);
-  const delta = Number.isFinite(crr) && Number.isFinite(rrr) ? crr - rrr : null;
   const need = match.target != null ? match.target - match.batting.runs : null;
 
   const pickSide = (s) => () => setSide(s);
@@ -100,12 +97,9 @@ function LiveStats({ match }) {
     <article className="stat-card" aria-label={`${match.batting.name} v ${match.bowling.name}`}>
       <div className="stat-top">
         <div className="stat-lead">
-          <span className="stat-hero" title="Current run rate">{match.runRate ?? '—'}</span>
-          {delta != null && (
-            <span className={`stat-delta${delta < 0 ? ' down' : ''}`} title={`Required rate is ${match.requiredRate}`}>
-              <I.Trend size={16} style={delta < 0 ? { transform: 'scaleY(-1)' } : undefined} />
-              {delta >= 0 ? '+' : '−'}{Math.abs(delta).toFixed(2)}
-            </span>
+          <span className="stat-hero">{match.batting.runs}<small>/{match.batting.wickets}</small></span>
+          {need != null && need > 0 && match.ballsLeft != null && (
+            <span className="stat-delta">need {need} off {match.ballsLeft}</span>
           )}
         </div>
         <ViewSwitch label="Chart" views={VIEWS} value={view} onChange={setView} />
@@ -113,7 +107,7 @@ function LiveStats({ match }) {
 
       <div className="stat-meta">
         <DotLegend items={legend} />
-        <span className="stat-note"><abbr title="Current run rate">CRR</abbr> · {oversIn}/{maxOvers} ov</span>
+        <span className="stat-note"><abbr title="Current run rate">CRR</abbr> {match.runRate ?? '—'} · {oversIn}/{maxOvers}</span>
       </div>
 
       <div className="stat-chart">
@@ -131,10 +125,6 @@ function LiveStats({ match }) {
         )}
       </div>
 
-      <p className="stat-foot">
-        <span><b>{match.batting.name} {match.batting.runs}/{match.batting.wickets}</b> v {match.bowling.name} {match.bowling.runs}/{match.bowling.wickets}</span>
-        {need != null && need > 0 && match.ballsLeft != null && <span>need <b className="go">{need} off {match.ballsLeft}</b></span>}
-      </p>
     </article>
   );
 }

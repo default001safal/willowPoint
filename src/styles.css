@@ -450,14 +450,14 @@ img { display: block; }
 /* ---------- Stat cards (Live now, Next for Nepal) ---------- */
 .stat-card { padding: 20px 18px 18px; border-radius: 30px; background: #141414; border: 1.5px solid #2b2b2b; }
 .stat-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.stat-lead { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; min-width: 0; padding-top: 2px; }
+.stat-lead { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; padding-top: 2px; }
 .stat-lead.stacked { flex-direction: column; align-items: flex-start; gap: 8px; }
-.stat-hero { font-family: var(--font-head); font-size: 40px; font-weight: 700; line-height: 1; letter-spacing: -0.05em; white-space: nowrap; }
+.stat-hero { font-family: var(--font-head); font-size: 38px; font-weight: 700; line-height: 1; letter-spacing: -0.05em; white-space: nowrap; }
+.stat-hero small { font-size: .55em; letter-spacing: -.02em; color: var(--muted); }
 .stat-delta { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--accent); white-space: nowrap; }
-.stat-delta.down { color: var(--crimson-text); }
 .view-switch { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: #0f0f0f; border: 1px solid #2a2a2a; flex: none; }
 .view-switch button { width: 36px; height: 36px; border-radius: 50%; border: 0; padding: 0; display: grid; place-items: center; background: none; color: var(--muted); transition: background .2s, color .2s, box-shadow .2s; }
-.view-switch button[aria-checked='true'] { background: var(--accent); color: var(--ink); box-shadow: 0 0 16px #00ff1e73; }
+.view-switch button[aria-checked='true'] { background: var(--accent); color: var(--ink); }
 .stat-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 20px; font-family: var(--font-head); font-size: 12px; }
 .stat-note { color: var(--muted); white-space: nowrap; }
 .stat-note abbr { text-decoration: none; }
@@ -469,45 +469,39 @@ img { display: block; }
 .legend-item button[aria-pressed='false'] { opacity: .45; }
 .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 .legend-dot.white { background: #f4f4f4; }
-.legend-dot.green { background: var(--accent); box-shadow: 0 0 8px #00ff1e99; }
+.legend-dot.green { background: var(--accent); }
 .legend-dot.outline { background: #0e2a12; border: 1.5px solid #12b526; }
 .legend-dot.red { background: #ff4d55; }
 .stat-chart { margin-top: 14px; }
-.stat-foot { display: flex; justify-content: space-between; gap: 10px; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid #232323; font-family: var(--font-head); font-size: 12px; color: var(--muted); white-space: nowrap; }
-.stat-foot b { color: var(--text); font-weight: 700; }
-.stat-foot b.go { color: var(--accent); }
 .stat-empty { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
 
 /* Over circles — tones straight from the reference card. */
 .over-dots { list-style: none; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; }
 .over-dots li { display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%; font-family: var(--font-head); font-size: 10.5px; font-weight: 700; line-height: 1; border: 1.5px solid transparent; }
-.over-dots .good { background: #0e2a12; border-color: #12b526; color: var(--accent); }
-.over-dots .big { background: #f4f4f4; border-color: #f4f4f4; color: var(--ink); }
+.over-dots .big { background: #0e2a12; border-color: #12b526; color: var(--accent); }
 .over-dots .low, .over-dots .none { background: #1b1b1b; border-color: #1f1f1f; color: #8b929c; }
-.over-dots .best { background: var(--accent); border-color: var(--accent); color: var(--ink); box-shadow: 0 0 14px #00ff1e80; }
+.over-dots .best { background: var(--accent); border-color: var(--accent); color: var(--ink); }
 .over-dots .upcoming { border-color: #262626; }
 .pip { width: 3px; height: 3px; border-radius: 50%; background: #3a3f45; }
 
 .over-bars { list-style: none; display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); align-items: end; gap: 4px; height: 58px; margin: 0; padding: 0; border-bottom: 1px solid #262626; }
 .over-bars li { height: calc(var(--h) * 100%); border-radius: 3px 3px 0 0; }
-.over-bars .good { background: #12b526; }
-.over-bars .big { background: #f4f4f4; }
+.over-bars .big { background: #12b526; }
 .over-bars .low, .over-bars .none { background: #34383e; }
-.over-bars .best { background: var(--accent); box-shadow: 0 0 12px #00ff1e80; }
+.over-bars .best { background: var(--accent); }
 .over-bars .upcoming { height: 0; }
 
 .worm { display: block; width: 100%; height: 58px; overflow: visible; }
 .worm-rule { stroke: #232323; stroke-width: 1; vector-effect: non-scaling-stroke; }
 .worm-line { stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-.worm-line.green { stroke: var(--accent); filter: drop-shadow(0 0 4px #00ff1e66); }
+.worm-line.green { stroke: var(--accent); }
 .worm-line.red { stroke: #ff4d55; opacity: .85; }
 
 /* Date circles for Next for Nepal. */
 .date-dot { display: grid; place-items: center; width: 100%; aspect-ratio: 1; border-radius: 50%; padding: 0; font-family: var(--font-head); font-size: 12px; font-weight: 700; line-height: 1; border: 1.5px solid transparent; color: #4b5058; background: none; }
 .date-dot.lg { width: 42px; height: 42px; flex: none; font-size: 13px; }
-.date-dot.live, .date-dot.played { background: #f4f4f4; border-color: #f4f4f4; color: var(--ink); }
-.date-dot.next { background: var(--accent); border-color: var(--accent); color: var(--ink); box-shadow: 0 0 16px #00ff1e73; }
-.date-dot.later { background: #0e2a12; border-color: #12b526; color: var(--accent); }
+.date-dot.next { background: var(--accent); border-color: var(--accent); color: var(--ink); }
+.date-dot.game { background: #0e2a12; border-color: #12b526; color: var(--accent); }
 .date-dot.past { background: #1b1b1b; border-color: #1f1f1f; color: #8b929c; }
 .date-dot.plain, .date-dot.empty { border-color: #242424; }
 .date-dot.selected { outline: 1.5px solid var(--text); outline-offset: 3px; }
@@ -518,7 +512,6 @@ img { display: block; }
 .game-text strong { display: block; font-family: var(--font-head); font-size: 14px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .game-text span { display: block; margin-top: 3px; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .game-time { flex: none; font-family: var(--font-head); font-size: 13px; font-weight: 700; color: var(--muted); }
-.game-time.live { color: var(--crimson-text); }
 .game-time.next { color: var(--accent); }
 .date-grid { list-style: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; }
 .weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; font-family: var(--font-head); font-size: 10px; color: #6f7680; text-align: center; }

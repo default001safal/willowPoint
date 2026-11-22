@@ -59,7 +59,8 @@ function useNow(everyMs = 60_000) {
 }
 
 function DateDot({ game, label, size = 'md', selected, onPick }) {
-  const cls = `date-dot ${game ? game.kind : label ? 'plain' : 'empty'} ${size}${selected ? ' selected' : ''}`;
+  const tone = game ? (game.kind === 'next' ? 'next' : 'game') : label ? 'plain' : 'empty';
+  const cls = `date-dot ${tone} ${size}${selected ? ' selected' : ''}`;
   const text = label ?? (game ? pad(parts(game.date).date) : null);
   if (onPick && game) {
     return (
@@ -71,7 +72,9 @@ function DateDot({ game, label, size = 'md', selected, onPick }) {
   return <span className={cls} aria-hidden={!text}>{text ?? <span className="pip" />}</span>;
 }
 
-function ListView({ rows }) {
+function ListView({ rows: all }) {
+  // Today's live game already has the Live now card right above.
+  const rows = all.filter((g) => g.kind !== 'live');
   if (!rows.length) return <p className="stat-empty">No Nepal matches scheduled yet.</p>;
   return (
     <ul className="game-list">
@@ -151,28 +154,17 @@ export default function NextForNepal({ onSeeAll }) {
   const picked = [...rows, ...played].find((g) => g.id === pickedId) ?? next ?? rows[0];
 
   const nextParts = next ? parts(next.date) : null;
-  const nextClock = next ? clockTime(next.raw.time) : null;
   const countdown = next ? countdownLabel(kickoffUTC(next.date, next.raw.time) - now) : null;
-  const daysAway = next ? Math.round((new Date(`${next.date}T00:00:00`) - new Date(`${today}T00:00:00`)) / 86_400_000) : null;
 
-  const hero = {
-    list: nextClock ?? (nextParts ? `${nextParts.day} ${nextParts.date}` : '—'),
-    strip: countdown ?? (nextParts ? `${nextParts.day} ${nextParts.date}` : '—'),
-    month: nextParts ? `${nextParts.day} ${nextParts.date}` : '—',
-  }[view];
-  const delta = !next ? null : {
-    list: nextClock ? `${nextParts.day} ${nextParts.date} · NPT` : 'Time TBC',
-    strip: `${next.title.replace(/\s+v\s+Nepal$|^Nepal\s+v\s+/i, '')} · ${next.raw.venue}`,
-    month: `in ${daysAway}d${nextClock ? ` · ${nextClock}` : ''}`,
-  }[view];
-  const DeltaIcon = view === 'strip' ? I.ArrowUp : I.Trend;
+  // One headline for every view: how long until Nepal's next game.
+  const opponent = next ? next.title.replace(/\s+v\s+Nepal$|^Nepal\s+v\s+/i, '') : null;
+  const hero = countdown ?? (nextParts ? `${nextParts.day} ${nextParts.date}` : '—');
+  const delta = next ? `to ${opponent}${countdown ? '' : ` · ${nextParts.day} ${nextParts.date}`}` : null;
 
   const monthGames = [...played, ...rows].filter((g) => g.date.slice(0, 7) === today.slice(0, 7)).length;
-  const legend = view === 'month'
-    ? [{ label: 'Games', tone: 'white' }, { label: 'Next', tone: 'green' }]
-    : [{ label: rows.some((g) => g.kind === 'live') ? 'Live' : 'Today', tone: 'white' }, { label: 'Next', tone: 'green' }, { label: 'Later', tone: 'outline' }];
+  const legend = view === 'list' ? null : [{ label: 'Next', tone: 'green' }, { label: 'Games', tone: 'outline' }];
   const note = {
-    list: `${pad(Math.min(rows.length, 3))} games`,
+    list: `${pad(Math.min(rows.filter((g) => g.kind !== 'live').length, 3))} games`,
     strip: '14 days',
     month: `${parts(today).month.toUpperCase()} · ${pad(monthGames)} games`,
   }[view];
@@ -188,19 +180,16 @@ export default function NextForNepal({ onSeeAll }) {
         <div className="stat-top">
           <div className="stat-lead stacked">
             <span className="stat-hero">{hero}</span>
-            {delta && (
-              <span className="stat-delta">
-                <DeltaIcon size={15} style={view === 'strip' ? { transform: 'rotate(90deg)' } : undefined} />
-                {delta}
-              </span>
-            )}
+            {delta && <span className="stat-delta">{delta}</span>}
           </div>
           <ViewSwitch label="Fixture view" views={VIEWS} value={view} onChange={setView} />
         </div>
-        <div className="stat-meta">
-          <DotLegend items={legend} />
-          <span className="stat-note">{note}</span>
-        </div>
+        {legend && (
+          <div className="stat-meta">
+            <DotLegend items={legend} />
+            <span className="stat-note">{note}</span>
+          </div>
+        )}
         <div className="stat-chart">
           {view === 'list' && <ListView rows={rows} />}
           {view === 'strip' && <StripView today={today} rows={rows} picked={picked} onPick={(g) => setPickedId(g.id)} />}

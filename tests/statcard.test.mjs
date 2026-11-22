@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { overTone, bestOverIndex, cumulative, kickoffUTC, countdownLabel, clockTime } from '../src/lib/statcard.js';
 
-test('over tones follow the reference card', () => {
-  assert.deepEqual([12, 10, 7, 6, 0, null].map(overTone), ['big', 'good', 'good', 'low', 'low', 'none']);
+test('over tones: 10+ stands out, the rest stay quiet', () => {
+  assert.deepEqual([12, 10, 9, 0, null].map(overTone), ['big', 'big', 'low', 'low', 'none']);
 });
 
 test('best over is the highest, latest on ties, ignoring upcoming', () => {

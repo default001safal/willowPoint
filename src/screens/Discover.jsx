@@ -30,7 +30,7 @@ function Matches({ filter, saved, toggleSaved }) {
       {(live.length > 0 || showFinal) && (
         <>
         <Divider />
-        <section className="section" style={{ paddingTop: 22, gap: 12 }}>
+        <section className="section">
           <h2 className="group-label">Today · {today.day} {today.date} {today.month}</h2>
           <div className="card">
             {live.map((m) => (
@@ -62,7 +62,7 @@ function Matches({ filter, saved, toggleSaved }) {
       {upcoming.length > 0 && (
         <>
         <Divider />
-        <section className="section" style={{ paddingTop: 22, gap: 12 }}>
+        <section className="section">
           <h2 className="group-label">Upcoming</h2>
           <div className="card">
             {upcoming.map((f) => {
@@ -86,7 +86,7 @@ function Matches({ filter, saved, toggleSaved }) {
       {done.length > 0 && (
         <>
         <Divider />
-        <section className="section" style={{ paddingTop: 22, gap: 12 }}>
+        <section className="section">
           <h2 className="group-label">Recent results</h2>
           {done.map((r) => (
             <article key={r.id} className="card result">
@@ -114,7 +114,7 @@ function Matches({ filter, saved, toggleSaved }) {
 function News() {
   const { stories, worldNews } = useContent();
   return (
-    <section className="section" style={{ paddingTop: 22 }}>
+    <section className="section">
       {stories.map((s) => (
         <a key={s.id} href="#" className="card story" style={{ flex: 'none' }}>
           <div className="photo">{s.art ? <img src={`/art/${s.art}.svg`} alt="" /> : null}</div>
@@ -157,7 +157,7 @@ export default function DiscoverScreen({ initialFilter = 'All', saved, toggleSav
 
       {tab === 'Matches' && (
         <>
-          <div className="pill-row" style={{ margin: '14px 0 0', padding: '0 20px 4px' }}>
+          <div className="pill-row" style={{ margin: '14px 0 0', padding: '0 16px 4px' }}>
             {FILTERS.map((f) => (
               <button key={f.id} type="button" className="pill" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
                 {f.icon}

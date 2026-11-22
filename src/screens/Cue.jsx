@@ -42,7 +42,7 @@ export default function CueScreen({ pending, clearPending }) {
 
       <Divider />
       {thread.length === 0 ? (
-        <section className="section" style={{ paddingTop: 22, gap: 10 }}>
+        <section className="section">
           <h2 className="group-label" style={{ margin: '0 4px 2px' }}>Try asking</h2>
           {cuePrompts.map((p) => (
             <button key={p.id} type="button" className="card suggestion" onClick={() => ask(p.title)}>
@@ -52,7 +52,7 @@ export default function CueScreen({ pending, clearPending }) {
           ))}
         </section>
       ) : (
-        <section className="thread" style={{ paddingTop: 28 }} aria-live="polite">
+        <section className="thread" aria-live="polite">
           {thread.map((m, i) => (
             <div key={i} className={`bubble ${m.from}`}>{m.text}</div>
           ))}

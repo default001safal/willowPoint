@@ -60,8 +60,6 @@ function InningsCard({ match }) {
                   </span>
                   <strong>{team.name}</strong>
                 </span>
-                <span className="innings-meta-dot" aria-hidden="true">·</span>
-                <span className="innings-overs">{team.overs} ov</span>
               </span>
             </button>
           );
@@ -101,7 +99,7 @@ export default function LiveSection({ matches, onAskCue }) {
   if (!match) return null;
 
   return (
-    <section className="section" aria-labelledby="live-title">
+    <section className="section live-section" aria-labelledby="live-title">
       <SectionHead title={<span id="live-title">Live now</span>} leading={<span className="live-dot" />}>
         <div className="pager" role="group" aria-label="Live matches">
           {matches.map((item, index) => (

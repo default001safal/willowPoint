@@ -154,6 +154,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
         <SearchResults query={query} scope={scope} competition={competition} onClear={clearSearch} />
       ) : (
         <>
+        {liveMatches.length > 0 && <Divider />}
         <LiveSection matches={liveMatches} onAskCue={askCue} />
 
         {liveMatches.length > 0 && <Divider />}

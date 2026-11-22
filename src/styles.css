@@ -199,13 +199,13 @@ img { display: block; }
   border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: 13px; font-weight: 600;
 }
 .stat-ribbon {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; height: 58px; padding: 0 6px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; height: 46px; padding: 0 6px;
   border-radius: 999px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
 }
-.stat-ribbon > div { display: flex; flex-direction: column; gap: 3px; padding: 0 14px; min-width: 0; }
+.stat-ribbon > div { display: flex; flex-direction: column; gap: 1px; padding: 0 14px; min-width: 0; }
 .stat-ribbon > div + div { border-left: 1px solid var(--border); }
 .stat-ribbon small { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
-.stat-ribbon b { font-family: var(--font-head); font-size: 15px; }
+.stat-ribbon b { font-family: var(--font-head); font-size: 15px; line-height: 1.2; }
 .stat-ribbon .good { color: var(--accent); }
 
 /* ---------- Ribbons ---------- */

@@ -158,7 +158,8 @@ img { display: block; }
 .live-dot {
   flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--crimson);
 }
-.live-dot, #live-title, .live-section .over-marker.current { opacity: var(--live-alpha); }
+.live-dot, .live-section .over-marker.current { opacity: var(--live-alpha); }
+#live-title { color: var(--crimson-text); opacity: calc(var(--live-alpha) * var(--live-alpha)); }
 @keyframes wp-live-pulse {
   0%, 100% { --live-alpha: 1; }
   50% { --live-alpha: .5; }

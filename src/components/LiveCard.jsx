@@ -100,7 +100,7 @@ export default function LiveSection({ matches, onAskCue }) {
 
   return (
     <section className="section live-section" aria-labelledby="live-title">
-      <SectionHead title={<span id="live-title">Live</span>} leading={<span className="live-dot" />}>
+      <SectionHead title={<span id="live-title">Live now</span>} leading={<span className="live-dot" />}>
         <div className="pager" role="group" aria-label="Live matches">
           {matches.map((item, index) => (
             <button key={item.id} type="button" aria-pressed={item.id === match.id} aria-label={`${item.batting.name} v ${item.bowling.name}`} onClick={() => setSelectedId(item.id)}>

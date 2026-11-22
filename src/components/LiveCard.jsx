@@ -22,7 +22,7 @@ function LiveTiles({ match }) {
       {chasing && <StatTile value={need} unit="Runs" label="To win" badge={`${match.ballsLeft} balls left`} />}
       <StatTile
         value={match.runRate ?? '—'}
-        unit="Per over"
+        unit="RPO"
         label="Run rate"
         badge={chasing && match.requiredRate ? `need ${match.requiredRate}` : null}
         trend={pace}

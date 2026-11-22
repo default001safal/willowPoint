@@ -2,9 +2,11 @@ import { useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import LiveSection from '../components/LiveCard.jsx';
 import { Divider, SaveButton, SectionHead, addDays, parts, relativeDay } from '../components/ui.jsx';
-import { TODAY, fixtures, liveMatches, nplFinal, stories, worldNews } from '../data.js';
+import { useContent } from '../lib/content.jsx';
 
 function Fixtures({ saved, toggleSaved, onSeeAll }) {
+  const { today: TODAY, fixtures: all } = useContent();
+  const fixtures = all.filter((f) => f.nepal !== false && f.date > TODAY);
   const [day, setDay] = useState('all');
   const week = Array.from({ length: 7 }, (_, i) => addDays(TODAY, i + 1));
   const hasMatch = new Set(fixtures.map((f) => f.date));
@@ -52,7 +54,9 @@ function Fixtures({ saved, toggleSaved, onSeeAll }) {
 }
 
 function NplFinal({ onPreview }) {
+  const { today: TODAY, nplFinal } = useContent();
   const [remind, setRemind] = useState(false);
+  if (!nplFinal) return null;
   return (
     <section className="section">
       <SectionHead title="NPL final">
@@ -74,7 +78,7 @@ function NplFinal({ onPreview }) {
         <div className="chips">
           <span className="chip"><span className="today" />{relativeDay(nplFinal.date, TODAY)} {nplFinal.time}</span>
           <span className="chip"><I.Pin size={13} />{nplFinal.venue}</span>
-          <span className="chip accent"><I.Swap size={13} />{nplFinal.note}</span>
+          {nplFinal.note && <span className="chip accent"><I.Swap size={13} />{nplFinal.note}</span>}
         </div>
       </article>
     </section>
@@ -82,6 +86,7 @@ function NplFinal({ onPreview }) {
 }
 
 export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
+  const { liveMatches, nplFinal, stories, worldNews } = useContent();
   return (
     <main>
       <header className="topbar">
@@ -122,10 +127,10 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
 
       <LiveSection matches={liveMatches} onAskCue={askCue} />
 
-      <Divider />
+      {liveMatches.length > 0 && <Divider />}
       <Fixtures saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
 
-      <Divider />
+      {nplFinal && <Divider />}
       <NplFinal onPreview={() => askCue('Set the scene for the NPL final')} />
 
       <Divider />

@@ -1,15 +1,10 @@
 import * as I from '../components/Icons.jsx';
-import { useStoredState } from '../components/ui.jsx';
 import { followables } from '../data.js';
+import { firebaseEnabled } from '../lib/firebase.js';
 
-export default function ProfileScreen({ saved }) {
-  const [following, setFollowing] = useStoredState(
-    'wp.following',
-    followables.filter((f) => f.default).map((f) => f.id),
-  );
-  const [alerts, setAlerts] = useStoredState('wp.alerts', true);
-  const toggle = (id) =>
-    setFollowing((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]));
+export default function ProfileScreen({ prefs }) {
+  const { saved, following, alerts, toggleFollow: toggle, setAlerts: setAlertsTo, synced } = prefs;
+  const setAlerts = (fn) => setAlertsTo(fn(alerts));
 
   return (
     <main>
@@ -92,7 +87,9 @@ export default function ProfileScreen({ saved }) {
             <a href="#" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>About</a>
           </div>
         </div>
-        <p className="footnote" style={{ textAlign: 'center' }}>Your preferences are saved on this device.</p>
+        <p className="footnote" style={{ textAlign: 'center' }}>
+          {firebaseEnabled && synced ? 'Your preferences sync to your account.' : 'Your preferences are saved on this device.'}
+        </p>
       </section>
     </main>
   );

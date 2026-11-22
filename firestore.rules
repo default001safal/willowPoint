@@ -1,0 +1,27 @@
+rules_version = '2';
+
+// willowPoint Firestore rules
+// - App content (matches, fixtures, news) is public to read; only the admin seed script
+//   or the Firebase console can write it (the Admin SDK bypasses these rules).
+// - Each fan can read and write only their own preferences doc, users/{uid}.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /liveMatches/{id} { allow read: if true; allow write: if false; }
+    match /fixtures/{id}    { allow read: if true; allow write: if false; }
+    match /results/{id}     { allow read: if true; allow write: if false; }
+    match /stories/{id}     { allow read: if true; allow write: if false; }
+    match /worldNews/{id}   { allow read: if true; allow write: if false; }
+    match /config/{id}      { allow read: if true; allow write: if false; }
+
+    match /users/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['saved', 'following', 'alerts', 'updatedAt'])
+        && request.resource.data.saved is list && request.resource.data.saved.size() <= 500
+        && request.resource.data.following is list && request.resource.data.following.size() <= 50
+        && request.resource.data.alerts is bool;
+    }
+  }
+}

@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { SaveButton, parts, relativeDay } from '../components/ui.jsx';
-import { TODAY, fixtures, liveMatches, nplFinal, results, stories, worldNews } from '../data.js';
+import { useContent } from '../lib/content.jsx';
 
 const FILTERS = ['All', 'Nepal', 'NPL', 'Nepal Women', 'World'];
 const TABS = ['Matches', 'News', 'Events'];
 
 function Matches({ filter, saved, toggleSaved }) {
+  const { today: TODAY, liveMatches, nplFinal, fixtures, results } = useContent();
   const pass = (comp) => filter === 'All' || filter === comp;
-  const live = liveMatches.filter(() => pass('Nepal'));
-  const showFinal = pass('NPL');
-  const upcoming = fixtures.filter((f) => pass(f.competition));
+  const live = liveMatches.filter((m) => pass(m.competition || 'Nepal'));
+  const showFinal = Boolean(nplFinal) && nplFinal.date === TODAY && pass('NPL');
+  const upcoming = fixtures.filter((f) => f.date > TODAY && pass(f.competition));
   const done = results.filter((r) => pass(r.competition));
   const nothing = !live.length && !showFinal && !upcoming.length && !done.length;
   const today = parts(TODAY);
@@ -87,7 +88,7 @@ function Matches({ filter, saved, toggleSaved }) {
               <span className="summary">{r.summary}</span>
             </article>
           ))}
-          <p className="footnote">All times NPT · Updated 21 Nov</p>
+          <p className="footnote">All times NPT</p>
         </section>
       )}
     </>
@@ -95,6 +96,7 @@ function Matches({ filter, saved, toggleSaved }) {
 }
 
 function News() {
+  const { stories, worldNews } = useContent();
   return (
     <section className="section" style={{ paddingTop: 22 }}>
       {stories.map((s) => (

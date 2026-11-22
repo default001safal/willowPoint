@@ -44,7 +44,7 @@ export default function CueScreen({ pending, clearPending }) {
       {thread.length === 0 ? (
         <section className="section" style={{ paddingTop: 22, gap: 10 }}>
           <h2 className="group-label" style={{ margin: '0 4px 2px' }}>Try asking</h2>
-          {cuePrompts.slice(0, 2).map((p) => (
+          {cuePrompts.map((p) => (
             <button key={p.id} type="button" className="card suggestion" onClick={() => ask(p.title)}>
               <span className="row-text"><strong>{p.title}</strong><span>{p.hint}</span></span>
               <I.Chevron size={18} style={{ color: 'var(--muted)' }} />

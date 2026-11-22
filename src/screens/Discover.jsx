@@ -88,6 +88,7 @@ function Matches({ filter, query, saved, toggleSaved }) {
 
       {upcoming.length > 0 && (
         <>
+        <Divider />
         <section className="section">
           <h2 className="group-label">Upcoming</h2>
           <div className="card">
@@ -111,6 +112,7 @@ function Matches({ filter, query, saved, toggleSaved }) {
 
       {done.length > 0 && (
         <>
+        <Divider />
         <section className="section">
           <h2 className="group-label">Recent results</h2>
           {done.map((r) => (

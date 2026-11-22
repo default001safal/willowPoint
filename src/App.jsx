@@ -24,6 +24,13 @@ export default function App() {
   const prefs = useUserPrefs();
   const [welcome, setWelcome] = useState(needsOnboarding);
   const [splash, setSplash] = useState(true);
+  // ?bg=ink|moss|stone swaps the background palette; no value keeps the black one.
+  useEffect(() => {
+    try {
+      const bg = new URLSearchParams(window.location.search).get('bg');
+      if (['ink', 'moss', 'stone'].includes(bg)) document.documentElement.dataset.bg = bg;
+    } catch { /* no query string available */ }
+  }, []);
 
   const go = (next, filter) => {
     if (next === 'discover') setDiscoverFilter(filter || 'All');

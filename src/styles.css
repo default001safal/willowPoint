@@ -9,7 +9,7 @@
   --tile: #222222;
   --border: #2e2e2e;
   --border-strong: #3a3a3a;
-  --divider: #262626;
+  --divider: rgba(255, 255, 255, 0.08); /* 30% lighter touch than the old #262626 */
   --text: #f1f5f9;
   --text-2: #cbd5e1;
   --muted: #94a3b8;
@@ -602,3 +602,19 @@ img { display: block; }
 .section { padding-top: 38px; }
 .divider { margin-top: 19px; }
 .divider + .section { padding-top: 19px; }
+
+/* ---------- Background options (?bg=ink|moss|stone; default black) ---------- */
+:root { --tile-bg: #151515; --tile-line: #262626; --block-bg: #1d1d1d; }
+/* Himalayan navy: the flag's blue, darkened. Crimson reads warm against it. */
+[data-bg='ink'] { --bg: #0a1322; --tile-bg: #111c30; --tile-line: #1e2b45; --block-bg: #16233a; --surface: #111c30; --border: #1e2b45; }
+/* Pine: a green-black that sits in the accent's family, so the crimson carries the contrast. */
+[data-bg='moss'] { --bg: #0a1310; --tile-bg: #111c17; --tile-line: #1e2e26; --block-bg: #16241d; --surface: #111c17; --border: #1e2e26; }
+/* Stone: warm charcoal, closer to leather and willow than to ink. */
+[data-bg='stone'] { --bg: #141110; --tile-bg: #1e1a18; --tile-line: #2e2825; --block-bg: #251f1c; --surface: #1e1a18; --border: #2e2825; }
+
+.tile, .card, .ribbon, .match-tiles > div, .fixture-week button, .view-switch { background: var(--tile-bg); border-color: var(--tile-line); }
+.tile.inverse { background: #f4f4f4; border-color: #f4f4f4; }
+.fixture-week button[aria-pressed='true'] { background: #f4f4f4; border-color: #f4f4f4; }
+.date-block, .champ-badge.quiet, .tile-badge.neutral .tile-badge-dot { background: var(--block-bg); }
+.vs { background: var(--bg); }
+.nav { background: var(--tile-bg); }

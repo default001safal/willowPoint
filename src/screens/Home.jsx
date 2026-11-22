@@ -203,10 +203,13 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
         {liveMatches.length > 0 && <Divider />}
         <LiveSection matches={liveMatches} onSeeAll={() => go('discover')} />
 
+        {liveMatches.length > 0 && <Divider />}
         <NextForNepal saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
 
+        {nplFinal && <Divider />}
         <Featured onPreview={() => askCue(nplFinal?.result ? 'Recap the NPL final' : 'Set the scene for the NPL final')} saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
 
+        <Divider />
         <section className="section" style={{ paddingLeft: 0, paddingRight: 0 }}>
           <div style={{ padding: '0 16px' }}>
             <SectionHead title="Featured News">
@@ -233,6 +236,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
           </div>
         </section>
 
+        <Divider />
         <section className="section">
           <SectionHead title="Around the world">
             <button type="button" className="section-link">More</button>

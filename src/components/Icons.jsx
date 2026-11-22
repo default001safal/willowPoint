@@ -118,6 +118,29 @@ export const Gauge = (p) => (
   </Svg>
 );
 
+export const Grid = (p) => (
+  <Svg sw={2} {...p}>
+    <rect x="4" y="4" width="6.5" height="6.5" rx="1.5" />
+    <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" />
+    <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" />
+    <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
+  </Svg>
+);
+
+export const Globe = (p) => (
+  <Svg sw={2} {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+  </Svg>
+);
+
+export const Female = (p) => (
+  <Svg sw={2} {...p}>
+    <circle cx="12" cy="7" r="3.5" />
+    <path d="M12 10.5v10M8.5 16h7" />
+  </Svg>
+);
+
 export const Chevron = (p) => (
   <Svg sw={2.2} {...p}>
     <path d="m9 6 6 6-6 6" />

@@ -4,7 +4,13 @@ import { Divider, SaveButton, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { MarkPair, TeamMark } from '../components/TeamMark.jsx';
 
-const FILTERS = ['All', 'Nepal', 'NPL', 'Nepal Women', 'World'];
+const FILTERS = [
+  { id: 'All', icon: <I.Grid size={14} /> },
+  { id: 'Nepal', icon: <TeamMark name="Nepal" size={15} /> },
+  { id: 'NPL', icon: <I.Trophy size={14} /> },
+  { id: 'Nepal Women', icon: <I.Female size={14} /> },
+  { id: 'World', icon: <I.Globe size={14} /> },
+];
 const TABS = ['Matches', 'News', 'Events'];
 
 function Matches({ filter, saved, toggleSaved }) {
@@ -153,7 +159,10 @@ export default function DiscoverScreen({ initialFilter = 'All', saved, toggleSav
         <>
           <div className="pill-row" style={{ margin: '14px 0 0', padding: '0 20px 4px' }}>
             {FILTERS.map((f) => (
-              <button key={f} type="button" className="pill" aria-pressed={filter === f} onClick={() => setFilter(f)}>{f}</button>
+              <button key={f.id} type="button" className="pill" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
+                {f.icon}
+                {f.id}
+              </button>
             ))}
           </div>
           <Matches filter={filter} saved={saved} toggleSaved={toggleSaved} />

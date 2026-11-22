@@ -1,0 +1,45 @@
+name: Collect cricket data
+
+on:
+  schedule:
+    - cron: '23 0,6,12,18 * * *'
+  push:
+    branches: [work/ui-refinement]
+    paths:
+      - 'scripts/collect_cricket.py'
+      - 'scripts/cricket_sources.json'
+      - 'tests/test_cricket_collection.py'
+      - '.github/workflows/cricket-collection.yml'
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: Data to check
+        type: choice
+        options: [daily, live]
+        default: daily
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cricket-collection-${{ inputs.lane || 'daily' }}
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check data parsing
+        run: python3 -m unittest discover -s tests -p test_cricket_collection.py
+      - name: Collect a review snapshot
+        env:
+          CRICKET_LANE: ${{ inputs.lane || 'daily' }}
+        run: python3 scripts/collect_cricket.py --lane "$CRICKET_LANE" --output "$RUNNER_TEMP/willowpoint-cricket-review.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: willowpoint-cricket-review
+          path: ${{ runner.temp }}/willowpoint-cricket-review.json
+          retention-days: 3
+          if-no-files-found: error

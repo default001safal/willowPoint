@@ -79,3 +79,13 @@ Select a team name or score to switch its over grid. Each marker is an over: gre
 Run the innings-state checks with `node --test tests/innings.test.mjs`.
 
 The Nepal–UAE UI currently uses explicit mock over totals from `mockOverRuns` in `src/data.js` until that match supplies its own arrays. This does not write mock data to Firestore. The Target / CRR / RRR row always describes the batting team’s chase, while team selection changes the over grid.
+
+## Cricket data collection
+
+`python3 scripts/collect_cricket.py` fetches public HTML, RSS, and ZIP files defined in `scripts/cricket_sources.json`. Python 3.11+ is sufficient. The review snapshot in `.cricket-collection/daily.json` includes Nepal fixtures, tournament dates, completed scorecards with both innings' over totals, and cricket story leads. Records carry source links and licenses where available. Calendar times are left as TBC when a row gives only the date. Editors can use the RSS leads to write and link original news briefs.
+
+The collection workflow prepares a snapshot four times daily once installed on the GitHub default branch. The work branch also runs a collection check when this code changes. Review snapshots stay separate from Firestore content and the Hosting deploy. A broken source fails its collection visibly and preserves any previous local snapshot. The collector identifies itself, checks robots.txt, and requests only the configured URLs.
+
+Run `python3 scripts/collect_cricket.py --lane live` separately from the daily collection. Add `--watch` to check once a minute while a configured match window is open. An approved live source needs `id`, `kind: "live"`, `name`, `url`, `tableId`, `series`, `venue`, `competition`, and offset-bearing `startAt` and `endAt` timestamps. The HTML adapter expects a table with `Team`, `Runs`, `Wickets`, and `Overs` columns, plus optional `Runs by over` totals. Table attributes provide `data-status`, `data-updated-at`, `data-batting`, `data-max-overs`, and optional `data-target`. Only fresh in-play scores enter the live snapshot, and each carries an expiry time. There is no live source configured yet.
+
+Run the collector tests with `python3 -m unittest discover -s tests -p test_cricket_collection.py`.

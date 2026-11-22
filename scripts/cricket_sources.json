@@ -1,0 +1,36 @@
+[
+  {
+    "id": "cricsheet-nepal",
+    "kind": "archive",
+    "name": "Cricsheet",
+    "url": "https://cricsheet.org/downloads/nepal_json.zip",
+    "license": "https://cricsheet.org/licensing/"
+  },
+  {
+    "id": "cricsheet-npl",
+    "kind": "archive",
+    "name": "Cricsheet",
+    "url": "https://cricsheet.org/downloads/npl_json.zip",
+    "license": "https://cricsheet.org/licensing/"
+  },
+  {
+    "id": "international-2026-27",
+    "kind": "calendar",
+    "name": "Wikipedia contributors",
+    "url": "https://en.wikipedia.org/wiki/International_cricket_in_2026%E2%80%9327",
+    "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "seasonStartYear": 2026,
+    "seasonStartMonth": 10,
+    "series": {
+      "2026_Asia_Cup_Rising_Stars": { "title": "Asia Cup Rising Stars", "venue": "Doha" },
+      "2026_Cricket_World_Cup_Qualifier_Play-off": { "title": "Cricket World Cup Qualifier Play-off", "venue": "Nepal" }
+    }
+  },
+  {
+    "id": "kathmandu-post-cricket",
+    "kind": "rss",
+    "name": "The Kathmandu Post",
+    "url": "https://kathmandupost.com/rss",
+    "articlePath": "/cricket/"
+  }
+]

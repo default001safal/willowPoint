@@ -11,3 +11,5 @@ dist
 .firebase/
 firebase-debug.log
 firestore-debug.log
+.cricket-collection/
+__pycache__/

@@ -25,7 +25,6 @@ export default function LiveSection({ matches, onAskCue }) {
   const [index, setIndex] = useState(0);
   if (!matches.length) return null;
   const m = matches[Math.min(index, matches.length - 1)];
-  const need = m.target - m.batting.runs;
 
   return (
     <section className="section" aria-labelledby="live-title">
@@ -48,26 +47,26 @@ export default function LiveSection({ matches, onAskCue }) {
 
       <article className="card live-card">
         <div className="row-between">
-          <span className="series">{m.series}</span>
-          <span className="meta-inline">
-            <I.Pin size={13} />
-            {m.venue}
-          </span>
+          <div className="card-title">
+            <span className="series">{m.series}</span>
+            <span className="meta-inline">
+              <I.Pin size={13} />
+              {m.venue}
+            </span>
+          </div>
+          <button
+            type="button"
+            className="ask"
+            onClick={() => onAskCue(`Talk me through ${m.batting.name} v ${m.bowling.name}`)}
+          >
+            <I.Spark size={14} />
+            Ask Cue
+          </button>
         </div>
 
         <div className="teams">
           <Team team={m.batting} batting />
           <Team team={m.bowling} />
-        </div>
-
-        <div className="card-foot">
-          <strong>
-            {need} to win · {m.ballsLeft} balls left
-          </strong>
-          <button type="button" className="ask" onClick={() => onAskCue(`Talk me through ${m.batting.name} v ${m.bowling.name}`)}>
-            <I.Spark size={14} />
-            Ask Cue
-          </button>
         </div>
       </article>
 

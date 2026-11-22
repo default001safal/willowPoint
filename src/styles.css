@@ -189,12 +189,8 @@ img { display: block; }
   font-size: 10px; font-weight: 600; color: var(--accent); background: var(--accent-tint);
   padding: 3px 7px; border-radius: 999px;
 }
-.card-foot {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding-top: 14px; border-top: 1px solid var(--divider);
-}
-.card-foot strong { font-size: 13px; font-weight: 600; }
-.card-foot .ask {
+.card-title { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.live-card .ask {
   display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 13px; border-radius: 999px; flex: none;
   border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: 13px; font-weight: 600;
 }

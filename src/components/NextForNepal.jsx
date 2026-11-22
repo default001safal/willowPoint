@@ -57,9 +57,9 @@ export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () =>
           const p = parts(d);
           return (
             <button key={d} type="button" aria-pressed={selected === d} aria-label={`${d === today ? 'Today, ' : ''}${p.day} ${p.date} ${p.month}`} onClick={() => setDay(d)}>
+              <span aria-hidden="true" className={`fixture-match-dot${hasMatch.has(d) ? ' has-match' : ''}`} />
               <small className={d === today ? 'is-today' : undefined}>{d === today ? 'Today' : p.day}</small>
               <b>{p.date}</b>
-              <span aria-hidden="true" className={`fixture-match-dot${hasMatch.has(d) ? ' has-match' : ''}`} />
             </button>
           );
         })}

@@ -1,0 +1,99 @@
+import * as I from '../components/Icons.jsx';
+import { useStoredState } from '../components/ui.jsx';
+import { followables } from '../data.js';
+
+export default function ProfileScreen({ saved }) {
+  const [following, setFollowing] = useStoredState(
+    'wp.following',
+    followables.filter((f) => f.default).map((f) => f.id),
+  );
+  const [alerts, setAlerts] = useStoredState('wp.alerts', true);
+  const toggle = (id) =>
+    setFollowing((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]));
+
+  return (
+    <main>
+      <header className="screen-head">
+        <h1 className="screen-title">Profile</h1>
+      </header>
+
+      <section className="section" style={{ paddingTop: 16 }}>
+        <div className="card">
+          <div className="profile-top">
+            <span className="avatar">C</span>
+            <div className="row-text">
+              <strong style={{ fontSize: 17, fontWeight: 700 }}>Cricket fan</strong>
+              <span style={{ fontSize: 13 }}>Following {following.length} {following.length === 1 ? 'team' : 'teams'}</span>
+            </div>
+            <button type="button" className="ghost-btn">Edit</button>
+          </div>
+          <button type="button" className="setting row-top">
+            <I.Bookmark size={20} style={{ color: 'var(--muted)' }} />
+            <span style={{ flex: 1, fontWeight: 500 }}>Saved stories &amp; matches</span>
+            <span className="muted" style={{ fontSize: 14 }}>{saved.length}</span>
+            <I.Chevron size={16} style={{ color: 'var(--muted)' }} />
+          </button>
+        </div>
+      </section>
+
+      <section className="section">
+        <h2 className="group-label">Your cricket</h2>
+        <div className="card">
+          {followables.map((f, i) => {
+            const on = following.includes(f.id);
+            return (
+              <div key={f.id} className={`list-row${i ? '' : ''}`} style={{ paddingRight: 12 }}>
+                <div className="row-text"><strong>{f.name}</strong><span>{f.kind}</span></div>
+                <button type="button" className="follow" aria-pressed={on} onClick={() => toggle(f.id)}>
+                  {on ? 'Following' : 'Follow'}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="section">
+        <h2 className="group-label">Preferences</h2>
+        <div className="card">
+          <button type="button" className="setting">
+            <span style={{ flex: 1 }}>Time zone</span>
+            <span className="muted" style={{ fontSize: 14 }}>Nepal (NPT)</span>
+            <I.Chevron size={16} style={{ color: 'var(--muted)' }} />
+          </button>
+          <button type="button" className="setting">
+            <span style={{ flex: 1 }}>Language</span>
+            <span className="muted" style={{ fontSize: 14 }}>English</span>
+            <I.Chevron size={16} style={{ color: 'var(--muted)' }} />
+          </button>
+          <div className="setting" style={{ paddingTop: 12, paddingBottom: 12 }}>
+            <div className="row-text">
+              <strong style={{ fontWeight: 400 }}>Match alerts</strong>
+              <span>For matches you save</span>
+            </div>
+            <button type="button" role="switch" className="switch" aria-checked={alerts} aria-label="Match alerts" onClick={() => setAlerts((a) => !a)}>
+              <span />
+            </button>
+          </div>
+          <button type="button" className="setting">
+            <span style={{ flex: 1 }}>Sources &amp; freshness</span>
+            <span className="muted" style={{ fontSize: 13 }}>Checked 10:03 NPT</span>
+            <I.Chevron size={16} style={{ color: 'var(--muted)' }} />
+          </button>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="card about">
+          <img src="/logo-light.png" alt="willowPoint logo" />
+          <span className="muted" style={{ fontSize: 14 }}>Our game. In focus.</span>
+          <div style={{ display: 'flex', gap: 18 }}>
+            <a href="#" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>Photo credits</a>
+            <a href="#" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>About</a>
+          </div>
+        </div>
+        <p className="footnote" style={{ textAlign: 'center' }}>Your preferences are saved on this device.</p>
+      </section>
+    </main>
+  );
+}

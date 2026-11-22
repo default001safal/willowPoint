@@ -29,3 +29,27 @@ export function StatTile({ value, unit, label, mark, badge, trend = 'neutral', i
 export const TileGrid = ({ children, label }) => (
   <div className="tile-grid" role="group" aria-label={label}>{children}</div>
 );
+
+// One wide tile for a match: both sides' scores face each other across a hairline.
+// The side that's batting is set in full ink; the other is muted.
+export function ScoreTile({ sides, inverse = true }) {
+  return (
+    <div className={`tile wide${inverse ? ' inverse' : ''}`}>
+      <div className="tile-pair">
+        {sides.map((s, i) => (
+          <div key={s.name} className={`tile-side${i ? ' right' : ''}${s.active ? ' active' : ''}`}>
+            <p className="tile-value">
+              {s.runs}
+              <sup>/{s.wickets}</sup>
+            </p>
+            <p className="tile-label">{s.mark}{s.name}</p>
+            <p className="tile-badge neutral">
+              <span className="tile-badge-dot" aria-hidden="true"><span className="tile-pip" /></span>
+              {s.overs} overs
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

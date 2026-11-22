@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import * as I from './Icons.jsx';
 import { SectionHead } from './ui.jsx';
-import { StatTile, TileGrid } from './StatTiles.jsx';
+import { ScoreTile, StatTile, TileGrid } from './StatTiles.jsx';
 import { TeamMark } from './TeamMark.jsx';
 
-// First row: the two sides, side by side. Second row: what the chase needs and how it's going.
+// First: one tile with both sides' scores. Then: what the chase needs and how it's going.
 function LiveTiles({ match }) {
   const { batting, bowling } = match;
   const need = match.target != null ? match.target - batting.runs : null;
@@ -12,21 +12,14 @@ function LiveTiles({ match }) {
   const crr = Number(match.runRate);
   const rrr = Number(match.requiredRate);
   const pace = chasing && Number.isFinite(crr) && Number.isFinite(rrr) ? (crr >= rrr ? 'up' : 'down') : 'neutral';
-  const team = (side, inverse) => (
-    <StatTile
-      inverse={inverse}
-      value={side.runs}
-      unit={`/${side.wickets}`}
-      mark={<TeamMark name={side.name} size={11} />}
-      label={side.name}
-      badge={`${side.overs} overs`}
-    />
-  );
-
   return (
     <TileGrid label={`${batting.name} v ${bowling.name}`}>
-      {team(batting, true)}
-      {team(bowling, false)}
+      <ScoreTile
+        inverse={false}
+        sides={[batting, bowling].map((s, i) => ({
+          ...s, active: i === 0, mark: <TeamMark name={s.name} size={11} />,
+        }))}
+      />
       {chasing && <StatTile value={need} unit="Runs" label="To win" badge={`${match.ballsLeft} balls left`} />}
       <StatTile
         value={match.runRate ?? '—'}

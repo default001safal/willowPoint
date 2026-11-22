@@ -194,21 +194,28 @@ img { display: block; }
 .card-title .sep { color: var(--muted); }
 .card-title .venue { display: flex; align-items: center; gap: 4px; color: var(--muted); flex: none; }
 .live-card .ask {
-  position: relative; height: 32px; margin: -6px 0 -6px -4px; padding: 0 2px; flex: none; gap: 6px;
-  border: 0; background: transparent; color: var(--accent); display: flex; align-items: center;
-  font-size: 13px; font-weight: 600; white-space: nowrap;
+  position: relative; height: 28px; margin: -2px 0; padding: 0 11px 0 9px; flex: none; gap: 5px; border-radius: 999px;
+  border: 0; background: var(--accent-tint); color: var(--accent); display: flex; align-items: center;
+  font-size: 12px; font-weight: 600; white-space: nowrap;
 }
 .live-card .ask svg { transition: transform 0.15s ease; }
 .live-card .ask:hover svg { transform: rotate(12deg) scale(1.08); }
-.live-card .ask::before { content: ''; position: absolute; inset: -6px; } /* comfortable tap area */
+.live-card .ask::before { content: ''; position: absolute; inset: -8px -4px; } /* comfortable tap area */
 .stat-ribbon {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; height: 46px; padding: 0 6px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; height: 46px; padding: 0 8px;
   border-radius: 999px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
 }
-.stat-ribbon > div { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 10px; min-width: 0; }
-.stat-ribbon > div + div { box-shadow: -1px 0 0 var(--border); }
-.stat-ribbon small { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
-.stat-ribbon b { font-family: var(--font-head); font-size: 15px; line-height: 1.2; }
+.stat-ribbon > div {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-width: 0;
+}
+.stat-ribbon > div + div::before {
+  content: ''; position: absolute; left: 0; top: 50%; width: 1px; height: 22px; transform: translateY(-50%); background: var(--border);
+}
+.stat-ribbon small {
+  display: flex; align-items: center; gap: 4px; font-family: var(--font-head); font-size: 9.5px; line-height: 1;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+}
+.stat-ribbon b { font-family: var(--font-head); font-size: 16px; line-height: 1; }
 .stat-ribbon .good { color: var(--accent); }
 
 /* ---------- Ribbons ---------- */

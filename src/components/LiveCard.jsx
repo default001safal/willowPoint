@@ -52,7 +52,7 @@ export default function LiveSection({ matches, onAskCue }) {
             className="ask"
             onClick={() => onAskCue(`Talk me through ${m.batting.name} v ${m.bowling.name}`)}
           >
-            <I.SparkGlint size={20} />
+            <I.SparkGlint size={14} />
             Ask Cue
           </button>
           <div className="card-title">
@@ -69,9 +69,9 @@ export default function LiveSection({ matches, onAskCue }) {
       </article>
 
       <div className="stat-ribbon" aria-label="Match stats">
-        <div><small><I.Target size={12} />Target</small><b>{m.target}</b></div>
-        <div><small><I.Trend size={12} />Run rate</small><b>{m.runRate}</b></div>
-        <div><small><I.Gauge size={12} />Req. rate</small><b className="good">{m.requiredRate}</b></div>
+        <div><small><I.Target size={11} sw={2.4} />Target</small><b>{m.target}</b></div>
+        <div><small><I.Trend size={11} sw={2.4} />Run rate</small><b>{m.runRate}</b></div>
+        <div><small><I.Gauge size={11} sw={2.4} />Req. rate</small><b className="good">{m.requiredRate}</b></div>
       </div>
     </section>
   );

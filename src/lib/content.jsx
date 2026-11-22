@@ -27,6 +27,7 @@ const fromSnapshot = {
   stories: snapshot.stories,
   worldNews: snapshot.worldNews,
   nplFinal: snapshot.nplFinal,
+  teamLogos: {},
 };
 
 const empty = {
@@ -38,6 +39,7 @@ const empty = {
   stories: [],
   worldNews: [],
   nplFinal: null,
+  teamLogos: {},
 };
 
 const ContentContext = createContext(fromSnapshot);
@@ -64,6 +66,14 @@ export function ContentProvider({ children }) {
         doc(db, 'config', 'featured'),
         (d) => set('nplFinal', d.exists() ? d.data() : null),
         onError('featured'),
+      ),
+    );
+    // Official team logos: { "<Team name>": "<image URL>" }. Missing teams fall back to flags/crests.
+    stops.push(
+      onSnapshot(
+        doc(db, 'config', 'teamLogos'),
+        (d) => set('teamLogos', d.exists() ? d.data() : {}),
+        onError('teamLogos'),
       ),
     );
     // Keep "today" right if the app stays open past midnight NPT.

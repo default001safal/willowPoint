@@ -1,11 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-<defs><clipPath id="c"><circle cx="24" cy="24" r="24"/></clipPath></defs>
-<g clip-path="url(#c)"><rect width="48" height="48" fill="#FFFFFF"/>
-<rect width="48" height="16" fill="#FF9933"/>
-<rect y="16" width="48" height="16" fill="#FFFFFF"/>
-<rect y="32" width="48" height="16" fill="#138808"/>
-<circle cx="24" cy="24" r="5" fill="none" stroke="#000080" stroke-width="1.4"/>
-<circle cx="24" cy="24" r="1.1" fill="#000080"/>
-<path d="M24 19v10M19 24h10M20.5 20.5l7 7M27.5 20.5l-7 7" stroke="#000080" stroke-width="0.6"/>
-</g><circle cx="24" cy="24" r="23.25" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40" width="60" height="40">
+<rect width="60" height="40" fill="#FFFFFF"/>
+<rect width="60" height="13.34" fill="#FF9933"/>
+<rect y="13.33" width="60" height="13.34" fill="#FFFFFF"/>
+<rect y="26.66" width="60" height="13.34" fill="#138808"/>
+<circle cx="30" cy="20" r="4.6" fill="none" stroke="#000080" stroke-width="1.2"/>
+<circle cx="30" cy="20" r="1" fill="#000080"/>
+<path d="M30 15.4v9.2M25.4 20h9.2M26.75 16.75l6.5 6.5M33.25 16.75l-6.5 6.5" stroke="#000080" stroke-width="0.55"/>
+
 </svg>

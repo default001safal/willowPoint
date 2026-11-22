@@ -87,6 +87,7 @@ img { display: block; }
   font-family: var(--font-head); margin: 0; font-size: 27px; line-height: 1.15;
   font-weight: 700; letter-spacing: -0.02em;
 }
+.greeting h1 { color: var(--crimson-text); }
 .subhead {
   margin: 4px 0 0; font-size: 15px; font-weight: 300; line-height: 1.4; letter-spacing: 0.01em; color: var(--muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -426,10 +427,11 @@ img { display: block; }
 .about img { width: 200px; height: auto; }
 
 /* ---------- Team marks & artwork ---------- */
-.team-mark { width: var(--s, auto); flex: none; display: inline-block; vertical-align: middle; }
+.team-mark { flex: none; display: inline-block; vertical-align: middle; }
+.team-mark.logo { object-fit: contain; }
 .with-marks { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.mark-pair { display: inline-flex; flex: none; }
-.mark-pair .team-mark + .team-mark { margin-left: -6px; }
+.mark-pair { display: inline-flex; align-items: center; flex: none; gap: 4px; }
+.mark-pair:empty { display: none; }
 .versus .name { display: flex; align-items: center; gap: 10px; }
 .story .photo { padding: 0; }
 .story .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }

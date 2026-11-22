@@ -7,7 +7,7 @@ function Team({ team, batting }) {
   return (
     <div className={`team${batting ? ' batting' : ''}`}>
       <div className="team-name">
-        <TeamMark name={team.name} size={26} fallback={<span className="badge" style={{ background: team.color }}>{team.code}</span>} />
+        <TeamMark name={team.name} size={20} fallback={<span className="badge" style={{ background: team.color }}>{team.code}</span>} />
         <span>{team.name}</span>
       </div>
       <div className="score">

@@ -1,36 +1,54 @@
-// Flags for national sides, monogram crests for NPL franchises (placeholders until
-// official logos are licensed). Files live in public/flags and public/crests.
+// Team marks: national flags (public/flags, unframed, natural shape) and team logos.
+// Official franchise logos can be set without a code change: add the image URL to
+// Firestore config/teamLogos as { "<Team name>": "https://…" }. Until then NPL teams show a
+// neutral monogram crest (public/crests).
+import { useContent } from '../lib/content.jsx';
 
-const MARKS = {
-  nepal: '/flags/nepal.svg',
-  'nepal women': '/flags/nepal.svg',
-  uae: '/flags/uae.svg',
-  pakistan: '/flags/pakistan.svg',
-  'pakistan a': '/flags/pakistan.svg',
-  india: '/flags/india.svg',
-  'india a': '/flags/india.svg',
-  italy: '/flags/italy.svg',
-  england: '/flags/england.svg',
-  'new zealand': '/flags/new-zealand.svg',
-  australia: '/flags/australia.svg',
-  'lumbini lions': '/crests/lumbini-lions.svg',
-  'sudurpaschim royals': '/crests/sudurpaschim-royals.svg',
-  'chitwan rhinos': '/crests/chitwan-rhinos.svg',
+const FLAGS = {
+  nepal: 'nepal',
+  'nepal women': 'nepal',
+  uae: 'uae',
+  pakistan: 'pakistan',
+  'pakistan a': 'pakistan',
+  india: 'india',
+  'india a': 'india',
+  italy: 'italy',
+  england: 'england',
+  'new zealand': 'new-zealand',
+  australia: 'australia',
 };
 
-export const markFor = (name = '') => MARKS[name.trim().toLowerCase()] || null;
+const CRESTS = {
+  'lumbini lions': 'lumbini-lions',
+  'sudurpaschim royals': 'sudurpaschim-royals',
+  'chitwan rhinos': 'chitwan-rhinos',
+};
 
-// Decorative: the team name is always shown next to it.
-export function TeamMark({ name, size = 24, fallback, className = '' }) {
-  const src = markFor(name);
-  if (!src) return fallback ?? null;
-  return <img className={`team-mark ${className}`} src={src} alt="" width={size} height={size} loading="lazy" />;
+const key = (name = '') => name.trim().toLowerCase();
+
+export function useMark(name) {
+  const { teamLogos = {} } = useContent();
+  const k = key(name);
+  const logo = Object.entries(teamLogos).find(([n]) => key(n) === k)?.[1];
+  if (logo) return { src: logo, kind: 'logo' };
+  if (FLAGS[k]) return { src: `/flags/${FLAGS[k]}.svg`, kind: 'flag' };
+  if (CRESTS[k]) return { src: `/crests/${CRESTS[k]}.svg`, kind: 'crest' };
+  return null;
 }
 
-// Two overlapping marks for "A v B" fixture titles.
-export function MarkPair({ title, size = 20 }) {
+// `size` is the height; flags keep their own shape, logos and crests are square.
+// Decorative: the team name is always shown next to it.
+export function TeamMark({ name, size = 24, fallback, className = '' }) {
+  const mark = useMark(name);
+  if (!mark) return fallback ?? null;
+  // Flags keep their natural proportions (Nepal's pennant is narrower than the rest).
+  const style = mark.kind === 'flag' ? { height: size, width: 'auto' } : { height: size, width: size };
+  return <img className={`team-mark ${mark.kind} ${className}`} src={mark.src} alt="" style={style} loading="lazy" />;
+}
+
+// Marks for both sides of an "A v B" title.
+export function MarkPair({ title, size = 14 }) {
   const [a, b] = title.split(/\s+v\s+/i);
-  if (!markFor(a) && !markFor(b)) return null;
   return (
     <span className="mark-pair" aria-hidden="true">
       <TeamMark name={a} size={size} />

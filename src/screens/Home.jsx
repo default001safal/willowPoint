@@ -44,7 +44,7 @@ function Fixtures({ saved, toggleSaved, onSeeAll }) {
             <div className="list-row" key={f.id}>
               <div className="date-block"><b>{p.date}</b><small>{p.month}</small></div>
               <div className="row-text">
-                <strong className="with-marks"><MarkPair title={f.title} size={18} />{f.title}</strong>
+                <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
                 <span>{relativeDay(f.date, TODAY)} · {f.time} · {f.venue}</span>
               </div>
               <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />

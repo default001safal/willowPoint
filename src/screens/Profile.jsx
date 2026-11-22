@@ -1,11 +1,30 @@
+import { useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { followables } from '../data.js';
 import { firebaseEnabled } from '../lib/firebase.js';
-import { Divider } from '../components/ui.jsx';
+import { Divider, SaveButton, parts, relativeDay } from '../components/ui.jsx';
+import { useContent } from '../lib/content.jsx';
+import { MarkPair } from '../components/TeamMark.jsx';
+
+// Resolve saved ids (fixtures and the NPL final) into rows; unknown ids are skipped.
+function useSavedItems(saved) {
+  const { today, fixtures, nplFinal } = useContent();
+  return saved.map((id) => {
+    if (id === 'npl-final' && nplFinal) {
+      return { id, title: `${nplFinal.home} v ${nplFinal.away}`, meta: `NPL final · ${relativeDay(nplFinal.date, today)} · ${nplFinal.venue}` };
+    }
+    const f = fixtures.find((x) => x.id === id);
+    if (!f) return null;
+    const p = parts(f.date);
+    return { id, title: f.title, meta: `${p.date} ${p.month} · ${f.time} · ${f.venue}` };
+  }).filter(Boolean);
+}
 
 export default function ProfileScreen({ prefs }) {
-  const { saved, following, alerts, toggleFollow: toggle, setAlerts: setAlertsTo, synced } = prefs;
+  const { saved, following, alerts, toggleFollow: toggle, setAlerts: setAlertsTo, toggleSaved, synced } = prefs;
   const setAlerts = (fn) => setAlertsTo(fn(alerts));
+  const [showSaved, setShowSaved] = useState(false);
+  const savedItems = useSavedItems(saved);
 
   return (
     <main>
@@ -20,16 +39,27 @@ export default function ProfileScreen({ prefs }) {
             <span className="avatar">C</span>
             <div className="row-text">
               <strong style={{ fontSize: 17, fontWeight: 700 }}>Cricket fan</strong>
-              <span style={{ fontSize: 13 }}>Following {following.length} {following.length === 1 ? 'team' : 'teams'}</span>
+              <span style={{ fontSize: 13 }}>Following {following.length}</span>
             </div>
             <button type="button" className="ghost-btn">Edit</button>
           </div>
-          <button type="button" className="setting row-top">
+          <button type="button" className="setting row-top" aria-expanded={showSaved} onClick={() => setShowSaved((s) => !s)}>
             <I.Bookmark size={20} style={{ color: 'var(--muted)' }} />
-            <span style={{ flex: 1, fontWeight: 500 }}>Saved stories &amp; matches</span>
-            <span className="muted" style={{ fontSize: 14 }}>{saved.length}</span>
-            <I.Chevron size={16} style={{ color: 'var(--muted)' }} />
+            <span style={{ flex: 1, fontWeight: 500 }}>Saved matches</span>
+            <span className="muted" style={{ fontSize: 14 }}>{savedItems.length}</span>
+            <I.Chevron size={16} style={{ color: 'var(--muted)', transform: showSaved ? 'rotate(90deg)' : 'none', transition: 'transform .2s' }} />
           </button>
+          {showSaved && (savedItems.length ? savedItems.map((s) => (
+            <div key={s.id} className="list-row row-top saved-row">
+              <div className="row-text">
+                <strong className="with-marks"><MarkPair title={s.title} size={13} />{s.title}</strong>
+                <span>{s.meta}</span>
+              </div>
+              <SaveButton label={s.title} saved onToggle={() => toggleSaved(s.id)} />
+            </div>
+          )) : (
+            <p className="saved-empty row-top">Tap <I.Bookmark size={13} /> on any match to keep it here.</p>
+          ))}
         </div>
       </section>
 
@@ -75,7 +105,7 @@ export default function ProfileScreen({ prefs }) {
             </button>
           </div>
           <button type="button" className="setting">
-            <span style={{ flex: 1 }}>Sources &amp; freshness</span>
+            <span style={{ flex: 1 }}>Sources</span>
             <span className="muted" style={{ fontSize: 13 }}>Checked 10:03 NPT</span>
             <I.Chevron size={16} style={{ color: 'var(--muted)' }} />
           </button>

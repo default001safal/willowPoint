@@ -23,7 +23,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: node --test tests/innings.test.mjs
+      - run: node --test tests/*.test.mjs
       - run: npm run build
       - name: Check Firebase deployment credential
         env:

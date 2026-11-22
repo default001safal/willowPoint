@@ -38,12 +38,14 @@ export function useMark(name) {
 
 // `size` is the height; flags keep their own shape, logos and crests are square.
 // Decorative: the team name is always shown next to it.
-export function TeamMark({ name, size = 24, fallback, className = '' }) {
+// `slot` reserves a flag-wide box so team names in a list line up, whatever the mark's shape.
+export function TeamMark({ name, size = 24, fallback, className = '', slot = false }) {
   const mark = useMark(name);
-  if (!mark) return fallback ?? null;
+  if (!mark) return slot ? <span className="mark-slot" style={{ width: Math.round(size * 1.5), height: size }} /> : fallback ?? null;
   // Flags keep their natural proportions (Nepal's pennant is narrower than the rest).
   const style = mark.kind === 'flag' ? { height: size, width: 'auto' } : { height: size, width: size };
-  return <img className={`team-mark ${mark.kind} ${className}`} src={mark.src} alt="" style={style} decoding="async" />;
+  const img = <img className={`team-mark ${mark.kind} ${className}`} src={mark.src} alt="" style={style} decoding="async" />;
+  return slot ? <span className="mark-slot" style={{ width: Math.round(size * 1.5), height: size }}>{img}</span> : img;
 }
 
 // Marks for both sides of an "A v B" title.

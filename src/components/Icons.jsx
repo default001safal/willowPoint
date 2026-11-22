@@ -182,3 +182,15 @@ export const CricketBall = (p) => (
     <path d="M10.5 4c5 4 3 11 8 15" stroke="var(--surface)" strokeWidth="1" strokeDasharray="1 2" />
   </Svg>
 );
+
+export const Plus = (p) => (
+  <Svg sw={2} {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Svg>
+);
+
+export const Check = (p) => (
+  <Svg sw={2.2} {...p}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </Svg>
+);

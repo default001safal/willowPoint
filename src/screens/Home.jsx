@@ -3,17 +3,20 @@ import * as I from '../components/Icons.jsx';
 import LiveSection from '../components/LiveCard.jsx';
 import { Divider, SaveButton, SectionHead, addDays, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
+import { isLiveFixture } from '../lib/fixtures.js';
 import { SearchField, SearchFilters, SearchResults } from '../components/Search.jsx';
 import { useWeather, weatherSentence } from '../lib/weather.js';
 import { TeamMark } from '../components/TeamMark.jsx';
 
 function Fixtures({ saved, toggleSaved, onSeeAll }) {
-  const { today: TODAY, fixtures: all } = useContent();
+  const { today: TODAY, fixtures: all, liveMatches } = useContent();
+  // Today's games stay in the list until they go live; then the Live now card has them.
   const fixtures = all
-    .filter((f) => f.nepal !== false && f.date > TODAY)
+    .filter((f) => f.nepal !== false && f.date >= TODAY && !isLiveFixture(f, liveMatches, TODAY))
     .sort((a, b) => a.date.localeCompare(b.date));
   const [day, setDay] = useState(null);
-  const week = Array.from({ length: 7 }, (_, i) => addDays(TODAY, i + 1));
+  // The strip starts today, so a match later today never falls through the gap.
+  const week = Array.from({ length: 7 }, (_, i) => addDays(TODAY, i));
   const hasMatch = new Set(fixtures.map((f) => f.date));
   const selected = day === 'all' || week.includes(day)
     ? day
@@ -42,8 +45,8 @@ function Fixtures({ saved, toggleSaved, onSeeAll }) {
         {week.map((d) => {
           const p = parts(d);
           return (
-            <button key={d} type="button" aria-pressed={selected === d} aria-label={`${p.day} ${p.date} ${p.month}`} onClick={() => setDay(d)}>
-              <small>{p.day}</small>
+            <button key={d} type="button" aria-pressed={selected === d} aria-label={`${d === TODAY ? 'Today, ' : ''}${p.day} ${p.date} ${p.month}`} onClick={() => setDay(d)}>
+              <small className={d === TODAY ? 'is-today' : undefined}>{d === TODAY ? 'Today' : p.day}</small>
               <b>{p.date}</b>
               <span aria-hidden="true" className={`fixture-match-dot${hasMatch.has(d) ? ' has-match' : ''}`} />
             </button>
@@ -57,7 +60,7 @@ function Fixtures({ saved, toggleSaved, onSeeAll }) {
             <div>
               <h3>{f.title}</h3>
               <p>
-                <time dateTime={f.date}>{parts(f.date).date} {parts(f.date).month}</time><span aria-hidden="true">·</span>
+                <time dateTime={f.date}>{f.date === TODAY ? 'Today' : `${parts(f.date).date} ${parts(f.date).month}`}</time><span aria-hidden="true">·</span>
                 <span>{f.time}</span><span aria-hidden="true">·</span><span>{f.venue}</span>
               </p>
             </div>
@@ -73,11 +76,47 @@ function NplFinal({ onPreview }) {
   const { today: TODAY, nplFinal } = useContent();
   const [remind, setRemind] = useState(false);
   if (!nplFinal) return null;
+  const r = nplFinal.result;
+
+  // Once the final is played the card turns into a champions card.
+  if (r) {
+    return (
+      <section className="section">
+        <SectionHead title="NPL champions">
+          <button type="button" className="round-btn" aria-label="Recap with Cue" onClick={onPreview}>
+            <I.Spark size={15} style={{ color: 'var(--accent)' }} />
+          </button>
+        </SectionHead>
+        <article className="card final-card champ-card">
+          <div className="champ-head">
+            <TeamMark name={r.winner} size={40} />
+            <div>
+              <h3 className="champ-name">{r.winner}</h3>
+              <span className="champ-sub"><I.Trophy size={13} />{r.honour || 'Champions'} · {nplFinal.venue}</span>
+            </div>
+          </div>
+          <dl className="champ-lines">
+            {r.lines.map((l) => (
+              <div key={l.team} className={l.team === r.winner ? 'won' : undefined}>
+                <dt><TeamMark name={l.team} size={16} slot />{l.team.split(' ').pop()}</dt>
+                <dd>{l.score}{l.overs && <small> ({l.overs})</small>}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="chips">
+            <span className="chip accent"><I.Trophy size={13} />{r.margin}</span>
+            {r.star && <span className="chip"><I.CricketBat size={13} />{r.star}</span>}
+          </div>
+        </article>
+      </section>
+    );
+  }
+
   return (
     <section className="section">
       <SectionHead title="NPL final">
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="round-btn" aria-label={remind ? 'Reminder set' : 'Remind me'} aria-pressed={remind} onClick={() => setRemind((r) => !r)}>
+          <button type="button" className="round-btn" aria-label={remind ? 'Reminder set' : 'Remind me'} aria-pressed={remind} onClick={() => setRemind((v) => !v)}>
             <I.Bell size={15} sw={2} />
           </button>
           <button type="button" className="round-btn" aria-label="Preview with Cue" onClick={onPreview}>
@@ -92,7 +131,7 @@ function NplFinal({ onPreview }) {
           <span className="name"><TeamMark name={nplFinal.away} size={30} />{nplFinal.away}</span>
         </div>
         <div className="chips">
-          <span className="chip"><span className="today" />{relativeDay(nplFinal.date, TODAY)} {nplFinal.time}</span>
+          <span className="chip">{nplFinal.date === TODAY && <span className="today" />}{relativeDay(nplFinal.date, TODAY)} {nplFinal.time}</span>
           <span className="chip"><I.Pin size={13} />{nplFinal.venue}</span>
           {nplFinal.note && <span className="chip accent"><I.Swap size={13} />{nplFinal.note}</span>}
         </div>
@@ -175,7 +214,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
         <Fixtures saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
 
         {nplFinal && <Divider />}
-        <NplFinal onPreview={() => askCue('Set the scene for the NPL final')} />
+        <NplFinal onPreview={() => askCue(nplFinal?.result ? 'Recap the NPL final' : 'Set the scene for the NPL final')} />
 
         <Divider />
         <section className="section" style={{ paddingLeft: 0, paddingRight: 0 }}>

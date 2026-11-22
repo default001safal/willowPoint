@@ -2,6 +2,7 @@ import { useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { Divider, SaveButton, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
+import { isLiveFixture } from '../lib/fixtures.js';
 import { MarkPair, TeamMark } from '../components/TeamMark.jsx';
 
 const FILTERS = [
@@ -13,21 +14,40 @@ const FILTERS = [
 ];
 const TABS = ['Matches', 'News', 'Events'];
 
-function Matches({ filter, saved, toggleSaved }) {
-  const { today: TODAY, liveMatches, nplFinal, fixtures, results } = useContent();
+// Search matches any of the given strings, case-insensitively; an empty query matches everything.
+const hits = (q, ...fields) => !q || fields.some((f) => String(f || '').toLowerCase().includes(q));
+
+function Matches({ filter, query, saved, toggleSaved }) {
+  const { today: TODAY, liveMatches: allLive, nplFinal: rawFinal, fixtures: allFixtures, results: allResults } = useContent();
+  const q = query.trim().toLowerCase();
   const pass = (comp) => filter === 'All' || filter === comp;
+  const liveMatches = allLive.filter((m) => hits(q, m.series, m.venue, m.batting.name, m.bowling.name));
+  const nplFinal = rawFinal && hits(q, 'npl final', rawFinal.home, rawFinal.away, rawFinal.venue) ? rawFinal : null;
+  const fixtures = allFixtures.filter((f) => hits(q, f.title, f.venue, f.competition));
+  const results = allResults.filter((r) => hits(q, r.label, r.summary, ...r.lines.map((l) => l.team)));
   const live = liveMatches.filter((m) => pass(m.competition || 'Nepal'));
-  const showFinal = Boolean(nplFinal) && nplFinal.date === TODAY && pass('NPL');
+  const finalDone = Boolean(nplFinal?.result);
+  const showFinal = Boolean(nplFinal) && !finalDone && nplFinal.date === TODAY && pass('NPL');
+  const laterToday = fixtures.filter((f) => f.date === TODAY && pass(f.competition) && !isLiveFixture(f, allLive, TODAY));
   const upcoming = fixtures.filter((f) => f.date > TODAY && pass(f.competition));
-  const done = results.filter((r) => pass(r.competition));
-  const nothing = !live.length && !showFinal && !upcoming.length && !done.length;
+  // A played final joins the results, newest first.
+  const finalResult = finalDone && pass('NPL') ? [{
+    id: 'npl-final-result',
+    competition: 'NPL',
+    label: `NPL Final · ${nplFinal.venue} · ${parts(nplFinal.date).date} ${parts(nplFinal.date).month}`,
+    // Overs move to the summary so a long team name and "Chased 156" share one line.
+    lines: nplFinal.result.lines.map(({ overs, ...l }) => (l.score.startsWith('Chased') ? l : { ...l, overs })),
+    summary: nplFinal.result.detail ? `${nplFinal.result.summary} · ${nplFinal.result.detail}` : nplFinal.result.summary,
+  }] : [];
+  const done = [...finalResult, ...results.filter((r) => pass(r.competition))];
+  const nothing = !live.length && !showFinal && !laterToday.length && !upcoming.length && !done.length;
   const today = parts(TODAY);
 
   return (
     <>
-      {nothing && <p className="empty" style={{ padding: '24px 20px' }}>Nothing here yet for {filter}.</p>}
+      {nothing && <p className="empty" style={{ padding: '24px 20px' }}>{q ? `No matches for “${query.trim()}”.` : `Nothing here yet for ${filter}.`}</p>}
 
-      {(live.length > 0 || showFinal) && (
+      {(live.length > 0 || showFinal || laterToday.length > 0) && (
         <>
         <Divider />
         <section className="section">
@@ -39,13 +59,23 @@ function Matches({ filter, saved, toggleSaved }) {
                   <span className="meta-inline">{m.series} · {m.venue}</span>
                   <span className="status live">LIVE</span>
                 </div>
-                <div className="line"><span className="with-marks"><TeamMark name={m.batting.name} size={14} />{m.batting.name}</span><b>{m.batting.runs}/{m.batting.wickets} <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}>({m.batting.overs})</span></b></div>
-                <div className="line lose"><span className="with-marks"><TeamMark name={m.bowling.name} size={14} />{m.bowling.name}</span><b>{m.bowling.runs}/{m.bowling.wickets} <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}>({m.bowling.overs})</span></b></div>
+                <div className="line"><span className="with-marks"><TeamMark name={m.batting.name} size={14} slot />{m.batting.name}</span><b>{m.batting.runs}/{m.batting.wickets} <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}>({m.batting.overs})</span></b></div>
+                <div className="line lose"><span className="with-marks"><TeamMark name={m.bowling.name} size={14} slot />{m.bowling.name}</span><b>{m.bowling.runs}/{m.bowling.wickets} <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}>({m.bowling.overs})</span></b></div>
                 <span className="summary live">{m.batting.name} need {m.target - m.batting.runs} from {m.ballsLeft} balls</span>
               </div>
             ))}
+            {laterToday.map((f, i) => (
+              <div className={`list-row${live.length || i ? ' row-top' : ''}`} key={f.id}>
+                <div className="date-block"><b>{parts(f.date).date}</b><small>{parts(f.date).month}</small></div>
+                <div className="row-text">
+                  <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
+                  <span>Today · {f.time} · {f.venue}</span>
+                </div>
+                <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
+              </div>
+            ))}
             {showFinal && (
-              <div className={`list-row${live.length ? ' row-top' : ''}`}>
+              <div className={`list-row${live.length || laterToday.length ? ' row-top' : ''}`}>
                 <div className="row-text">
                   <span>Nepal Premier League · Final</span>
                   <strong className="with-marks"><MarkPair title={`${nplFinal.home} v ${nplFinal.away}`} size={14} />{nplFinal.home} v {nplFinal.away}</strong>
@@ -96,7 +126,7 @@ function Matches({ filter, saved, toggleSaved }) {
               </div>
               {r.lines.map((l, i) => (
                 <div key={l.team} className={`line${i ? ' lose' : ''}`}>
-                  <span className="with-marks"><TeamMark name={l.team} size={14} />{l.team}</span>
+                  <span className="with-marks"><TeamMark name={l.team} size={14} slot />{l.team}</span>
                   <b>{l.score}{l.overs && <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}> ({l.overs})</span>}</b>
                 </div>
               ))}
@@ -111,8 +141,14 @@ function Matches({ filter, saved, toggleSaved }) {
   );
 }
 
-function News() {
-  const { stories, worldNews } = useContent();
+function News({ query }) {
+  const q = query.trim().toLowerCase();
+  const content = useContent();
+  const stories = content.stories.filter((s) => hits(q, s.title, s.source));
+  const worldNews = content.worldNews.filter((n) => hits(q, n.title, n.blurb, n.source));
+  if (!stories.length && !worldNews.length) {
+    return <p className="empty" style={{ padding: '24px 20px' }}>No stories for “{query.trim()}”.</p>;
+  }
   return (
     <section className="section">
       {stories.map((s) => (
@@ -121,7 +157,7 @@ function News() {
           <div className="body"><strong>{s.title}</strong><span>{s.source}</span></div>
         </a>
       ))}
-      <div className="card">
+      {worldNews.length > 0 && <div className="card">
         {worldNews.map((n) => (
           <a key={n.id} href="#" className="news-item">
             <strong>{n.title}</strong>
@@ -129,7 +165,7 @@ function News() {
             <small>{n.source} · {n.date}</small>
           </a>
         ))}
-      </div>
+      </div>}
     </section>
   );
 }
@@ -137,6 +173,7 @@ function News() {
 export default function DiscoverScreen({ initialFilter = 'All', saved, toggleSaved }) {
   const [tab, setTab] = useState('Matches');
   const [filter, setFilter] = useState(initialFilter);
+  const [query, setQuery] = useState('');
 
   return (
     <main>
@@ -146,7 +183,7 @@ export default function DiscoverScreen({ initialFilter = 'All', saved, toggleSav
         <label className="search" style={{ marginTop: 0 }}>
           <I.Search size={14} />
           <span className="sr-only">Search</span>
-          <input type="search" placeholder="Teams, matches, stories" />
+          <input type="search" placeholder="Teams, matches, stories" value={query} onChange={(e) => setQuery(e.target.value)} />
         </label>
         <div className="segmented" role="tablist">
           {TABS.map((t) => (
@@ -165,10 +202,10 @@ export default function DiscoverScreen({ initialFilter = 'All', saved, toggleSav
               </button>
             ))}
           </div>
-          <Matches filter={filter} saved={saved} toggleSaved={toggleSaved} />
+          <Matches filter={filter} query={query} saved={saved} toggleSaved={toggleSaved} />
         </>
       )}
-      {tab === 'News' && <News />}
+      {tab === 'News' && <News query={query} />}
       {tab === 'Events' && <p className="empty" style={{ padding: '24px 20px' }}>Events are coming soon.</p>}
     </main>
   );

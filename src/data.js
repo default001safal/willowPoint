@@ -37,6 +37,20 @@ export const nplFinal = {
   time: '17:00',
   venue: 'Kirtipur',
   note: 'Q1 rematch',
+  // Filled in once the final is played; Home then shows a champions card and
+  // Discover lists it with the results. Sources: Kathmandu Post, 21 Nov 2026.
+  result: {
+    winner: 'Sudurpaschim Royals',
+    summary: 'Royals won by 10 wickets',
+    detail: '39 balls left',
+    margin: 'Won by 10 wkts',
+    honour: 'Maiden title',
+    star: 'Munsey 125*',
+    lines: [
+      { team: 'Sudurpaschim Royals', score: 'Chased 156', overs: '13.3' },
+      { team: 'Lumbini Lions', score: '155/6', overs: '20' },
+    ],
+  },
 };
 
 export const results = [
@@ -75,7 +89,7 @@ export const worldNews = [
 ];
 
 export const cuePrompts = [
-  { id: 'q1', title: 'Set the scene for the NPL final', hint: 'Finalists, the route there, start time' },
+  { id: 'q1', title: 'Recap the NPL final', hint: 'How the Royals won their maiden title' },
   { id: 'q2', title: 'When do Nepal play next?', hint: 'Confirmed fixtures in Nepal time' },
   { id: 'q3', title: 'What happened in Doha?', hint: "Nepal's latest result, explained" },
 ];

@@ -6,12 +6,14 @@ import HomeScreen from './screens/Home.jsx';
 import DiscoverScreen from './screens/Discover.jsx';
 import CueScreen from './screens/Cue.jsx';
 import ProfileScreen from './screens/Profile.jsx';
+import Onboarding, { needsOnboarding } from './components/Onboarding.jsx';
 
 export default function App() {
   const [tab, setTab] = useState('home');
   const [discoverFilter, setDiscoverFilter] = useState('All');
   const [pendingQuestion, setPendingQuestion] = useState(null);
   const prefs = useUserPrefs();
+  const [welcome, setWelcome] = useState(needsOnboarding);
 
   const go = (next, filter) => {
     if (next === 'discover') setDiscoverFilter(filter || 'All');
@@ -37,6 +39,7 @@ export default function App() {
         {tab === 'cue' && <CueScreen pending={pendingQuestion} clearPending={() => setPendingQuestion(null)} />}
         {tab === 'profile' && <ProfileScreen prefs={prefs} />}
         <BottomNav tab={tab} onChange={(t) => go(t)} />
+        {welcome && <Onboarding prefs={prefs} onDone={() => setWelcome(false)} />}
       </div>
     </ContentProvider>
   );

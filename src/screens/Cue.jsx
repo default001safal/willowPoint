@@ -56,6 +56,9 @@ export default function CueScreen({ pending, clearPending }) {
           {thread.map((m, i) => (
             <div key={i} className={`bubble ${m.from}`}>{m.text}</div>
           ))}
+          <button type="button" className="thread-reset" onClick={() => setThread([])}>
+            <I.Plus size={14} />New question
+          </button>
           <div ref={endRef} />
         </section>
       )}

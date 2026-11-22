@@ -49,7 +49,8 @@ export default function LiveSection({ matches, onAskCue }) {
         <div className="row-between">
           <div className="card-title">
             <span className="series">{m.series}</span>
-            <span className="meta-inline">
+            <span className="sep" aria-hidden="true">·</span>
+            <span className="venue">
               <I.Pin size={13} />
               {m.venue}
             </span>

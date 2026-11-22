@@ -194,7 +194,7 @@ img { display: block; }
   border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
 }
 .stats > div { background: var(--surface); padding: 9px 12px; display: flex; flex-direction: column; gap: 2px; }
-.stats small { font-size: 11px; color: var(--muted); }
+.stats small { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
 .stats b { font-family: var(--font-head); font-size: 15px; }
 .stats .good { color: var(--accent); }
 

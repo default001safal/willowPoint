@@ -61,9 +61,9 @@ export default function LiveSection({ matches, onAskCue }) {
         </div>
 
         <div className="stats">
-          <div><small>Target</small><b>{m.target}</b></div>
-          <div><small>Run rate</small><b>{m.runRate}</b></div>
-          <div><small>Req. rate</small><b className="good">{m.requiredRate}</b></div>
+          <div><small><I.Target size={12} />Target</small><b>{m.target}</b></div>
+          <div><small><I.Trend size={12} />Run rate</small><b>{m.runRate}</b></div>
+          <div><small><I.Gauge size={12} />Req. rate</small><b className="good">{m.requiredRate}</b></div>
         </div>
       </article>
 

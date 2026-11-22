@@ -89,6 +89,28 @@ export const Swap = (p) => (
   </Svg>
 );
 
+export const Target = (p) => (
+  <Svg sw={2.2} {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <circle cx="12" cy="12" r="5" />
+    <circle cx="12" cy="12" r="1" />
+  </Svg>
+);
+
+export const Trend = (p) => (
+  <Svg sw={2.2} {...p}>
+    <path d="M3 17l6-6 4 4 8-8" />
+    <path d="M15 7h6v6" />
+  </Svg>
+);
+
+export const Gauge = (p) => (
+  <Svg sw={2.2} {...p}>
+    <path d="M4 15a8 8 0 1 1 16 0" />
+    <path d="M12 15l4-5" />
+  </Svg>
+);
+
 export const Chevron = (p) => (
   <Svg sw={2.2} {...p}>
     <path d="m9 6 6 6-6 6" />

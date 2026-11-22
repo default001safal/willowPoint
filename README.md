@@ -74,7 +74,7 @@ npm run deploy          # build, then deploy Hosting + Firestore rules (needs fi
 
 ## Compact innings card
 
-Select a team name or score to switch its over grid. Each marker is an over: neutral is completed, green is current, and an empty outline is upcoming. Optional `batting.overRuns` and `bowling.overRuns` arrays hold nonnegative integer runs, starting with over 1. Missing totals display a dash, and upcoming totals stay hidden. `maxOvers` defaults to 20 and can be supplied for shortened innings.
+Select a team name or score to switch its over grid. Each marker is an over: green is completed, red is current, and a blank outline is upcoming. Optional `batting.overRuns` and `bowling.overRuns` arrays hold nonnegative integer runs, starting with over 1. Missing totals display a dash, and upcoming totals stay hidden. `maxOvers` defaults to 20 and can be supplied for shortened innings.
 
 Run the innings-state checks with `node --test tests/innings.test.mjs`.
 

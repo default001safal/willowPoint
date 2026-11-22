@@ -51,8 +51,13 @@ function InningsCard({ match }) {
           );
         })}
       </div>
+      <dl className="innings-metrics" aria-label={`${match.batting.name} chase metrics`}>
+        <div><dt>Target</dt><dd>{match.target ?? '—'}</dd></div>
+        <div><dt><abbr title="Current run rate">CRR</abbr></dt><dd>{match.runRate ?? '—'}</dd></div>
+        <div><dt><abbr title="Required run rate">RRR</abbr></dt><dd>{match.requiredRate ?? '—'}</dd></div>
+      </dl>
       <div id={`${id}-overs`} role="tabpanel" aria-labelledby={`${id}-${innings}`} tabIndex={0}>
-        <span className="sr-only">Runs per over. Green marks the current over. Dashes indicate unavailable totals. Empty circles are upcoming overs.</span>
+        <span className="sr-only">Runs per over. Green marks completed overs. Red marks the current over. Dashes indicate unavailable totals. Blank circles are upcoming overs.</span>
         <ol className="over-grid" aria-label={`${selected.name} runs per over`}>
           {markers.map(marker => {
             const description = marker.state === 'upcoming'
@@ -60,17 +65,13 @@ function InningsCard({ match }) {
               : `${marker.state}, ${marker.runs === null ? 'runs unavailable' : `${marker.runs} runs`}`;
             return (
               <li key={marker.over} className={`over-marker ${marker.state}`} aria-label={`Over ${marker.over}: ${description}`} title={`Over ${marker.over}: ${description}`}>
-                <span aria-hidden="true">{marker.runs ?? (marker.state === 'completed' ? '—' : '·')}</span>
+                <span aria-hidden="true">{marker.state === 'upcoming' ? '' : marker.runs ?? '—'}</span>
               </li>
             );
           })}
         </ol>
       </div>
-      <dl className="innings-metrics" aria-label={`${match.batting.name} chase metrics`}>
-        <div><dt>Target</dt><dd>{match.target ?? '—'}</dd></div>
-        <div><dt><abbr title="Current run rate">CRR</abbr></dt><dd>{match.runRate ?? '—'}</dd></div>
-        <div><dt><abbr title="Required run rate">RRR</abbr></dt><dd>{match.requiredRate ?? '—'}</dd></div>
-      </dl>
+
     </article>
   );
 }

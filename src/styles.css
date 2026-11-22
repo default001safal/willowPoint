@@ -514,3 +514,7 @@ img { display: block; }
 .avatar { font-family: var(--font-head); }
 .follow, .ghost-btn { font-family: var(--font-head); font-size: 12px; letter-spacing: .04em; }
 .suggestion strong { font-family: var(--font-head); font-size: 14px; letter-spacing: -0.01em; }
+.champ-crest { display: grid; place-items: center; }
+.champ-badge { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--accent-tint); color: var(--accent); margin-right: 6px; }
+.champ-badge.quiet { background: #1d1d1d; color: var(--muted); }
+.champ-rows .date-block b { font-size: 20px; }

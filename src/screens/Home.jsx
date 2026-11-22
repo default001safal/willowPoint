@@ -4,7 +4,6 @@ import LiveSection from '../components/LiveCard.jsx';
 import NextForNepal from '../components/NextForNepal.jsx';
 import { Divider, SectionHead, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
-import { StatTile, TileGrid } from '../components/StatTiles.jsx';
 import { SearchField, SearchFilters, SearchResults } from '../components/Search.jsx';
 import { useWeather, weatherSentence } from '../lib/weather.js';
 import { TeamMark } from '../components/TeamMark.jsx';
@@ -26,24 +25,27 @@ function NplFinal({ onPreview }) {
             Recap <I.ArrowUp size={11} style={{ transform: 'rotate(45deg)' }} />
           </button>
         </SectionHead>
-        <TileGrid label={`${r.winner}, NPL champions`}>
-          <StatTile
-            inverse
-            value={margin ? margin[1] : '—'}
-            unit={margin ? (margin[2].toLowerCase().startsWith('w') ? 'Wkts' : 'Runs') : null}
-            mark={<TeamMark name={r.winner} size={13} />}
-            label={`${r.winner.split(' ').pop()} won`}
-            badge={r.honour || 'Champions'}
-          />
+        {/* Same rows as Next for Nepal: a block on the left, the story, a mark on the right. */}
+        <div className="card champ-rows">
+          <div className="list-row">
+            <div className="date-block champ-crest"><TeamMark name={r.winner} size={30} /></div>
+            <div className="row-text">
+              <strong>{r.winner}</strong>
+              <span>Beat {r.winner === nplFinal.home ? nplFinal.away : nplFinal.home} by {margin ? `${margin[1]} ${margin[2].toLowerCase().startsWith('w') ? 'wickets' : 'runs'}` : r.summary}</span>
+            </div>
+            <span className="champ-badge" title={r.honour || 'Champions'}><I.Trophy size={16} /></span>
+          </div>
           {star && (
-            <StatTile
-              value={star[2]}
-              unit={star[3] ? 'Not out' : 'Runs'}
-              label={star[1]}
-              badge={r.starBalls ? `off ${r.starBalls} balls` : 'Top score'}
-            />
+            <div className="list-row row-top">
+              <div className="date-block"><b>{star[2]}</b><small>{star[3] ? 'N.O.' : 'Runs'}</small></div>
+              <div className="row-text">
+                <strong>{r.starName || star[1]}</strong>
+                <span>{r.starBalls ? `Off ${r.starBalls} balls in the final` : 'Top score in the final'}</span>
+              </div>
+              <span className="champ-badge quiet"><I.CricketBat size={16} /></span>
+            </div>
           )}
-        </TileGrid>
+        </div>
       </section>
     );
   }

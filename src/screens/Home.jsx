@@ -3,6 +3,7 @@ import * as I from '../components/Icons.jsx';
 import LiveSection from '../components/LiveCard.jsx';
 import { Divider, SaveButton, SectionHead, addDays, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
+import { SearchField, SearchFilters, SearchResults } from '../components/Search.jsx';
 
 function Fixtures({ saved, toggleSaved, onSeeAll }) {
   const { today: TODAY, fixtures: all } = useContent();
@@ -87,6 +88,18 @@ function NplFinal({ onPreview }) {
 
 export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
   const { liveMatches, nplFinal, stories, worldNews } = useContent();
+  const [query, setQuery] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [scope, setScope] = useState('All');
+  const [competition, setCompetition] = useState('Any');
+  const activeFilters = (scope !== 'All' ? 1 : 0) + (competition !== 'Any' ? 1 : 0);
+  const searching = query.trim().length > 0 || activeFilters > 0;
+  const clearSearch = () => {
+    setQuery('');
+    setScope('All');
+    setCompetition('Any');
+    setFiltersOpen(false);
+  };
   return (
     <main>
       <header className="topbar">
@@ -104,77 +117,91 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
 
       <section className="greeting">
         <h1>Namaskar, hajur!</h1>
-        <label className="search">
-          <I.Search size={18} />
-          <span className="sr-only">Search</span>
-          <input type="search" placeholder="Search Nepal cricket" />
-        </label>
-        <div className="pill-row">
-          <button type="button" className="pill" onClick={() => askCue('Give me my quick Nepal briefing')}>
-            <I.Spark size={14} style={{ color: 'var(--accent)' }} />Quick brief
-          </button>
-          <button type="button" className="pill" onClick={() => go('discover')}>
-            <I.Calendar size={14} style={{ color: 'var(--muted)' }} />Nepal next
-          </button>
-          <button type="button" className="pill" onClick={() => go('discover', 'NPL')}>
-            <I.Trophy size={14} style={{ color: 'var(--muted)' }} />NPL
-          </button>
-          <button type="button" className="pill" onClick={() => go('profile')}>
-            <I.Bookmark size={14} style={{ color: 'var(--muted)' }} />Saved
-          </button>
-        </div>
+        <SearchField
+          query={query}
+          setQuery={setQuery}
+          filtersOpen={filtersOpen}
+          setFiltersOpen={setFiltersOpen}
+          activeFilters={activeFilters}
+        />
+        {filtersOpen ? (
+          <SearchFilters scope={scope} setScope={setScope} competition={competition} setCompetition={setCompetition} />
+        ) : (
+          !searching && (
+            <div className="pill-row">
+              <button type="button" className="pill" onClick={() => askCue('Give me my quick Nepal briefing')}>
+                <I.Spark size={14} style={{ color: 'var(--accent)' }} />Quick brief
+              </button>
+              <button type="button" className="pill" onClick={() => go('discover')}>
+                <I.Calendar size={14} style={{ color: 'var(--muted)' }} />Nepal next
+              </button>
+              <button type="button" className="pill" onClick={() => go('discover', 'NPL')}>
+                <I.Trophy size={14} style={{ color: 'var(--muted)' }} />NPL
+              </button>
+              <button type="button" className="pill" onClick={() => go('profile')}>
+                <I.Bookmark size={14} style={{ color: 'var(--muted)' }} />Saved
+              </button>
+            </div>
+          )
+        )}
       </section>
 
-      <LiveSection matches={liveMatches} onAskCue={askCue} />
+      {searching ? (
+        <SearchResults query={query} scope={scope} competition={competition} onClear={clearSearch} />
+      ) : (
+        <>
+        <LiveSection matches={liveMatches} onAskCue={askCue} />
 
-      {liveMatches.length > 0 && <Divider />}
-      <Fixtures saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
+        {liveMatches.length > 0 && <Divider />}
+        <Fixtures saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
 
-      {nplFinal && <Divider />}
-      <NplFinal onPreview={() => askCue('Set the scene for the NPL final')} />
+        {nplFinal && <Divider />}
+        <NplFinal onPreview={() => askCue('Set the scene for the NPL final')} />
 
-      <Divider />
-      <section className="section" style={{ paddingLeft: 0, paddingRight: 0 }}>
-        <div style={{ padding: '0 16px' }}>
-          <SectionHead title="News">
+        <Divider />
+        <section className="section" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div style={{ padding: '0 16px' }}>
+            <SectionHead title="Featured News">
+              <button type="button" className="section-link">More</button>
+            </SectionHead>
+          </div>
+          <div style={{ padding: '0 16px' }}>
+            <button type="button" className="ribbon simple" onClick={() => askCue('Give me my quick Nepal briefing')}>
+              <span className="lead"><I.Spark size={15} /></span>
+              <span className="grow">Cue's quick read. Your Nepal briefing.</span>
+              <span className="chev"><I.Chevron size={14} /></span>
+            </button>
+          </div>
+          <div className="carousel">
+            {stories.map((s) => (
+              <a key={s.id} href="#" className="card story">
+                <div className="photo">Photo · {s.credit}</div>
+                <div className="body">
+                  <strong>{s.title}</strong>
+                  <span>{s.source}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <Divider />
+        <section className="section">
+          <SectionHead title="Around the world">
             <button type="button" className="section-link">More</button>
           </SectionHead>
-        </div>
-        <div style={{ padding: '0 16px' }}>
-          <button type="button" className="ribbon simple" onClick={() => askCue('Give me my quick Nepal briefing')}>
-            <span className="lead"><I.Spark size={15} /></span>
-            <span className="grow">Cue's quick read. Your Nepal briefing.</span>
-            <span className="chev"><I.Chevron size={14} /></span>
-          </button>
-        </div>
-        <div className="carousel">
-          {stories.map((s) => (
-            <a key={s.id} href="#" className="card story">
-              <div className="photo">Photo · {s.credit}</div>
-              <div className="body">
-                <strong>{s.title}</strong>
-                <span>{s.source}</span>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <Divider />
-      <section className="section">
-        <SectionHead title="Around the world">
-          <button type="button" className="section-link">More</button>
-        </SectionHead>
-        <div className="card">
-          {worldNews.map((n) => (
-            <a key={n.id} href="#" className="news-item">
-              <strong>{n.title}</strong>
-              <p>{n.blurb}</p>
-              <small>{n.source} · {n.date}</small>
-            </a>
-          ))}
-        </div>
-      </section>
+          <div className="card">
+            {worldNews.map((n) => (
+              <a key={n.id} href="#" className="news-item">
+                <strong>{n.title}</strong>
+                <p>{n.blurb}</p>
+                <small>{n.source} · {n.date}</small>
+              </a>
+            ))}
+          </div>
+        </section>
+        </>
+      )}
     </main>
   );
 }

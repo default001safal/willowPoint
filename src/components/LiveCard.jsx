@@ -5,7 +5,7 @@ import { MatchupTiles, StatTile, TileGrid } from './StatTiles.jsx';
 import { TeamMark } from './TeamMark.jsx';
 
 // First: the two sides facing each other. Then: what the chase needs and how it's going.
-function LiveTiles({ match }) {
+export function LiveTiles({ match }) {
   const { batting, bowling } = match;
   const need = match.target != null ? match.target - batting.runs : null;
   const chasing = need != null && need > 0 && match.ballsLeft != null;

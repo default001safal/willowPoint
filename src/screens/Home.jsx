@@ -4,6 +4,7 @@ import LiveSection from '../components/LiveCard.jsx';
 import NextForNepal from '../components/NextForNepal.jsx';
 import { Divider, SectionHead, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
+import { StatTile, TileGrid } from '../components/StatTiles.jsx';
 import { SearchField, SearchFilters, SearchResults } from '../components/Search.jsx';
 import { useWeather, weatherSentence } from '../lib/weather.js';
 import { TeamMark } from '../components/TeamMark.jsx';
@@ -14,36 +15,35 @@ function NplFinal({ onPreview }) {
   if (!nplFinal) return null;
   const r = nplFinal.result;
 
-  // Once the final is played the card turns into a champions card.
+  // Once the final is played: two tiles, how they won and who won it for them.
   if (r) {
+    const margin = /(\d+)\s*(wkts?|wickets?|runs?)/i.exec(r.margin || r.summary || '');
+    const star = /^(.*?)\s+(\d+)(\*?)$/.exec(r.star || '');
     return (
       <section className="section">
         <SectionHead title="NPL champions">
-          <button type="button" className="round-btn" aria-label="Recap with Cue" onClick={onPreview}>
-            <I.Spark size={15} style={{ color: 'var(--accent)' }} />
+          <button type="button" className="section-link" onClick={onPreview}>
+            Recap <I.ArrowUp size={11} style={{ transform: 'rotate(45deg)' }} />
           </button>
         </SectionHead>
-        <article className="card final-card champ-card">
-          <div className="champ-head">
-            <TeamMark name={r.winner} size={40} />
-            <div>
-              <h3 className="champ-name">{r.winner}</h3>
-              <span className="champ-sub"><I.Trophy size={13} />{r.honour || 'Champions'} · {nplFinal.venue}</span>
-            </div>
-          </div>
-          <dl className="champ-lines">
-            {r.lines.map((l) => (
-              <div key={l.team} className={l.team === r.winner ? 'won' : undefined}>
-                <dt><TeamMark name={l.team} size={16} slot />{l.team.split(' ').pop()}</dt>
-                <dd>{l.score}{l.overs && <small> ({l.overs})</small>}</dd>
-              </div>
-            ))}
-          </dl>
-          <div className="chips">
-            <span className="chip accent"><I.Trophy size={13} />{r.margin}</span>
-            {r.star && <span className="chip"><I.CricketBat size={13} />{r.star}</span>}
-          </div>
-        </article>
+        <TileGrid label={`${r.winner}, NPL champions`}>
+          <StatTile
+            inverse
+            value={margin ? margin[1] : '—'}
+            unit={margin ? (margin[2].toLowerCase().startsWith('w') ? 'Wkts' : 'Runs') : null}
+            mark={<TeamMark name={r.winner} size={13} />}
+            label={`${r.winner.split(' ').pop()} won`}
+            badge={r.honour || 'Champions'}
+          />
+          {star && (
+            <StatTile
+              value={star[2]}
+              unit={star[3] ? 'Not out' : 'Runs'}
+              label={star[1]}
+              badge={r.starBalls ? `off ${r.starBalls} balls` : 'Top score'}
+            />
+          )}
+        </TileGrid>
       </section>
     );
   }

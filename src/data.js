@@ -46,6 +46,7 @@ export const nplFinal = {
     margin: 'Won by 10 wkts',
     honour: 'Maiden title',
     star: 'Munsey 125*',
+    starBalls: 54,
     lines: [
       { team: 'Sudurpaschim Royals', score: 'Chased 156', overs: '13.3' },
       { team: 'Lumbini Lions', score: '155/6', overs: '20' },

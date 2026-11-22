@@ -4,6 +4,7 @@ import { Divider, SaveButton, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { isLiveFixture } from '../lib/fixtures.js';
 import { MarkPair, TeamMark } from '../components/TeamMark.jsx';
+import { LiveTiles } from '../components/LiveCard.jsx';
 
 const FILTERS = [
   { id: 'All', icon: <I.Grid size={14} /> },
@@ -52,20 +53,16 @@ function Matches({ filter, query, saved, toggleSaved }) {
         <Divider />
         <section className="section">
           <h2 className="group-label">Today · {today.day} {today.date} {today.month}</h2>
-          <div className="card">
-            {live.map((m) => (
-              <div key={m.id} className="result">
-                <div className="row-between">
-                  <span className="meta-inline">{m.series} · {m.venue}</span>
-                  <span className="status live">LIVE</span>
-                </div>
-                <div className="line"><span className="with-marks"><TeamMark name={m.batting.name} size={14} slot />{m.batting.name}</span><b>{m.batting.runs}/{m.batting.wickets} <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}>({m.batting.overs})</span></b></div>
-                <div className="line lose"><span className="with-marks"><TeamMark name={m.bowling.name} size={14} slot />{m.bowling.name}</span><b>{m.bowling.runs}/{m.bowling.wickets} <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}>({m.bowling.overs})</span></b></div>
-                <span className="summary live">{m.batting.name} need {m.target - m.batting.runs} from {m.ballsLeft} balls</span>
-              </div>
-            ))}
+          {live.map((m) => (
+            <div key={m.id} className="discover-live">
+              <p className="discover-live-meta">{m.series}, {m.venue}</p>
+              <LiveTiles match={m} />
+            </div>
+          ))}
+          {(showFinal || laterToday.length > 0) && <div className="card">
+
             {laterToday.map((f, i) => (
-              <div className={`list-row${live.length || i ? ' row-top' : ''}`} key={f.id}>
+              <div className={`list-row${i ? ' row-top' : ''}`} key={f.id}>
                 <div className="date-block"><b>{parts(f.date).date}</b><small>{parts(f.date).month}</small></div>
                 <div className="row-text">
                   <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
@@ -75,7 +72,7 @@ function Matches({ filter, query, saved, toggleSaved }) {
               </div>
             ))}
             {showFinal && (
-              <div className={`list-row${live.length || laterToday.length ? ' row-top' : ''}`}>
+              <div className={`list-row${laterToday.length ? ' row-top' : ''}`}>
                 <div className="row-text">
                   <span>Nepal Premier League · Final</span>
                   <strong className="with-marks"><MarkPair title={`${nplFinal.home} v ${nplFinal.away}`} size={14} />{nplFinal.home} v {nplFinal.away}</strong>
@@ -84,7 +81,7 @@ function Matches({ filter, query, saved, toggleSaved }) {
                 <SaveButton label="NPL final" saved={saved.includes('npl-final')} onToggle={() => toggleSaved('npl-final')} />
               </div>
             )}
-          </div>
+          </div>}
         </section>
         </>
       )}

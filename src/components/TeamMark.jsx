@@ -43,7 +43,7 @@ export function TeamMark({ name, size = 24, fallback, className = '' }) {
   if (!mark) return fallback ?? null;
   // Flags keep their natural proportions (Nepal's pennant is narrower than the rest).
   const style = mark.kind === 'flag' ? { height: size, width: 'auto' } : { height: size, width: size };
-  return <img className={`team-mark ${mark.kind} ${className}`} src={mark.src} alt="" style={style} loading="lazy" />;
+  return <img className={`team-mark ${mark.kind} ${className}`} src={mark.src} alt="" style={style} decoding="async" />;
 }
 
 // Marks for both sides of an "A v B" title.

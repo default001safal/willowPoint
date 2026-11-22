@@ -545,3 +545,21 @@ img { display: block; }
 .fixture-match-dot.has-match { background: var(--crimson-text); }
 .fixture-week button[aria-pressed='true'] .fixture-match-dot:not(.has-match) { background: #d5d5d5; }
 .fixture-list { margin-top: 12px; }
+/* Next for Nepal: the picked day's game as two tiles (who, when). */
+.match-tiles { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.25fr); gap: 10px; }
+.match-tiles > div { min-width: 0; padding: 16px; border-radius: 24px; background: #151515; border: 1px solid #262626; }
+.mt-who { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 2px; }
+.mt-flags { display: flex; margin-bottom: 10px; }
+.mt-flags > span { display: grid; place-items: center; padding: 5px; border-radius: 10px; background: #1f1f1f; border: 2px solid #151515; }
+.mt-flags > span + span { margin-left: -10px; }
+.mt-who strong { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.mt-sub { font-size: 12px; color: var(--accent); font-weight: 600; }
+.mt-when { display: flex; flex-direction: column; justify-content: space-between; gap: 14px; }
+.mt-when-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+.mt-when-top strong { display: block; font-family: var(--font-head); font-size: 17px; font-weight: 700; letter-spacing: -0.03em; }
+.mt-when-top span { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); }
+.mt-when-top .save-btn { margin: -10px -10px 0 0; flex: none; }
+.mt-steps { display: flex; align-items: center; gap: 6px; }
+.mt-steps > span { width: 6px; height: 6px; border-radius: 50%; background: #34383e; }
+.mt-steps > span.on { background: var(--accent); }
+.mt-steps > span.match { width: 20px; height: 20px; display: grid; place-items: center; background: var(--accent); color: var(--ink); }

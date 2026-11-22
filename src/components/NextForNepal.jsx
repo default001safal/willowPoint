@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import * as I from './Icons.jsx';
 import { SaveButton, SectionHead, addDays, parts, relativeDay } from './ui.jsx';
-import { MarkPair } from './TeamMark.jsx';
+import { MarkPair, TeamMark } from './TeamMark.jsx';
 import { useContent } from '../lib/content.jsx';
 import { isLiveFixture } from '../lib/fixtures.js';
-import { kickoffUTC } from '../lib/statcard.js';
+import { clockTime, countdownLabel, kickoffUTC } from '../lib/statcard.js';
 
 function useNow(everyMs = 60_000) {
   const [now, setNow] = useState(() => Date.now());
@@ -15,6 +15,44 @@ function useNow(everyMs = 60_000) {
     return () => clearInterval(t);
   }, [everyMs]);
   return now;
+}
+
+const opponentOf = (title) => title.replace(/\s+v\s+Nepal$|^Nepal\s+v\s+/i, '');
+
+// The picked day's game as two tiles: who (flags + opponent + venue) and when
+// (countdown, kick-off, and a dot per day from today to match day).
+function MatchTiles({ fixture: f, today, now, saved, onSave }) {
+  const opp = opponentOf(f.title);
+  const p = parts(f.date);
+  const clock = clockTime(f.time);
+  const countdown = countdownLabel(kickoffUTC(f.date, f.time) - now);
+  const days = Math.max(0, Math.round((new Date(`${f.date}T00:00:00`) - new Date(`${today}T00:00:00`)) / 86_400_000));
+  const steps = Math.min(days, 6);
+  return (
+    <div className="match-tiles">
+      <div className="mt-who">
+        <span className="mt-flags" aria-hidden="true">
+          <span><TeamMark name={opp} size={22} /></span>
+          <span><TeamMark name="Nepal" size={22} /></span>
+        </span>
+        <strong>{opp}</strong>
+        <span className="mt-sub">{f.venue}</span>
+      </div>
+      <div className="mt-when">
+        <div className="mt-when-top">
+          <div>
+            <strong>{countdown ? `In ${countdown}` : `${p.day} ${p.date} ${p.month}`}</strong>
+            <span>{p.day} {p.date} {p.month}{clock ? `, ${clock} NPT` : ', time TBC'}</span>
+          </div>
+          <SaveButton label={f.title} saved={saved} onToggle={onSave} />
+        </div>
+        <span className="mt-steps" aria-hidden="true">
+          {Array.from({ length: steps }, (_, i) => <span key={i} className={i === 0 ? 'on' : undefined} />)}
+          <span className="match"><I.Check size={12} sw={3} /></span>
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () => {} }) {
@@ -65,9 +103,11 @@ export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () =>
         })}
       </div>
       <div aria-live="polite" className="fixture-list">
-        {shown.length === 0 ? (
-          <p className="fixture-empty">No Nepal matches on this date.</p>
-        ) : (
+        {shown.length === 0 && <p className="fixture-empty">No Nepal matches on this date.</p>}
+        {selected !== 'all' && shown.length > 0 && (
+          <MatchTiles fixture={shown[0]} today={today} now={now} saved={saved.includes(shown[0].id)} onSave={() => toggleSaved(shown[0].id)} />
+        )}
+        {selected === 'all' && shown.length > 0 && (
           <div className="card">
             {shown.map((f, i) => {
               const p = parts(f.date);

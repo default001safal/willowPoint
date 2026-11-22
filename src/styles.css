@@ -618,3 +618,25 @@ img { display: block; }
 .date-block, .champ-badge.quiet, .tile-badge.neutral .tile-badge-dot { background: var(--block-bg); }
 .vs { background: var(--bg); }
 .nav { background: var(--tile-bg); }
+
+/* ---------- Gradient backgrounds (?bg=aurora|dawn|floodlight|edge|mesh) ----------
+   The wash is painted on a fixed layer behind everything, so it doesn't scroll.
+   Surfaces turn to glass (white at low alpha) so the colour shows through. */
+[data-bg^='g-'] { --tile-bg: rgba(255, 255, 255, 0.05); --tile-line: rgba(255, 255, 255, 0.09); --block-bg: rgba(255, 255, 255, 0.08); --surface: rgba(255, 255, 255, 0.06); --border: rgba(255, 255, 255, 0.1); --divider: rgba(255, 255, 255, 0.07); }
+/* The body's own background would cover the wash, so it steps aside. */
+[data-bg^='g-'] body { background: transparent; }
+[data-bg^='g-']::before { content: ''; position: fixed; inset: 0; z-index: -1; background: var(--bg-wash); }
+[data-bg^='g-'] .nav { background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(18px); }
+[data-bg^='g-'] .vs { background: rgba(255, 255, 255, 0.07); border-color: transparent; backdrop-filter: blur(8px); }
+[data-bg^='g-'] .tile.inverse, [data-bg^='g-'] .fixture-week button[aria-pressed='true'] { background: #f4f4f4; border-color: #f4f4f4; }
+
+/* Aurora: a green dawn in one corner, crimson in the other, over midnight blue. */
+[data-bg='g-aurora'] { --bg: #070b14; --bg-wash: radial-gradient(95% 62% at 8% -8%, rgba(0, 255, 30, 0.22), transparent 62%), radial-gradient(85% 58% at 102% 102%, rgba(200, 16, 46, 0.3), transparent 64%), #070b14; }
+/* Dawn: the sky over the valley before sunrise, violet lifting off black. */
+[data-bg='g-dawn'] { --bg: #07070b; --bg-wash: linear-gradient(180deg, #2a1763 0%, #1a1038 30%, #0c0a18 62%, #07070b 100%); }
+/* Floodlight: a single wash spilling down from above the ground. */
+[data-bg='g-floodlight'] { --bg: #07090c; --bg-wash: radial-gradient(130% 62% at 50% -14%, #32496b 0%, #101722 58%, #07090c 100%); }
+/* Edge: black, with one band of accent light along the very top. */
+[data-bg='g-edge'] { --bg: #080808; --bg-wash: linear-gradient(180deg, rgba(0, 255, 30, 0.2) 0%, rgba(200, 16, 46, 0.1) 18%, rgba(8, 8, 8, 0) 38%), #080808; }
+/* Mesh: three soft lights crossing, the way a mesh gradient does. */
+[data-bg='g-mesh'] { --bg: #0a0a0c; --bg-wash: radial-gradient(62% 42% at 84% 4%, rgba(0, 255, 30, 0.14), transparent 62%), radial-gradient(58% 40% at 4% 28%, rgba(200, 16, 46, 0.2), transparent 64%), radial-gradient(72% 48% at 58% 98%, rgba(42, 92, 214, 0.26), transparent 66%), #0a0a0c; }

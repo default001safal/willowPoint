@@ -20,8 +20,11 @@ function describe(code, isDay) {
   return 'mixed weather';
 }
 
+// Mock reading shown until the live one arrives (and if the weather service can't be reached).
+const MOCK = { city: CITY.name, temp: 18, phrase: 'clear skies' };
+
 export function useWeather() {
-  const [weather, setWeather] = useState(null);
+  const [weather, setWeather] = useState(MOCK);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,7 +44,7 @@ export function useWeather() {
           });
         })
         .catch(() => {
-          /* keep the last reading; the line simply doesn't show if we never get one */
+          /* keep the last (or mock) reading */
         });
 
     load();

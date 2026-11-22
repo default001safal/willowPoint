@@ -46,6 +46,13 @@ export const Spark = (p) => (
   </Svg>
 );
 
+export const SparkGlint = (p) => (
+  <Svg {...p}>
+    <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
+    <path d="M19 3v4M17 5h4" />
+  </Svg>
+);
+
 export const SparkPlus = (p) => (
   <Svg {...p}>
     <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />

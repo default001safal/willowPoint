@@ -191,10 +191,12 @@ img { display: block; }
 }
 .card-title { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .live-card .ask {
-  position: relative; display: flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; border-radius: 999px;
-  flex: none; border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: 12px; font-weight: 600;
+  position: relative; width: 32px; height: 32px; margin: -4px -6px 0 0; align-self: flex-start; flex: none;
+  border: 0; background: transparent; color: var(--accent); display: flex; align-items: center; justify-content: center; padding: 0;
+  transition: transform 0.15s ease;
 }
-.live-card .ask::before { content: ''; position: absolute; inset: -8px; } /* keeps a comfortable tap area */
+.live-card .ask:hover { transform: rotate(12deg) scale(1.08); }
+.live-card .ask::before { content: ''; position: absolute; inset: -6px; } /* comfortable tap area */
 .stat-ribbon {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; height: 46px; padding: 0 6px;
   border-radius: 999px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);

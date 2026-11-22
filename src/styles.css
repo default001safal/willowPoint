@@ -162,7 +162,7 @@ img { display: block; }
 .live-dot {
   flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--crimson);
 }
-.live-dot, .live-section .over-marker.current { opacity: var(--live-alpha); }
+.live-dot, .live-overs li.current { opacity: var(--live-alpha); }
 #live-title { color: var(--crimson-text); opacity: calc(var(--live-alpha) * var(--live-alpha)); }
 @keyframes wp-live-pulse {
   0%, 100% { --live-alpha: 1; }
@@ -419,24 +419,6 @@ img { display: block; }
 .story .photo { padding: 0; }
 .story .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-/* Per-over totals roll vertically when the viewed innings changes. */
-.over-reel { position: absolute; inset: 0; }
-.over-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.over-grid[data-direction='batting'] { --roll-in: -110%; --roll-out: 110%; }
-.over-reel.rolling .incoming { animation: over-roll-in .65s cubic-bezier(.22, 1, .36, 1) var(--roll-delay) both; }
-.over-reel.rolling .outgoing { animation: over-roll-out .65s cubic-bezier(.22, 1, .36, 1) var(--roll-delay) both; }
-@keyframes over-roll-in { from { transform: translateY(var(--roll-in)); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@keyframes over-roll-out { from { transform: translateY(0); opacity: 1; } to { transform: translateY(var(--roll-out)); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) {
-  .over-marker { transition: none; }
-  .over-reel.rolling .incoming { animation: none; }
-  .over-reel.rolling .outgoing { display: none; animation: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .innings-tabs button { transition: none; }
-}
-
 /* Fixed-width box for team marks in score lines, so names align (Nepal's pennant is narrower). */
 .mark-slot { display: inline-flex; align-items: center; justify-content: flex-start; flex: none; }
 .saved-empty { display: flex; align-items: center; gap: 5px; margin: 0; padding: 14px 18px; color: var(--muted); font-size: 13px; }
@@ -484,41 +466,28 @@ img { display: block; }
 .innings-cue { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 0 2px 0 6px; border: 0; background: none; color: var(--accent); font-size: 13px; font-weight: 600; }
 .innings-cue b { color: var(--crimson-text); font-weight: 600; }
 .innings-cue span { color: var(--text); }
-.innings-card { padding: 18px 18px 16px; border-radius: 26px; background: #141414; box-shadow: inset 0 1px 0 #ffffff05; }
-.innings-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.innings-tabs button { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; padding: 2px 0 10px; border: 0; background: none; text-align: left; color: #7d848e; transition: color .22s ease; }
-.innings-tabs button:last-child { align-items: flex-end; text-align: right; }
-.innings-tabs button[aria-selected='true'] { color: var(--text); }
-/* A short bar marks which innings the over grid is showing. */
-.innings-tabs button::after { content: ''; position: absolute; bottom: 0; left: 0; width: 22px; height: 2px; border-radius: 2px; background: var(--accent); opacity: 0; transition: opacity .22s ease; }
-.innings-tabs button:last-child::after { left: auto; right: 0; }
-.innings-tabs button[aria-selected='true']::after { opacity: 1; }
-.innings-team { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; font-size: 13px; }
-.innings-tabs button:last-child .innings-team { flex-direction: row-reverse; }
-.innings-team strong { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.innings-role { display: inline-flex; flex: none; color: var(--muted); opacity: .8; }
-.innings-score { font-family: var(--font-head); font-size: clamp(26px, 7.4vw, 32px); font-weight: 700; line-height: 1.05; letter-spacing: -0.06em; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.innings-score > span { font-size: .66em; letter-spacing: -.03em; opacity: .7; }
-.innings-overs { font-size: 11px; color: var(--muted); }
-.innings-metrics { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 0; padding: 12px 0; border-top: 1px solid #ffffff0d; border-bottom: 1px solid #ffffff0d; }
-.innings-metrics > div { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
-.innings-metrics dt { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; line-height: 1; color: var(--muted); align-self: center; }
-.innings-metrics dt svg { flex: none; }
-.innings-metrics abbr { text-decoration: none; cursor: help; }
-.innings-metrics dd { margin: 0; font-size: 14px; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.innings-metrics .need dd { color: var(--accent); }
-.over-caption { display: flex; justify-content: space-between; margin: 12px 1px 9px; font-size: 10.5px; letter-spacing: .02em; color: #6f7680; }
-.over-grid { --roll-in: 110%; --roll-out: -110%; list-style: none; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; }
-.over-marker { position: relative; overflow: hidden; transition: background-color .3s ease, color .3s ease; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border-radius: 50%; font-size: 11px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; color: #6f7680; }
-.over-marker.completed { background: #13261a; color: #8fe39a; }
-/* Big overs (10+) stand out. */
-.over-marker.completed.big { background: #164a20; color: var(--accent); }
-.over-marker.current { background: var(--crimson); color: #fff; font-weight: 700; }
-/* Upcoming overs are just a small dot, so the grid reads as progress, not clutter. */
-.over-marker.upcoming { background: none; }
-.over-marker.upcoming::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: #ffffff1f; }
-@media (max-width: 360px) {
-  .innings-card { padding: 16px 14px 14px; }
-  .innings-metrics dd { font-size: 13px; }
-  .over-grid { gap: 5px; }
-}
+
+
+/* ---------- Live now, editorial ---------- */
+.live-story { padding: 2px 4px 0; }
+.live-kicker { margin: 0; font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #7d848e; }
+.live-headline { margin: 10px 0 0; font-family: var(--font-body); font-size: 22px; font-weight: 300; line-height: 1.2; letter-spacing: -0.01em; color: #d5dae1; }
+.live-headline .num { font-family: var(--font-head); font-size: 36px; font-weight: 700; letter-spacing: -0.06em; color: var(--text); }
+.live-board { width: 100%; margin-top: 16px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.live-board tr { border-top: 1px solid var(--divider); }
+.live-board tr:last-child { border-bottom: 1px solid var(--divider); }
+.live-board th, .live-board td { padding: 11px 0; color: var(--muted); font-size: 15px; }
+.live-board th { font-weight: 500; text-align: left; }
+.live-board .team { display: flex; align-items: center; gap: 8px; }
+.live-board .score { text-align: right; font-weight: 600; }
+.live-board .overs { width: 52px; text-align: right; font-size: 12px; }
+.live-board .is-batting th, .live-board .is-batting .score { color: var(--text); }
+.live-overs { margin: 16px 0 0; }
+.live-overs figcaption { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #6f7680; }
+.live-overs ol { list-style: none; display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); align-items: end; gap: 3px; height: 34px; margin: 0; padding: 0; border-bottom: 1px solid #2e2e2e; }
+.live-overs li { height: calc(var(--h) * 100%); min-height: 1px; border-radius: 2px 2px 0 0; background: #4b5058; }
+.live-overs li.current { background: var(--crimson); }
+.live-overs li.upcoming { height: 0; }
+.live-rates { display: flex; gap: 18px; margin: 12px 0 0; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.live-rates b { margin-left: 3px; color: var(--text); font-weight: 600; }
+.live-rates abbr { text-decoration: none; }

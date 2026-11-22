@@ -187,13 +187,20 @@ img { display: block; }
 .innings-tabs button:last-child { align-items: flex-end; text-align: right; }
 .innings-score { font-family: var(--font-head); font-size: clamp(26px, 7.5vw, 36px); font-weight: 700; line-height: 1.2; letter-spacing: -0.065em; white-space: nowrap; }
 .innings-score > span { font-size: .72em; letter-spacing: -.04em; }
-.innings-label { display: flex; align-items: center; gap: 6px; font-size: 12px; padding-bottom: 6px; border-bottom: 2px solid transparent; max-width: 100%; flex-wrap: wrap; }
+.innings-label { display: flex; align-items: center; gap: 6px; font-size: 12px; min-height: 28px; max-width: 100%; flex-wrap: wrap; }
 .innings-tabs button:last-child .innings-label { justify-content: flex-end; }
-.innings-tabs button[aria-selected='true'] .innings-label { border-bottom-color: var(--accent); }
+.innings-team { display: inline-flex; align-items: center; gap: 5px; padding: 4px 7px; margin-inline: -7px 0; border: 1px solid transparent; border-radius: 999px; }
+.innings-tabs button[aria-selected='true'] .innings-team { color: var(--accent); background: var(--accent-tint); border-color: #00ff1e26; }
+.innings-metrics { display: flex; justify-content: space-between; gap: 12px; margin: 16px 0 0; padding-top: 12px; border-top: 1px solid #ffffff0d; }
+.innings-metrics > div { display: flex; align-items: baseline; gap: 6px; }
+.innings-metrics dt { font-size: 11px; color: var(--muted); }
+.innings-metrics abbr { text-decoration: none; cursor: help; }
+.innings-metrics dd { margin: 0; font-family: var(--font-head); font-size: 13px; font-weight: 700; }
+.innings-metrics > div:last-child dd { color: var(--accent); }
 .innings-label strong { font-weight: 600; overflow-wrap: anywhere; }
-.innings-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
-.innings-dot.batting { background: var(--accent); }
-.innings-dot.bowling { background: var(--crimson-text); }
+.innings-role { display: inline-flex; flex: none; }
+.innings-role.batting { color: var(--accent); }
+.innings-role.bowling { color: var(--crimson-text); }
 .innings-overs { color: var(--muted); font-size: 11px; white-space: nowrap; }
 .over-grid { list-style: none; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 7px 5px; margin: 0; padding: 0; }
 .over-marker { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border-radius: 50%; font-family: var(--font-head); font-size: 11px; line-height: 1; border: 1px solid #ffffff15; color: #68717c; }

@@ -30,3 +30,10 @@ test('an innings ending mid-over keeps its final over completed', () => {
   assert.equal(overMarkers({ overs: '18.3', wickets: 10 }, 20, true)[18].state, 'completed');
   assert.equal(overMarkers({ overs: '18.3' }, 20, false)[18].state, 'completed');
 });
+
+test('temporary over data agrees with the two displayed innings scores', async () => {
+  const { mockOverRuns } = await import('../src/data.js');
+  const sample = mockOverRuns['nep-uae-tri'];
+  assert.equal(sample.batting.reduce((sum, runs) => sum + runs, 0), 131);
+  assert.equal(sample.bowling.reduce((sum, runs) => sum + runs, 0), 169);
+});

@@ -2,12 +2,14 @@ import { useId, useState } from 'react';
 import * as I from './Icons.jsx';
 import { SectionHead } from './ui.jsx';
 import { overMarkers } from '../lib/innings.js';
+import { mockOverRuns } from '../data.js';
 
 function InningsCard({ match }) {
   const [innings, setInnings] = useState('batting');
   const id = useId();
   const selected = match[innings];
-  const markers = overMarkers(selected, match.maxOvers, innings === 'batting');
+  const overRuns = selected.overRuns ?? mockOverRuns[match.id]?.[innings];
+  const markers = overMarkers({ ...selected, overRuns }, match.maxOvers, innings === 'batting');
   const teams = ['batting', 'bowling'];
 
   const selectWithKeyboard = (event, side) => {
@@ -37,8 +39,12 @@ function InningsCard({ match }) {
             >
               <span className="innings-score">{team.runs}<span>/{team.wickets}</span></span>
               <span className="innings-label">
-                <i className={`innings-dot ${side}`} aria-hidden="true" />
-                <strong>{team.name}</strong>
+                <span className="innings-team">
+                  <span className={`innings-role ${side}`} role="img" aria-label={side === 'batting' ? 'Batting' : 'Bowling'} title={side === 'batting' ? 'Batting' : 'Bowling'}>
+                    {side === 'batting' ? <I.CricketBat size={14} /> : <I.CricketBall size={14} />}
+                  </span>
+                  <strong>{team.name}</strong>
+                </span>
                 <span className="innings-overs">{team.overs} ov</span>
               </span>
             </button>
@@ -60,6 +66,11 @@ function InningsCard({ match }) {
           })}
         </ol>
       </div>
+      <dl className="innings-metrics" aria-label={`${match.batting.name} chase metrics`}>
+        <div><dt>Target</dt><dd>{match.target ?? '—'}</dd></div>
+        <div><dt><abbr title="Current run rate">CRR</abbr></dt><dd>{match.runRate ?? '—'}</dd></div>
+        <div><dt><abbr title="Required run rate">RRR</abbr></dt><dd>{match.requiredRate ?? '—'}</dd></div>
+      </dl>
     </article>
   );
 }

@@ -77,3 +77,5 @@ npm run deploy          # build, then deploy Hosting + Firestore rules (needs fi
 Select a team name or score to switch its over grid. Each marker is an over: neutral is completed, green is current, and an empty outline is upcoming. Optional `batting.overRuns` and `bowling.overRuns` arrays hold nonnegative integer runs, starting with over 1. Missing totals display a dash, and upcoming totals stay hidden. `maxOvers` defaults to 20 and can be supplied for shortened innings.
 
 Run the innings-state checks with `node --test tests/innings.test.mjs`.
+
+The Nepal–UAE UI currently uses explicit mock over totals from `mockOverRuns` in `src/data.js` until that match supplies its own arrays. This does not write mock data to Firestore. The Target / CRR / RRR row always describes the batting team’s chase, while team selection changes the over grid.

@@ -87,3 +87,11 @@ export const followables = [
   { id: 'u19', name: 'U19', kind: 'Youth cricket', default: false },
   { id: 'world', name: 'World', kind: 'International cricket', default: false },
 ];
+
+// Temporary UI-only over totals. Supplied team.overRuns takes priority.
+export const mockOverRuns = {
+  'nep-uae-tri': {
+    batting: [8, 12, 9, 13, 6, 4, 7, 5, 10, 9, 11, 8, 12, 15, 2],
+    bowling: [6, 8, 7, 10, 5, 9, 6, 12, 8, 7, 9, 11, 5, 10, 8, 6, 9, 7, 12, 14],
+  },
+};

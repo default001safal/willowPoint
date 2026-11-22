@@ -1,23 +1,4 @@
-// Pure helpers for the stat-style cards (Live now, Next for Nepal).
-
-// How an over's circle looks: big (10+ runs), low (under 10), none (total unknown).
-export function overTone(runs) {
-  if (runs == null) return 'none';
-  return runs >= 10 ? 'big' : 'low';
-}
-
-// The over with the most runs so far (ties go to the later over), or -1.
-export function bestOverIndex(markers) {
-  let best = -1;
-  markers.forEach((m, i) => {
-    if (m.state === 'upcoming' || m.runs == null) return;
-    if (best === -1 || m.runs >= markers[best].runs) best = i;
-  });
-  return best;
-}
-
-// Running totals after each over.
-export const cumulative = (perOver = []) => perOver.reduce((acc, r) => [...acc, (acc.at(-1) ?? 0) + r], []);
+// Pure helpers for the Home stat tiles: kick-off times and countdowns in Nepal time.
 
 const NPT_OFFSET_MIN = 5 * 60 + 45;
 
@@ -29,9 +10,10 @@ export function kickoffUTC(date, time) {
   return Date.UTC(y, m - 1, d, Number(t[1]), Number(t[2])) - NPT_OFFSET_MIN * 60_000;
 }
 
-// "2d 03h", "5h 07m", or "Soon" once it's under a minute away.
+// "2d 03h", "5h 07m", "Soon" under a minute away, "Now" once it has started.
 export function countdownLabel(ms) {
-  if (ms == null) return null;
+  if (ms == null || Number.isNaN(ms)) return null;
+  if (ms <= 0) return 'Now';
   const mins = Math.floor(ms / 60_000);
   if (mins < 1) return 'Soon';
   const d = Math.floor(mins / 1440);

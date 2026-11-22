@@ -1,21 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { overTone, bestOverIndex, cumulative, kickoffUTC, countdownLabel, clockTime } from '../src/lib/statcard.js';
-
-test('over tones: 10+ stands out, the rest stay quiet', () => {
-  assert.deepEqual([12, 10, 9, 0, null].map(overTone), ['big', 'big', 'low', 'low', 'none']);
-});
-
-test('best over is the highest, latest on ties, ignoring upcoming', () => {
-  const m = [{ state: 'completed', runs: 8 }, { state: 'completed', runs: 15 }, { state: 'completed', runs: 15 }, { state: 'upcoming', runs: null }];
-  assert.equal(bestOverIndex(m), 2);
-  assert.equal(bestOverIndex([{ state: 'upcoming', runs: null }]), -1);
-});
-
-test('cumulative totals', () => {
-  assert.deepEqual(cumulative([8, 12, 9]), [8, 20, 29]);
-  assert.deepEqual(cumulative([]), []);
-});
+import { kickoffUTC, countdownLabel, clockTime } from '../src/lib/statcard.js';
 
 test('kick-off converts NPT to UTC and counts down', () => {
   const ko = kickoffUTC('2026-11-24', '15:45 NPT');
@@ -24,6 +9,8 @@ test('kick-off converts NPT to UTC and counts down', () => {
   assert.equal(countdownLabel(ko - Date.parse('2026-11-22T06:40:00Z')), '2d 03h');
   assert.equal(countdownLabel(5 * 3_600_000 + 7 * 60_000), '5h 07m');
   assert.equal(countdownLabel(30_000), 'Soon');
+  assert.equal(countdownLabel(-60_000), 'Now');
+  assert.equal(countdownLabel(NaN), null);
   assert.equal(clockTime('15:45 NPT'), '15:45');
   assert.equal(clockTime('Time TBC'), null);
 });

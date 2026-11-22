@@ -162,7 +162,7 @@ img { display: block; }
 .live-dot {
   flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--crimson);
 }
-.live-dot, .stat-card .current { opacity: var(--live-alpha); }
+.live-dot { opacity: var(--live-alpha); }
 #live-title { color: var(--crimson-text); opacity: calc(var(--live-alpha) * var(--live-alpha)); }
 @keyframes wp-live-pulse {
   0%, 100% { --live-alpha: 1; }
@@ -447,79 +447,26 @@ img { display: block; }
 .innings-cue b { color: var(--crimson-text); font-weight: 600; }
 .innings-cue span { color: var(--text); }
 
-/* ---------- Stat cards (Live now, Next for Nepal) ---------- */
-.stat-card { padding: 20px 18px 18px; border-radius: 30px; background: #141414; border: 1.5px solid #2b2b2b; }
-.stat-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.stat-lead { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; padding-top: 2px; }
-.stat-lead.stacked { flex-direction: column; align-items: flex-start; gap: 8px; }
-.stat-hero { font-family: var(--font-head); font-size: 38px; font-weight: 700; line-height: 1; letter-spacing: -0.05em; white-space: nowrap; }
-.stat-hero small { font-size: .55em; letter-spacing: -.02em; color: var(--muted); }
-.stat-delta { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--accent); white-space: nowrap; }
-.view-switch { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: #0f0f0f; border: 1px solid #2a2a2a; flex: none; }
-.view-switch button { width: 36px; height: 36px; border-radius: 50%; border: 0; padding: 0; display: grid; place-items: center; background: none; color: var(--muted); transition: background .2s, color .2s, box-shadow .2s; }
-.view-switch button[aria-checked='true'] { background: var(--accent); color: var(--ink); }
-.stat-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 20px; font-family: var(--font-head); font-size: 12px; }
-.stat-note { color: var(--muted); white-space: nowrap; }
-.stat-note abbr { text-decoration: none; }
-.dot-legend { display: flex; align-items: center; gap: 6px; min-width: 0; font-weight: 700; white-space: nowrap; }
-.legend-item { display: inline-flex; align-items: center; gap: 6px; }
-.legend-sep { color: #4b5058; }
-.legend-item button, .legend-static { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: none; color: var(--text); font: inherit; }
-.legend-item button { min-height: 32px; transition: opacity .2s; }
-.legend-item button[aria-pressed='false'] { opacity: .45; }
-.legend-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
-.legend-dot.white { background: #f4f4f4; }
-.legend-dot.green { background: var(--accent); }
-.legend-dot.outline { background: #0e2a12; border: 1.5px solid #12b526; }
-.legend-dot.red { background: #ff4d55; }
-.stat-chart { margin-top: 14px; }
-.stat-empty { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-
-/* Over circles — tones straight from the reference card. */
-.over-dots { list-style: none; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; }
-.over-dots li { display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%; font-family: var(--font-head); font-size: 10.5px; font-weight: 700; line-height: 1; border: 1.5px solid transparent; }
-.over-dots .big { background: #0e2a12; border-color: #12b526; color: var(--accent); }
-.over-dots .low, .over-dots .none { background: #1b1b1b; border-color: #1f1f1f; color: #8b929c; }
-.over-dots .best { background: var(--accent); border-color: var(--accent); color: var(--ink); }
-.over-dots .upcoming { border-color: #262626; }
-.pip { width: 3px; height: 3px; border-radius: 50%; background: #3a3f45; }
-
-.over-bars { list-style: none; display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); align-items: end; gap: 4px; height: 58px; margin: 0; padding: 0; border-bottom: 1px solid #262626; }
-.over-bars li { height: calc(var(--h) * 100%); border-radius: 3px 3px 0 0; }
-.over-bars .big { background: #12b526; }
-.over-bars .low, .over-bars .none { background: #34383e; }
-.over-bars .best { background: var(--accent); }
-.over-bars .upcoming { height: 0; }
-
-.worm { display: block; width: 100%; height: 58px; overflow: visible; }
-.worm-rule { stroke: #232323; stroke-width: 1; vector-effect: non-scaling-stroke; }
-.worm-line { stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-.worm-line.green { stroke: var(--accent); }
-.worm-line.red { stroke: #ff4d55; opacity: .85; }
-
-/* Date circles for Next for Nepal. */
-.date-dot { display: grid; place-items: center; width: 100%; aspect-ratio: 1; border-radius: 50%; padding: 0; font-family: var(--font-head); font-size: 12px; font-weight: 700; line-height: 1; border: 1.5px solid transparent; color: #4b5058; background: none; }
-.date-dot.lg { width: 42px; height: 42px; flex: none; font-size: 13px; }
-.date-dot.next { background: var(--accent); border-color: var(--accent); color: var(--ink); }
-.date-dot.game { background: #0e2a12; border-color: #12b526; color: var(--accent); }
-.date-dot.past { background: #1b1b1b; border-color: #1f1f1f; color: #8b929c; }
-.date-dot.plain, .date-dot.empty { border-color: #242424; }
-.date-dot.selected { outline: 1.5px solid var(--text); outline-offset: 3px; }
-.game-list { list-style: none; margin: 0; padding: 0; }
-.game-list li { display: flex; align-items: center; gap: 14px; padding: 12px 0; }
-.game-list li + li { border-top: 1px solid #232323; }
-.game-text { flex: 1; min-width: 0; }
-.game-text strong { display: block; font-family: var(--font-head); font-size: 14px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.game-text span { display: block; margin-top: 3px; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.game-time { flex: none; font-family: var(--font-head); font-size: 13px; font-weight: 700; color: var(--muted); }
-.game-time.next { color: var(--accent); }
-.date-grid { list-style: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; }
-.weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; font-family: var(--font-head); font-size: 10px; color: #6f7680; text-align: center; }
-.date-range { display: flex; justify-content: space-between; margin-top: 10px; font-family: var(--font-head); font-size: 10px; color: #6f7680; }
-.picked { margin-top: 16px; padding-top: 14px; border-top: 1px solid #232323; }
-.picked strong { display: block; font-family: var(--font-head); font-size: 14px; font-weight: 700; letter-spacing: -0.02em; }
-.picked span { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); }
+/* ---------- Stat tiles (Live now, Next for Nepal) ---------- */
+.tile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile { display: flex; flex-direction: column; min-width: 0; padding: 16px 16px 14px; border-radius: 18px; background: #1a1a1a; color: var(--text); }
+.tile p { margin: 0; }
+.tile-value { display: flex; align-items: flex-start; gap: 4px; font-family: var(--font-head); font-size: 32px; font-weight: 400; line-height: 1; letter-spacing: -0.04em; white-space: nowrap; }
+.tile-value sup { margin-top: 2px; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: #8b929c; line-height: 1; }
+.tile-label { margin-top: 10px !important; font-family: var(--font-head); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #8b929c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-badge { display: flex; align-items: center; gap: 7px; margin-top: 12px !important; font-family: var(--font-head); font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-badge-dot { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; flex: none; color: var(--ink); }
+.tile-badge.go { color: var(--accent); }
+.tile-badge.go .tile-badge-dot { background: var(--accent); }
+.tile-badge.stop { color: var(--crimson-text); }
+.tile-badge.stop .tile-badge-dot { background: var(--crimson-text); }
+.tile-badge.wait { color: var(--muted); }
+.tile-badge.wait .tile-badge-dot { background: #3a3f45; color: var(--text); }
+.tile.inverse { background: #f4f4f4; color: var(--ink); }
+.tile.inverse .tile-value sup, .tile.inverse .tile-label { color: #5b6068; }
+.tile.inverse .tile-badge.go { color: #0c9a1c; }
+.tile.inverse .tile-badge.go .tile-badge-dot { background: #0c9a1c; color: #fff; }
 @media (max-width: 360px) {
-  .stat-hero { font-size: 34px; }
-  .stat-card { padding: 18px 14px 16px; }
+  .tile { padding: 14px 13px 12px; }
+  .tile-value { font-size: 28px; }
 }

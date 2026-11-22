@@ -108,11 +108,11 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
         <img src="/logo-light.png" alt="willowPoint" />
         <div className="icon-row">
           <button type="button" className="icon-btn" aria-label="Notifications">
-            <I.Bell size={22} />
+            <I.Bell size={19} />
             <span className="notif-dot" />
           </button>
           <button type="button" className="icon-btn" aria-label="Open profile" onClick={() => go('profile')}>
-            <I.User size={22} />
+            <I.User size={19} />
           </button>
         </div>
       </header>

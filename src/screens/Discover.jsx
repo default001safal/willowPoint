@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import * as I from '../components/Icons.jsx';
-import { SaveButton, parts, relativeDay } from '../components/ui.jsx';
+import { Divider, SaveButton, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { MarkPair, TeamMark } from '../components/TeamMark.jsx';
 
@@ -22,7 +22,9 @@ function Matches({ filter, saved, toggleSaved }) {
       {nothing && <p className="empty" style={{ padding: '24px 20px' }}>Nothing here yet for {filter}.</p>}
 
       {(live.length > 0 || showFinal) && (
-        <section className="section" style={{ paddingTop: 22, gap: 10 }}>
+        <>
+        <Divider />
+        <section className="section" style={{ paddingTop: 22, gap: 12 }}>
           <h2 className="group-label">Today · {today.day} {today.date} {today.month}</h2>
           <div className="card">
             {live.map((m) => (
@@ -48,10 +50,13 @@ function Matches({ filter, saved, toggleSaved }) {
             )}
           </div>
         </section>
+        </>
       )}
 
       {upcoming.length > 0 && (
-        <section className="section" style={{ paddingTop: 22, gap: 10 }}>
+        <>
+        <Divider />
+        <section className="section" style={{ paddingTop: 22, gap: 12 }}>
           <h2 className="group-label">Upcoming</h2>
           <div className="card">
             {upcoming.map((f) => {
@@ -69,10 +74,13 @@ function Matches({ filter, saved, toggleSaved }) {
             })}
           </div>
         </section>
+        </>
       )}
 
       {done.length > 0 && (
-        <section className="section" style={{ paddingTop: 22, gap: 10 }}>
+        <>
+        <Divider />
+        <section className="section" style={{ paddingTop: 22, gap: 12 }}>
           <h2 className="group-label">Recent results</h2>
           {done.map((r) => (
             <article key={r.id} className="card result">
@@ -91,6 +99,7 @@ function Matches({ filter, saved, toggleSaved }) {
           ))}
           <p className="footnote">All times NPT</p>
         </section>
+        </>
       )}
     </>
   );
@@ -127,6 +136,7 @@ export default function DiscoverScreen({ initialFilter = 'All', saved, toggleSav
     <main>
       <header className="screen-head">
         <h1 className="screen-title">Discover</h1>
+        <p className="subhead">Matches, stories and events, all in Nepal time.</p>
         <label className="search" style={{ marginTop: 0 }}>
           <I.Search size={14} />
           <span className="sr-only">Search</span>

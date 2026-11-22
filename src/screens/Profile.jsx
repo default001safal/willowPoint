@@ -1,6 +1,7 @@
 import * as I from '../components/Icons.jsx';
 import { followables } from '../data.js';
 import { firebaseEnabled } from '../lib/firebase.js';
+import { Divider } from '../components/ui.jsx';
 
 export default function ProfileScreen({ prefs }) {
   const { saved, following, alerts, toggleFollow: toggle, setAlerts: setAlertsTo, synced } = prefs;
@@ -10,6 +11,7 @@ export default function ProfileScreen({ prefs }) {
     <main>
       <header className="screen-head">
         <h1 className="screen-title">Profile</h1>
+        <p className="subhead">Your teams, alerts and settings.</p>
       </header>
 
       <section className="section" style={{ paddingTop: 16 }}>
@@ -31,6 +33,7 @@ export default function ProfileScreen({ prefs }) {
         </div>
       </section>
 
+      <Divider />
       <section className="section">
         <h2 className="group-label">Your cricket</h2>
         <div className="card">
@@ -48,6 +51,7 @@ export default function ProfileScreen({ prefs }) {
         </div>
       </section>
 
+      <Divider />
       <section className="section">
         <h2 className="group-label">Preferences</h2>
         <div className="card">
@@ -78,6 +82,7 @@ export default function ProfileScreen({ prefs }) {
         </div>
       </section>
 
+      <Divider />
       <section className="section">
         <div className="card about">
           <img src="/logo-light.png" alt="willowPoint logo" />

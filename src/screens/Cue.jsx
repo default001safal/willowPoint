@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { cuePrompts } from '../data.js';
+import { Divider } from '../components/ui.jsx';
 
 // Cue is UI-only for now: questions are shown in the thread and a placeholder reply explains
 // that answers will appear here once the Cue backend is connected.
@@ -35,13 +36,14 @@ export default function CueScreen({ pending, clearPending }) {
     <main style={{ paddingBottom: 96 }}>
       <section className="cue-hero">
         <span className="cue-icon"><I.SparkPlus size={26} /></span>
-        <h1 className="screen-title" style={{ fontSize: 28 }}>Ask Cue anything about Nepal cricket</h1>
+        <h1 className="screen-title">Ask Cue <span className="soft">anything about Nepal cricket</span></h1>
         <p>Short, sourced answers. Every reply shows where it came from.</p>
       </section>
 
+      <Divider />
       {thread.length === 0 ? (
-        <section className="section" style={{ paddingTop: 28, gap: 10 }}>
-          <h2 className="group-label" style={{ margin: '0 8px 2px' }}>Try asking</h2>
+        <section className="section" style={{ paddingTop: 22, gap: 10 }}>
+          <h2 className="group-label" style={{ margin: '0 4px 2px' }}>Try asking</h2>
           {cuePrompts.map((p) => (
             <button key={p.id} type="button" className="card suggestion" onClick={() => ask(p.title)}>
               <span className="row-text"><strong>{p.title}</strong><span>{p.hint}</span></span>

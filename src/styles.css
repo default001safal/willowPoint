@@ -87,8 +87,9 @@ img { display: block; }
   font-family: var(--font-head); margin: 0; font-size: 27px; line-height: 1.15;
   font-weight: 700; letter-spacing: -0.02em;
 }
-.greeting h1 { color: var(--crimson-text); }
-.greeting h1 .soft { color: var(--text); }
+.greeting h1, .screen-title { color: var(--crimson-text); }
+.greeting h1 .soft, .screen-title .soft { color: var(--text); }
+.screen-head .subhead { margin-top: -10px; }
 .subhead {
   margin: 4px 0 0; font-size: 15px; font-weight: 300; line-height: 1.4; letter-spacing: 0.01em; color: var(--muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -346,12 +347,12 @@ img { display: block; }
 }
 .segmented button[aria-selected='true'] { background: var(--text); color: var(--ink); font-weight: 600; }
 .group-label {
-  margin: 0 4px; font-family: var(--font-head); font-size: 12px; font-weight: 400;
-  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  margin: 0 4px; font-family: var(--font-head); font-size: 17px; line-height: 1.2; font-weight: 700;
+  font-style: italic; color: var(--crimson-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .result { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; color: var(--text); }
 .result .line { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; }
-.result .line b { font-family: var(--font-head); }
+.result .line b { font-family: var(--font-score); font-feature-settings: 'tnum' 1; font-size: 16px; font-weight: 700; }
 .result .line.lose { color: var(--text-2); }
 .result .summary { font-size: 13px; color: var(--muted); }
 .result .summary.live { color: var(--accent); font-weight: 600; }
@@ -368,7 +369,7 @@ img { display: block; }
   width: 52px; height: 52px; border-radius: 16px; background: var(--accent-tint); color: var(--accent);
   display: flex; align-items: center; justify-content: center;
 }
-.cue-hero p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted); }
+.cue-hero p { margin: 0; font-size: 15px; font-weight: 300; line-height: 1.45; letter-spacing: 0.01em; color: var(--muted); }
 .suggestion {
   display: flex; align-items: center; gap: 14px; padding: 14px 14px 14px 16px; min-height: 64px;
   text-align: left; color: var(--text); width: 100%;

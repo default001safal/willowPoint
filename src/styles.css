@@ -379,22 +379,22 @@ img { display: block; }
 }
 .composer-inner { max-width: 448px; margin: 0 auto; }
 .composer form {
-  display: flex; flex-direction: column; gap: 10px; padding: 16px 12px 12px 18px;
-  background: var(--surface); border: 1px solid #1e4d24; border-radius: 26px;
+  display: flex; flex-direction: column; gap: 12px; padding: 18px 12px 13px 20px;
+  background: var(--surface); border: 1px solid #1e4d24; border-radius: 28px;
   box-shadow: 0 0 0 4px rgba(0, 255, 30, 0.06), var(--shadow);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .composer form:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(0, 255, 30, 0.14), var(--shadow); }
 .composer textarea {
   border: 0; outline: 0; background: transparent; resize: none; font: inherit; font-size: 16px; line-height: 1.45;
-  color: var(--text); padding: 0 6px 0 0; min-height: 46px; max-height: 140px;
+  color: var(--text); padding: 0 6px 0 0; min-height: 52px; max-height: 150px;
 }
 .composer textarea::placeholder { color: var(--muted); }
 .composer textarea:focus-visible { outline: none; }
 .composer-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .composer-foot .hint { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
 .send {
-  width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--text); color: var(--ink); flex: none;
+  width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--text); color: var(--ink); flex: none;
   display: flex; align-items: center; justify-content: center; transition: opacity 0.15s ease;
 }
 .send:disabled { opacity: 0.35; cursor: default; }

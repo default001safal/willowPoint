@@ -26,8 +26,6 @@ export default function LiveSection({ matches, onAskCue }) {
   if (!matches.length) return null;
   const m = matches[Math.min(index, matches.length - 1)];
   const need = m.target - m.batting.runs;
-  const wktsLeft = 10 - m.batting.wickets;
-  const progress = Math.min(100, Math.round((m.batting.runs / m.target) * 100));
 
   return (
     <section className="section" aria-labelledby="live-title">
@@ -60,18 +58,6 @@ export default function LiveSection({ matches, onAskCue }) {
         <div className="teams">
           <Team team={m.batting} batting />
           <Team team={m.bowling} />
-        </div>
-
-        <div className="chase">
-          <div className="row-between">
-            <strong>
-              {m.batting.name} need {need} runs from {m.ballsLeft} balls
-            </strong>
-            <span className="meta-inline">{wktsLeft} wkts left</span>
-          </div>
-          <div className="bar" role="progressbar" aria-valuenow={m.batting.runs} aria-valuemin={0} aria-valuemax={m.target} aria-label="Chase progress">
-            <div style={{ width: `${progress}%` }} />
-          </div>
         </div>
 
         <div className="stats">

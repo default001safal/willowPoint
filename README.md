@@ -31,39 +31,39 @@ All tokens live at the top of [`src/styles.css`](src/styles.css).
 - **Rule of thumb:** green means "you can act here", crimson means "happening now". No large solid green areas; primary buttons are off-white.
 - **Elevation:** cards, ribbons and inputs sit on `#1A1A1A` with a soft shadow; inner panels use `#262626`.
 
-## Data and backend (Firebase)
+## Backend (Firebase project `willowpoint-ff851`)
 
-The app runs in one of two modes:
+Live site: **https://willowpoint-ff851.web.app**
 
-- **Snapshot mode** (no Firebase config): content comes from [`src/data.js`](src/data.js) and preferences stay on the device. Good for design work.
-- **Firebase mode** (config in `.env.local`): content streams live from Firestore, and each fan's saved matches, follows and alert setting sync to their account.
+Everything is set up and running:
 
-### Set up Firebase (project `willowpoint-ff851`)
+- **Firestore** (`asia-south1`, Mumbai) holds the app's content, loaded from [`src/data.js`](src/data.js). The app streams it live, so edits show up instantly.
+- **Anonymous sign-in** gives every visitor a silent account. Their saved matches, follows and alert setting sync to `users/{uid}`. Google or phone sign-in can be added later and linked without losing data.
+- **Security rules** ([`firestore.rules`](firestore.rules)): anyone can read content; only admins can change it; each fan can read and write only their own preferences doc, with only the expected fields.
+- **Hosting** serves the built site from `dist/`.
 
-1. **Firestore:** Firebase console → Build → Firestore Database → Create database (production mode; `asia-south1` is closest to Nepal).
-2. **Auth:** Build → Authentication → Sign-in method → enable **Anonymous**. Every visitor gets a silent account; you can add Google or phone sign-in later and link it without losing their data.
-3. **Web app config:** Project settings → Your apps → Web app. Copy `.env.example` to `.env.local` and fill in the values.
-4. **Rules:** install the CLI once (`npm i -g firebase-tools`, then `firebase login`) and run `firebase deploy --only firestore:rules`.
-5. **Load content:** Project settings → Service accounts → Generate new private key, then:
-   ```bash
-   export GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json
-   npm run seed            # add --clear to wipe content collections first
-   ```
-   Never commit that key (it's in `.gitignore`).
-6. **Deploy the site** to Firebase Hosting: `npm run deploy`.
+The web config in [`src/lib/firebase.js`](src/lib/firebase.js) is public by design; the rules are what protect the data. To run the app on the local snapshot instead (no network), set `VITE_FIREBASE_DISABLED=true` in `.env.local`.
 
 ### Firestore layout
 
 | Path | What | Who can write |
 | --- | --- | --- |
-| `liveMatches/{id}` | Live score cards (`batting`, `bowling`, `target`, `runRate`, `requiredRate`, `ballsLeft`, `series`, `venue`, `order`) | Admin only |
+| `liveMatches/{id}` | Live score cards (`batting`, `bowling`, `target`, `runRate`, `requiredRate`, `ballsLeft`, `series`, `venue`, `competition`, `order`) | Admin only |
 | `fixtures/{id}` | Upcoming matches (`date` as `YYYY-MM-DD` in NPT, `title`, `time`, `venue`, `competition`, `order`) | Admin only |
 | `results/{id}` | Recent results (`label`, `lines[]`, `summary`, `status`, `competition`, `order`) | Admin only |
 | `stories/{id}`, `worldNews/{id}` | News cards and list (`order` sets position) | Admin only |
 | `config/featured` | The featured card on Home (currently the NPL final). Delete it to hide the card. | Admin only |
 | `users/{uid}` | A fan's `saved`, `following`, `alerts` | That fan only |
 
-Content is read-only from the app; update it in the Firebase console or with the Admin SDK (the seed script shows how). Every collection is sorted by its `order` field. "Today" and "Tomorrow" labels follow Nepal time.
+### Admin commands
+
+These need a service-account key (Firebase console → Project settings → Service accounts). Never commit it; `.gitignore` blocks the usual filenames.
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json
+npm run seed            # reload content from src/data.js (add -- --clear to wipe first)
+npm run deploy          # build, then deploy Hosting + Firestore rules (needs firebase-tools)
+```
 
 ## Not wired up yet
 

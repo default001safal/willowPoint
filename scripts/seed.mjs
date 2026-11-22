@@ -22,6 +22,8 @@ if (!keyPath) {
 const serviceAccount = JSON.parse(readFileSync(keyPath, 'utf8'));
 initializeApp({ credential: cert(serviceAccount) });
 const db = getFirestore();
+// REST instead of gRPC: works behind proxies and firewalls that block HTTP/2 streams.
+db.settings({ preferRest: true });
 
 const collections = {
   liveMatches: data.liveMatches.map((m) => ({ competition: 'Nepal', ...m })),

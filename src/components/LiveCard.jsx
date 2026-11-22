@@ -19,12 +19,12 @@ function LiveTiles({ match }) {
           ...s, active: i === 0, mark: <TeamMark name={s.name} size={11} />,
         }))}
       />
-      {chasing && <StatTile value={need} unit="Runs" label="To win" badge={`${match.ballsLeft} balls left`} />}
+      {chasing && <StatTile value={need} unit={`off ${match.ballsLeft}`} label="To win" badge={`${10 - batting.wickets} wickets left`} title={`${need} runs off ${match.ballsLeft} balls`} />}
       <StatTile
         value={match.runRate ?? '—'}
         unit="RPO"
         label="Run rate"
-        badge={chasing && match.requiredRate ? `need ${match.requiredRate}` : null}
+        badge={chasing && match.requiredRate ? `${match.requiredRate} needed` : null}
         trend={pace}
       />
     </TileGrid>

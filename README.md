@@ -82,7 +82,7 @@ The Nepal–UAE UI currently uses explicit mock over totals from `mockOverRuns` 
 
 ## Cricket data collection
 
-`python3 scripts/collect_cricket.py` fetches public HTML, RSS, and ZIP files defined in `scripts/cricket_sources.json`. Python 3.11+ is sufficient. The review snapshot in `.cricket-collection/daily.json` includes Nepal fixtures, tournament dates, completed scorecards with both innings' over totals, and cricket story leads. Records carry source links and licenses where available. Calendar times are left as TBC when a row gives only the date. Editors can use the RSS leads to write and link original news briefs.
+`python3 scripts/collect_cricket.py` fetches public HTML, RSS, and ZIP files defined in `scripts/cricket_sources.json`. Python 3.11+ is sufficient. The review snapshot in `.cricket-collection/daily.json` includes Nepal fixtures, tournament dates, completed scores, and cricket story leads. Cricsheet delivers over totals for both innings. Published final scorecards can fill gaps until those deliveries are available, using the same match ID so the richer record takes precedence. Records carry source links and licenses where available. Calendar times are left as TBC when a row gives only the date. Editors can use the RSS leads to write and link original news briefs.
 
 The collection workflow prepares a snapshot four times daily once installed on the GitHub default branch. The work branch also runs a collection check when this code changes. Review snapshots stay separate from Firestore content and the Hosting deploy. A broken source fails its collection visibly and preserves any previous local snapshot. The collector identifies itself, checks robots.txt, and requests only the configured URLs.
 

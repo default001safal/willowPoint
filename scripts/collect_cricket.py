@@ -272,6 +272,54 @@ def collect_calendar(body, source, today):
     return {"fixtures": fixtures, "events": [event for event in events.values() if event["endDate"] >= today.isoformat()]}
 
 
+class FinalInfobox(HTMLParser):
+    def __init__(self, body):
+        super().__init__(convert_charrefs=True)
+        self.matches = []
+        self.feed(body.decode("utf-8-sig"))
+        self.close()
+
+    def handle_starttag(self, tag, attrs):
+        metadata = dict(attrs).get("data-mw", "")
+        if "Infobox_limited_overs_final" not in metadata:
+            return
+        for part in json.loads(metadata).get("parts", []):
+            template = part.get("template", {}) if isinstance(part, dict) else {}
+            target = template.get("target", {}).get("href")
+            if target == "./Template:Infobox_limited_overs_final":
+                self.matches.append(template["params"])
+
+
+def collect_final(body, source, today):
+    boxes = FinalInfobox(body).matches
+    if len(boxes) != 1:
+        raise ValueError("Expected one limited overs final scorecard")
+    fields = {name: entry["wt"] for name, entry in boxes[0].items() if "wt" in entry}
+    stamp = re.match(r"\d{1,2} [A-Za-z]+ \d{4}", fields["date"])
+    if not stamp:
+        raise ValueError("Final scorecard has no confirmed date")
+    played = datetime.strptime(stamp[0], "%d %B %Y").date()
+    if played > today:
+        return {"results": []}
+
+    lines = []
+    for prefix in ("team1", "team2"):
+        team = re.sub(r"\[\[(?:[^\]|]+\|)?([^\]]+)\]\]", r"\1", fields[prefix]).strip()
+        score = fields[prefix + "score"].strip()
+        overs = re.fullmatch(r"(\d+(?:\.[0-5])?)\s+overs?", fields[prefix + "overs"].strip())
+        if not team or not re.fullmatch(r"\d+/(?:10|[0-9])", score) or not overs:
+            raise ValueError("The final does not have two valid innings totals")
+        lines.append({"team": team, "score": score, "overs": overs[1]})
+    summary = clean(fields["details"])
+    if not any(summary.startswith(line["team"] + " won") for line in lines):
+        raise ValueError("Final result could not be confirmed")
+    return {"results": [{
+        "id": "cricsheet-" + source["matchId"], "date": played.isoformat(),
+        "label": f"{source['title']} · {played.day} {played:%b %Y}", "competition": source["competition"],
+        "lines": lines, "status": "Final", "summary": summary, **provenance(source),
+    }]}
+
+
 def article_date(item, path):
     published_at = item.findtext("pubDate")
     if published_at:
@@ -398,7 +446,8 @@ def collect(sources, lane, now, fetch):
     snapshot = {"collectedAt": now.isoformat(), "fixtures": [], "events": [],
                 "results": [], "newsCandidates": [], "liveMatches": []}
     today = now.astimezone(NPT).date()
-    adapters = {"archive": collect_archive, "calendar": collect_calendar, "rss": collect_news}
+    adapters = {"archive": collect_archive, "calendar": collect_calendar,
+                "final": collect_final, "rss": collect_news}
     selected = live_sources(sources, now) if lane == "live" else [
         source for source in sources if source.get("enabled", True) and source["kind"] != "live"
     ]
@@ -412,7 +461,10 @@ def collect(sources, lane, now, fetch):
             raise ValueError(f"{source['id']}: {error}") from error
 
     for name in ("fixtures", "events", "results", "newsCandidates", "liveMatches"):
-        items = {item["id"]: item for item in snapshot[name]}
+        items = {}
+        for item in snapshot[name]:
+            # The configured source order prefers delivery archives over summary scorecards.
+            items.setdefault(item["id"], item)
         latest_first = name in {"results", "newsCandidates"}
         ordered = sorted(items.values(), key=lambda item: (item.get("date", ""), item["id"]), reverse=latest_first)
         snapshot[name] = [dict(item, order=index) for index, item in enumerate(ordered)]

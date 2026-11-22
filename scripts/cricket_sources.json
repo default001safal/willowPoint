@@ -27,6 +27,16 @@
     }
   },
   {
+    "id": "npl-final-2026",
+    "kind": "final",
+    "name": "Wikipedia contributors",
+    "url": "https://en.wikipedia.org/wiki/2026_Nepal_Premier_League_final",
+    "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "matchId": "1558613",
+    "title": "Nepal Premier League final",
+    "competition": "NPL"
+  },
+  {
     "id": "kathmandu-post-cricket",
     "kind": "rss",
     "name": "The Kathmandu Post",

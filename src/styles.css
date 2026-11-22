@@ -17,6 +17,7 @@
   --accent-hover: #7cff8a;
   --accent-tint: #132b16;
   --crimson: #c8102e;
+  --crimson-text: #ef3b53; /* crimson tuned for text on black (5.1:1 contrast) */
   --ink: #0a0a0a;
 
   --radius: 20px;
@@ -113,9 +114,11 @@ img { display: block; }
   min-height: 44px;
 }
 .section-head h2 {
-  font-family: var(--font-head); margin: 0; font-size: 27px; line-height: 1.15; font-weight: 700;
-  letter-spacing: -0.02em; font-style: italic; display: flex; align-items: center; gap: 10px; min-width: 0;
+  font-family: var(--font-head); margin: 0; font-size: 17px; line-height: 1.2; font-weight: 700;
+  font-style: italic; color: var(--crimson-text); display: flex; align-items: center; gap: 8px;
+  min-width: 0; white-space: nowrap;
 }
+.section-head h2 > :last-child { overflow: hidden; text-overflow: ellipsis; }
 .section-head > :last-child:not(h2) { flex: none; }
 .section-link { font-size: 13px; font-weight: 600; padding: 12px 0; background: none; border: 0; color: var(--accent); }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--crimson); }

@@ -6,7 +6,7 @@ export function SectionHead({ title, children, leading }) {
     <div className="section-head">
       <h2>
         {leading}
-        {title}
+        <span>{title}</span>
       </h2>
       {children}
     </div>

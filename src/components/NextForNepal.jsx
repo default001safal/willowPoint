@@ -5,7 +5,7 @@ import { SectionHead, parts } from './ui.jsx';
 import { StatTile, TileGrid } from './StatTiles.jsx';
 import { useContent } from '../lib/content.jsx';
 import { isLiveFixture } from '../lib/fixtures.js';
-import { clockTime, countdownLabel, kickoffUTC } from '../lib/statcard.js';
+import { clockTime, kickoffUTC } from '../lib/statcard.js';
 
 const pad = (n) => String(n).padStart(2, '0');
 const opponent = (title) => title.replace(/\s+v\s+Nepal$|^Nepal\s+v\s+/i, '');
@@ -43,19 +43,16 @@ export default function NextForNepal({ onSeeAll }) {
         <TileGrid label="Upcoming Nepal matches">
           {upcoming.map((f, i) => {
             const p = parts(f.date);
-            const clock = clockTime(f.time);
-            const countdown = i === 0 ? countdownLabel(kickoffUTC(f.date, f.time) - now) : null;
-            return countdown ? (
-              <StatTile key={f.id} inverse value={countdown} label={`${opponent(f.title)} · ${f.venue}`} badge={`${p.day} ${clock} NPT`} title={f.title} />
-            ) : (
+            const clock = clockTime(f.time) ?? 'TBC';
+            // Same shape for every game: date, opponent, then start time (NPT) and place.
+            return (
               <StatTile
                 key={f.id}
                 inverse={i === 0}
                 value={pad(p.date)}
                 unit={p.month}
-                label={`${opponent(f.title)} · ${f.venue}`}
-                badge={clock ? `${p.day} ${clock} NPT` : `${p.day} · time TBC`}
-                tone={clock ? 'go' : 'wait'}
+                label={`v ${opponent(f.title)}`}
+                badge={`${clock} · ${f.venue}`}
                 title={f.title}
               />
             );

@@ -584,3 +584,13 @@ img { display: block; }
 .mt-flags { gap: 10px; }
 .mt-flags > span { width: auto; height: auto; background: none; border: 0; border-radius: 0; }
 .mt-flags i { font-style: normal; font-size: 12px; letter-spacing: .06em; }
+
+/* --- EXPERIMENT: tiles 10% shorter, sections 10% further apart. Revert this block to undo. --- */
+:root { --section-space: 17.6px; }
+.tile { padding: 13px 18px 11px; }
+.tile-label { margin-top: 10px !important; }
+.tile-badge { margin-top: 12px !important; }
+.match-tiles > div { padding: 11px 16px; }
+.fixture-week button { min-height: 76px; padding: 8px 0 10px; }
+.list-row { padding-block: 10px; }
+.date-block { height: 48px; }

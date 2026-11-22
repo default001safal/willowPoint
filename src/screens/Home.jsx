@@ -116,6 +116,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
           </button>
         </div>
       </header>
+      <hr className="divider top" aria-hidden="true" />
 
       <section className="greeting">
         <h1>Namaskar, hajur!</h1>

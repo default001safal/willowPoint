@@ -194,3 +194,47 @@ export const Check = (p) => (
     <path d="M5 12.5l4.5 4.5L19 7.5" />
   </Svg>
 );
+
+// View-switch glyphs for the stat cards.
+export const ChartWorm = (p) => (
+  <Svg sw={1.8} {...p}>
+    <path d="M3 3v18h18" />
+    <path d="M7 15l4-5 3 3 5-6" />
+    <circle cx="7" cy="15" r="1.6" />
+    <circle cx="11" cy="10" r="1.6" />
+    <circle cx="19" cy="7" r="1.6" />
+  </Svg>
+);
+export const ChartBars = (p) => (
+  <Svg sw={1.8} {...p}>
+    <rect x="4" y="14" width="3.5" height="6" rx="1" />
+    <rect x="10.25" y="12" width="3.5" height="8" rx="1" />
+    <rect x="16.5" y="10" width="3.5" height="10" rx="1" />
+    <path d="M4 9l6-3 5 1 5-3M17 4h3v3" />
+  </Svg>
+);
+export const ChartGrid = (p) => (
+  <Svg sw={2} {...p}>
+    <rect x="3.5" y="3.5" width="17" height="17" rx="2.5" />
+    <path d="M3.5 9.2h17M3.5 14.8h17M9.2 3.5v17M14.8 3.5v17" />
+  </Svg>
+);
+export const ViewList = (p) => (
+  <Svg sw={1.9} {...p}>
+    <path d="M9 6h11M9 12h11M9 18h11" />
+    <circle cx="4.5" cy="6" r="1.1" fill="currentColor" />
+    <circle cx="4.5" cy="12" r="1.1" fill="currentColor" />
+    <circle cx="4.5" cy="18" r="1.1" fill="currentColor" />
+  </Svg>
+);
+export const ViewStrip = (p) => (
+  <Svg sw={0} fill="currentColor" {...p}>
+    {[9, 15].flatMap((y) => [4, 9.3, 14.7, 20].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.9" />))}
+  </Svg>
+);
+export const ViewMonth = (p) => (
+  <Svg sw={1.9} {...p}>
+    <rect x="3" y="4" width="18" height="17" rx="2.5" />
+    <path d="M3 9.5h18M3 15.2h18M9 9.5V21M15 9.5V21" />
+  </Svg>
+);

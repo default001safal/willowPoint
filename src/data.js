@@ -60,17 +60,17 @@ export const results = [
     summary: 'India lead by 118 runs', source: 'BCCI',
   },
   {
-    id: 'inda-nep', competition: 'Nepal', label: 'Asia Cup Rising Stars · Doha · 20 Nov',
+    id: 'inda-nep', date: '2026-11-20', competition: 'Nepal', label: 'Asia Cup Rising Stars · Doha · 20 Nov',
     lines: [{ team: 'India A', score: '332/9' }, { team: 'Nepal', score: '26', overs: '11.3' }],
     summary: 'India A won by 306 runs', source: 'BCCI',
   },
   {
-    id: 'npl-q2', competition: 'NPL', label: 'NPL Qualifier 2 · Kirtipur · 19 Nov',
+    id: 'npl-q2', date: '2026-11-19', competition: 'NPL', label: 'NPL Qualifier 2 · Kirtipur · 19 Nov',
     lines: [{ team: 'Sudurpaschim Royals', score: '136/7' }, { team: 'Chitwan Rhinos', score: '133/9' }],
     summary: 'Royals won by 3 wickets', source: 'Cricbuzz',
   },
   {
-    id: 'npl-q1', competition: 'NPL', label: 'NPL Qualifier 1 · Kirtipur · 17 Nov',
+    id: 'npl-q1', date: '2026-11-17', competition: 'NPL', label: 'NPL Qualifier 1 · Kirtipur · 17 Nov',
     lines: [{ team: 'Lumbini Lions', score: '108/4' }, { team: 'Sudurpaschim Royals', score: '105/8' }],
     summary: 'Lions won by 6 wickets', source: 'Cricbuzz',
   },

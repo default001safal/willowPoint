@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import * as I from './Icons.jsx';
 import { SectionHead, parts } from './ui.jsx';
 import { StatTile, TileGrid } from './StatTiles.jsx';
+import { TeamMark } from './TeamMark.jsx';
 import { useContent } from '../lib/content.jsx';
 import { isLiveFixture } from '../lib/fixtures.js';
 import { clockTime, kickoffUTC } from '../lib/statcard.js';
@@ -51,6 +52,7 @@ export default function NextForNepal({ onSeeAll }) {
                 inverse={i === 0}
                 value={pad(p.date)}
                 unit={p.month}
+                mark={<TeamMark name={opponent(f.title)} size={11} />}
                 label={`v ${opponent(f.title)}`}
                 badge={`${clock} · ${f.venue}`}
                 title={f.title}

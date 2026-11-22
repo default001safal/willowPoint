@@ -453,7 +453,7 @@ img { display: block; }
 .tile p { margin: 0; }
 .tile-value { display: flex; align-items: flex-start; gap: 4px; font-family: var(--font-head); font-size: 32px; font-weight: 400; line-height: 1; letter-spacing: -0.04em; white-space: nowrap; }
 .tile-value sup { margin-top: 2px; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: #8b929c; line-height: 1; }
-.tile-label { margin-top: 10px !important; font-family: var(--font-head); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #8b929c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-label { display: flex; align-items: center; gap: 6px; margin-top: 10px !important; font-family: var(--font-head); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #8b929c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tile-badge { display: flex; align-items: center; gap: 7px; margin-top: 12px !important; font-family: var(--font-head); font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tile-badge-dot { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; flex: none; color: var(--ink); }
 .tile-badge.neutral { color: #8b929c; }
@@ -472,3 +472,4 @@ img { display: block; }
   .tile { padding: 14px 13px 12px; }
   .tile-value { font-size: 28px; }
 }
+.tile-label .team-mark { flex: none; }

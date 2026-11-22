@@ -2,8 +2,9 @@ import { useState } from 'react';
 import * as I from './Icons.jsx';
 import { SectionHead } from './ui.jsx';
 import { StatTile, TileGrid } from './StatTiles.jsx';
+import { TeamMark } from './TeamMark.jsx';
 
-// Reads like the chase itself: what's left, how it's going, then the two scores side by side.
+// First row: the two sides, side by side. Second row: what the chase needs and how it's going.
 function LiveTiles({ match }) {
   const { batting, bowling } = match;
   const need = match.target != null ? match.target - batting.runs : null;
@@ -11,14 +12,22 @@ function LiveTiles({ match }) {
   const crr = Number(match.runRate);
   const rrr = Number(match.requiredRate);
   const pace = chasing && Number.isFinite(crr) && Number.isFinite(rrr) ? (crr >= rrr ? 'up' : 'down') : 'neutral';
+  const team = (side, inverse) => (
+    <StatTile
+      inverse={inverse}
+      value={side.runs}
+      unit={`/${side.wickets}`}
+      mark={<TeamMark name={side.name} size={11} />}
+      label={side.name}
+      badge={`${side.overs} overs`}
+    />
+  );
 
   return (
     <TileGrid label={`${batting.name} v ${bowling.name}`}>
-      {chasing ? (
-        <StatTile inverse value={need} unit="Runs" label="To win" badge={`${match.ballsLeft} balls left`} />
-      ) : (
-        <StatTile inverse value={batting.runs} unit={`/${batting.wickets}`} label={batting.name} badge={`${batting.overs} overs`} />
-      )}
+      {team(batting, true)}
+      {team(bowling, false)}
+      {chasing && <StatTile value={need} unit="Runs" label="To win" badge={`${match.ballsLeft} balls left`} />}
       <StatTile
         value={match.runRate ?? '—'}
         unit="Per over"
@@ -26,8 +35,6 @@ function LiveTiles({ match }) {
         badge={chasing && match.requiredRate ? `need ${match.requiredRate}` : null}
         trend={pace}
       />
-      {chasing && <StatTile value={batting.runs} unit={`/${batting.wickets}`} label={batting.name} badge={`${batting.overs} overs`} />}
-      <StatTile value={bowling.runs} unit={`/${bowling.wickets}`} label={bowling.name} badge={`${bowling.overs} overs`} />
     </TileGrid>
   );
 }

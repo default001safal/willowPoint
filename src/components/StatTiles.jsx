@@ -4,14 +4,14 @@
 // One tile per section is "inverse" (white): the thing to read first.
 import * as I from './Icons.jsx';
 
-export function StatTile({ value, unit, label, badge, trend = 'neutral', inverse = false, title }) {
+export function StatTile({ value, unit, label, mark, badge, trend = 'neutral', inverse = false, title }) {
   return (
     <div className={`tile${inverse ? ' inverse' : ''}`} title={title}>
       <p className="tile-value">
         {value}
         {unit && <sup>{unit}</sup>}
       </p>
-      <p className="tile-label">{label}</p>
+      <p className="tile-label">{mark}{label}</p>
       {badge && (
         <p className={`tile-badge ${trend}`}>
           <span className="tile-badge-dot" aria-hidden="true">

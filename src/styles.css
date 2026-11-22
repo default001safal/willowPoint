@@ -20,6 +20,10 @@
   --crimson-text: #ef3b53; /* crimson tuned for text on black (5.1:1 contrast) */
   --ink: #0a0a0a;
 
+  --page-gutter: 16px;
+  --section-space: 16px;
+  --content-gap: 10px;
+
   --radius: 20px;
   --radius-sm: 14px;
   --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 32px rgba(0, 0, 0, 0.55),
@@ -82,7 +86,7 @@ img { display: block; }
 }
 
 /* ---------- Greeting + search ---------- */
-.greeting { padding: 18px 20px 0; display: flex; flex-direction: column; }
+.greeting { padding: 16px var(--page-gutter) 0; display: flex; flex-direction: column; }
 .greeting h1, .screen-title {
   font-family: var(--font-head); margin: 0; font-size: 27px; line-height: 1.15;
   font-weight: 700; letter-spacing: -0.02em;
@@ -121,7 +125,7 @@ img { display: block; }
 .chip.live { background: #2a0e12; color: #ff6b7d; }
 
 .pill-row {
-  display: flex; gap: 8px; margin: 12px -20px 0; padding: 0 20px 4px; overflow-x: auto;
+  display: flex; gap: 8px; margin: 12px calc(-1 * var(--page-gutter)) 0; padding: 0 var(--page-gutter) 4px; overflow-x: auto;
   scrollbar-width: none;
 }
 .pill-row::-webkit-scrollbar { display: none; }
@@ -134,12 +138,12 @@ img { display: block; }
 .pill[aria-pressed='true'] { background: var(--text); border-color: var(--text); color: var(--ink); }
 
 /* ---------- Sections ---------- */
-.divider { border: 0; height: 1px; margin: 28px 20px 0; background: var(--divider); }
+.divider { border: 0; height: 1px; margin: var(--section-space) var(--page-gutter) 0; background: var(--divider); }
 .divider.top { margin-top: 8px; }
-.section { padding: 24px 16px 0; display: flex; flex-direction: column; gap: 12px; }
+.section { padding: var(--section-space) var(--page-gutter) 0; display: flex; flex-direction: column; gap: var(--content-gap); }
 .section-head {
   display: flex; align-items: center; justify-content: space-between; padding: 0 4px;
-  min-height: 44px;
+  min-height: 36px;
 }
 .section-head h2 {
   font-family: var(--font-head); margin: 0; font-size: 17px; line-height: 1.2; font-weight: 700;
@@ -148,7 +152,7 @@ img { display: block; }
 }
 .section-head h2 > :last-child { overflow: hidden; text-overflow: ellipsis; }
 .section-head > :last-child:not(h2) { flex: none; }
-.section-link { font-size: 13px; font-weight: 600; padding: 12px 0; background: none; border: 0; color: var(--accent); }
+.section-link { min-height: 44px; margin-block: -4px; font-size: 13px; font-weight: 600; padding: 12px 0; background: none; border: 0; color: var(--accent); }
 @property --live-alpha {
   syntax: '<number>';
   inherits: true;
@@ -320,7 +324,7 @@ img { display: block; }
 .nav button[aria-current='page'] { color: var(--accent); font-weight: 600; }
 
 /* ---------- Discover ---------- */
-.screen-head { padding: 18px 20px 0; display: flex; flex-direction: column; gap: 14px; }
+.screen-head { padding: 16px var(--page-gutter) 0; display: flex; flex-direction: column; gap: 14px; }
 .segmented { display: flex; gap: 24px; border-bottom: 1px solid var(--divider); padding: 0 2px; }
 .segmented button {
   height: 40px; padding: 0; border: 0; background: transparent; color: var(--muted); font-size: 15px; font-weight: 500;
@@ -344,7 +348,7 @@ img { display: block; }
 .footnote { margin: 4px 4px 0; font-size: 12px; color: var(--muted); }
 
 /* ---------- Cue ---------- */
-.cue-hero { padding: 40px 24px 0; display: flex; flex-direction: column; gap: 14px; }
+.cue-hero { padding: 24px var(--page-gutter) 0; display: flex; flex-direction: column; gap: 14px; }
 .cue-mark { color: var(--accent); display: flex; margin-left: -3px; }
 .cue-hero p { margin: -8px 0 0; font-size: 15px; font-weight: 300; line-height: 1.45; letter-spacing: 0.01em; color: var(--muted); }
 .suggestion {
@@ -352,7 +356,7 @@ img { display: block; }
   text-align: left; color: var(--text); width: 100%;
 }
 .suggestion .row-text span { font-size: 13px; }
-.thread { display: flex; flex-direction: column; gap: 10px; padding: 0 16px; }
+.thread { display: flex; flex-direction: column; gap: var(--content-gap); padding: var(--section-space) var(--page-gutter) 0; }
 .bubble { max-width: 85%; padding: 12px 14px; border-radius: 16px; font-size: 14px; line-height: 1.45; }
 .bubble.me { align-self: flex-end; background: var(--text); color: var(--ink); border-bottom-right-radius: 6px; }
 .bubble.cue { align-self: flex-start; background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 6px; }

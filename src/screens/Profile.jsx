@@ -14,7 +14,7 @@ export default function ProfileScreen({ prefs }) {
         <p className="subhead">Your teams, alerts and settings.</p>
       </header>
 
-      <section className="section" style={{ paddingTop: 16 }}>
+      <section className="section">
         <div className="card">
           <div className="profile-top">
             <span className="avatar">C</span>

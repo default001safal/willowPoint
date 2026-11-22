@@ -183,14 +183,16 @@ img { display: block; }
 
 .innings-card { padding: 20px; border-radius: 28px; background: #141414; box-shadow: inset 0 1px 0 #ffffff05; }
 .innings-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-bottom: 12px; }
-.innings-tabs button { display: flex; align-items: center; gap: 8px; padding: 0; border: 0; background: none; min-width: 0; min-height: 48px; text-align: left; }
-.innings-tabs button:last-child { flex-direction: row-reverse; text-align: right; }
+.innings-tabs button { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 0; border: 0; background: none; min-width: 0; min-height: 48px; text-align: left; }
+.innings-tabs button:last-child { align-items: flex-end; text-align: right; }
+.innings-scoreline { display: flex; align-items: center; gap: 9px; }
+.innings-tabs button:last-child .innings-scoreline { flex-direction: row-reverse; }
 .innings-score { font-family: var(--font-head); font-size: clamp(22px, 6vw, 32px); font-weight: 700; line-height: 1.2; letter-spacing: -0.065em; white-space: nowrap; }
 .innings-score > span { font-size: .72em; letter-spacing: -.04em; }
 .innings-label { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; font-size: 11px; min-width: 0; }
 .innings-tabs button:last-child .innings-label { align-items: flex-end; }
-.innings-team { display: inline-flex; align-items: center; gap: 5px; padding: 3px 5px; border: 1px solid transparent; border-radius: 999px; }
-.innings-tabs button[aria-selected='true'] .innings-team { color: var(--accent); background: var(--accent-tint); border-color: #00ff1e26; }
+.innings-team { display: inline-flex; align-items: center; gap: 5px; }
+.innings-tabs button[aria-selected='true'] .innings-team { color: var(--accent); }
 .innings-metrics { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 16px; padding-top: 10px; border-top: 1px solid #ffffff0d; }
 .innings-metrics > div { display: flex; align-items: baseline; gap: 6px; }
 .innings-metrics dt { font-size: 11px; color: var(--muted); }
@@ -424,5 +426,5 @@ img { display: block; }
   .innings-tabs button { gap: 5px; }
   .innings-label { font-size: 10px; }
   .innings-role svg { width: 12px; height: 12px; }
-  .innings-team { gap: 3px; padding-inline: 3px; }
+  .innings-team { gap: 3px; }
 }

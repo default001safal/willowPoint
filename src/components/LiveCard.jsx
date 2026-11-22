@@ -37,7 +37,10 @@ function InningsCard({ match }) {
               onClick={() => setInnings(side)}
               onKeyDown={event => selectWithKeyboard(event, side)}
             >
-              <span className="innings-score">{team.runs}<span>/{team.wickets}</span></span>
+              <span className="innings-scoreline">
+                <span className="innings-score">{team.runs}<span>/{team.wickets}</span></span>
+                <span className="innings-overs">{team.overs} ov</span>
+              </span>
               <span className="innings-label">
                 <span className="innings-team">
                   <span className={`innings-role ${side}`} role="img" aria-label={side === 'batting' ? 'Batting' : 'Bowling'} title={side === 'batting' ? 'Batting' : 'Bowling'}>
@@ -45,7 +48,6 @@ function InningsCard({ match }) {
                   </span>
                   <strong>{team.name}</strong>
                 </span>
-                <span className="innings-overs">{team.overs} ov</span>
               </span>
             </button>
           );

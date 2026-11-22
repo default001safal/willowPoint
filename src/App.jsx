@@ -28,7 +28,7 @@ export default function App() {
   useEffect(() => {
     try {
       const bg = new URLSearchParams(window.location.search).get('bg');
-      if (/^(ink|moss|stone|g-(aurora|dawn|floodlight|edge|mesh))$/.test(bg || '')) document.documentElement.dataset.bg = bg;
+      if (/^(black|ink|moss|stone-warm|g-(aurora|dawn|floodlight|edge|mesh))$/.test(bg || '')) document.documentElement.dataset.bg = bg;
     } catch { /* no query string available */ }
   }, []);
 

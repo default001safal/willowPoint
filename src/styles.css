@@ -585,8 +585,7 @@ img { display: block; }
 .mt-flags > span { width: auto; height: auto; background: none; border: 0; border-radius: 0; }
 .mt-flags i { font-style: normal; font-size: 12px; letter-spacing: .06em; }
 
-/* --- EXPERIMENT: tiles 10% shorter, sections 10% further apart. Revert this block to undo. --- */
-:root { --section-space: 17.6px; }
+/* --- EXPERIMENT: tiles 10% shorter (section spacing reverted to 16px). --- */
 .tile { padding: 13px 18px 11px; }
 .tile-label { margin-top: 10px !important; }
 .tile-badge { margin-top: 12px !important; }
@@ -597,11 +596,6 @@ img { display: block; }
 /* Experiment, cont.: big score text follows the tiles down ~10%. */
 .tile-value { font-size: 41px; }
 @media (max-width: 360px) { .tile-value { font-size: 34px; } }
-/* Sections separated by space, not lines: the old gap (divider margin + section
-   padding) rolled into one, +5%. The one divider left keeps it balanced. */
-.section { padding-top: 38px; }
-.divider { margin-top: 19px; }
-.divider + .section { padding-top: 19px; }
 
 /* ---------- Background options (?bg=ink|moss|stone; default black) ---------- */
 :root { --tile-bg: #151515; --tile-line: #262626; --block-bg: #1d1d1d; }
@@ -610,7 +604,7 @@ img { display: block; }
 /* Pine: a green-black that sits in the accent's family, so the crimson carries the contrast. */
 [data-bg='moss'] { --bg: #0a1310; --tile-bg: #111c17; --tile-line: #1e2e26; --block-bg: #16241d; --surface: #111c17; --border: #1e2e26; }
 /* Stone: warm charcoal, closer to leather and willow than to ink. */
-[data-bg='stone'] { --bg: #141110; --tile-bg: #1e1a18; --tile-line: #2e2825; --block-bg: #251f1c; --surface: #1e1a18; --border: #2e2825; }
+[data-bg='stone-warm'] { --bg: #141110; --tile-bg: #1e1a18; --tile-line: #2e2825; --block-bg: #251f1c; --surface: #1e1a18; --border: #2e2825; }
 
 .tile, .card, .ribbon, .match-tiles > div, .fixture-week button, .view-switch { background: var(--tile-bg); border-color: var(--tile-line); }
 .tile.inverse { background: #f4f4f4; border-color: #f4f4f4; }
@@ -640,3 +634,7 @@ img { display: block; }
 [data-bg='g-edge'] { --bg: #080808; --bg-wash: linear-gradient(180deg, rgba(0, 255, 30, 0.2) 0%, rgba(200, 16, 46, 0.1) 18%, rgba(8, 8, 8, 0) 38%), #080808; }
 /* Mesh: three soft lights crossing, the way a mesh gradient does. */
 [data-bg='g-mesh'] { --bg: #0a0a0c; --bg-wash: radial-gradient(62% 42% at 84% 4%, rgba(0, 255, 30, 0.14), transparent 62%), radial-gradient(58% 40% at 4% 28%, rgba(200, 16, 46, 0.2), transparent 64%), radial-gradient(72% 48% at 58% 98%, rgba(42, 92, 214, 0.26), transparent 66%), #0a0a0c; }
+
+/* ---------- Stone is the default: warm charcoal, not black ---------- */
+:root { --bg: #100e0d; --surface: #1a1716; --border: #2a2523; --border-strong: #403b37; --tile-bg: #1a1716; --tile-line: #2a2523; --block-bg: #211d1a; }
+[data-bg='black'] { --bg: #0a0a0a; --surface: #1a1a1a; --border: #2e2e2e; --border-strong: #3a3a3a; --tile-bg: #151515; --tile-line: #262626; --block-bg: #1d1d1d; }

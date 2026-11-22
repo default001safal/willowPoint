@@ -50,11 +50,10 @@ export default function LiveSection({ matches, onAskCue }) {
           <button
             type="button"
             className="ask"
-            aria-label="Ask Cue about this match"
-            title="Ask Cue"
             onClick={() => onAskCue(`Talk me through ${m.batting.name} v ${m.bowling.name}`)}
           >
             <I.SparkGlint size={20} />
+            Ask Cue
           </button>
           <div className="card-title">
             <span className="series">{m.series}</span>

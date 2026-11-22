@@ -194,11 +194,12 @@ img { display: block; }
 .card-title .sep { color: var(--muted); }
 .card-title .venue { display: flex; align-items: center; gap: 4px; color: var(--muted); flex: none; }
 .live-card .ask {
-  position: relative; width: 32px; height: 32px; margin: -6px 0 -6px -6px; flex: none;
-  border: 0; background: transparent; color: var(--accent); display: flex; align-items: center; justify-content: center; padding: 0;
-  transition: transform 0.15s ease;
+  position: relative; height: 32px; margin: -6px 0 -6px -4px; padding: 0 2px; flex: none; gap: 6px;
+  border: 0; background: transparent; color: var(--accent); display: flex; align-items: center;
+  font-size: 13px; font-weight: 600; white-space: nowrap;
 }
-.live-card .ask:hover { transform: rotate(12deg) scale(1.08); }
+.live-card .ask svg { transition: transform 0.15s ease; }
+.live-card .ask:hover svg { transform: rotate(12deg) scale(1.08); }
 .live-card .ask::before { content: ''; position: absolute; inset: -6px; } /* comfortable tap area */
 .stat-ribbon {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; height: 46px; padding: 0 6px;

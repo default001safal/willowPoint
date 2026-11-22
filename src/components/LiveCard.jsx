@@ -47,14 +47,6 @@ export default function LiveSection({ matches, onAskCue }) {
 
       <article className="card live-card">
         <div className="row-between">
-          <div className="card-title">
-            <span className="series">{m.series}</span>
-            <span className="sep" aria-hidden="true">·</span>
-            <span className="venue">
-              <I.Pin size={13} />
-              {m.venue}
-            </span>
-          </div>
           <button
             type="button"
             className="ask"
@@ -64,6 +56,14 @@ export default function LiveSection({ matches, onAskCue }) {
           >
             <I.SparkGlint size={20} />
           </button>
+          <div className="card-title">
+            <span className="series">{m.series}</span>
+            <span className="sep" aria-hidden="true">·</span>
+            <span className="venue">
+              <I.Pin size={13} />
+              {m.venue}
+            </span>
+          </div>
         </div>
 
         <div className="teams">

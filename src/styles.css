@@ -189,12 +189,12 @@ img { display: block; }
   font-size: 10px; font-weight: 600; color: var(--accent); background: var(--accent-tint);
   padding: 3px 7px; border-radius: 999px;
 }
-.card-title { display: flex; align-items: center; gap: 6px; min-width: 0; white-space: nowrap; font-size: 13px; }
+.card-title { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex: 1; min-width: 0; white-space: nowrap; font-size: 13px; }
 .card-title .series { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .card-title .sep { color: var(--muted); }
 .card-title .venue { display: flex; align-items: center; gap: 4px; color: var(--muted); flex: none; }
 .live-card .ask {
-  position: relative; width: 32px; height: 32px; margin: -6px -6px -6px 0; flex: none;
+  position: relative; width: 32px; height: 32px; margin: -6px 0 -6px -6px; flex: none;
   border: 0; background: transparent; color: var(--accent); display: flex; align-items: center; justify-content: center; padding: 0;
   transition: transform 0.15s ease;
 }
@@ -204,8 +204,8 @@ img { display: block; }
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; height: 46px; padding: 0 6px;
   border-radius: 999px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
 }
-.stat-ribbon > div { display: flex; flex-direction: column; gap: 1px; padding: 0 14px; min-width: 0; }
-.stat-ribbon > div + div { border-left: 1px solid var(--border); }
+.stat-ribbon > div { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 10px; min-width: 0; }
+.stat-ribbon > div + div { box-shadow: -1px 0 0 var(--border); }
 .stat-ribbon small { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
 .stat-ribbon b { font-family: var(--font-head); font-size: 15px; line-height: 1.2; }
 .stat-ribbon .good { color: var(--accent); }

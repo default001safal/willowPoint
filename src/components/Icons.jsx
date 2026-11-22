@@ -168,15 +168,13 @@ export const Compass = (p) => (
 
 export const CricketBat = (p) => (
   <Svg {...p}>
-    <path d="m15 3 3 3-5 5-3-3zM10 8l3 3-7 10-4-4z" />
-    <path d="m15 5 1 1" />
+    <path d="m14 8 5-5M12 7l5 5-10 10-5-5z" />
   </Svg>
 );
 
 export const CricketBall = (p) => (
   <Svg {...p}>
     <circle cx="12" cy="12" r="9" />
-    <path d="M7 4c6 3 4 13 10 16" />
-    <path d="M10 3c6 3 4 13 10 16" strokeDasharray="1 3" />
+    <path d="M8 4c5 4 3 12 8 16" />
   </Svg>
 );

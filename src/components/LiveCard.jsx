@@ -6,18 +6,28 @@ import { overMarkers } from '../lib/innings.js';
 import { mockOverRuns } from '../data.js';
 
 function InningsCard({ match }) {
-  const [innings, setInnings] = useState('batting');
+  const [view, setView] = useState({ innings: 'batting', previous: null, revision: 0 });
+  const { innings } = view;
+  const selectInnings = side => setView(current => current.innings === side
+    ? current
+    : { innings: side, previous: current.innings, revision: current.revision + 1 });
   const id = useId();
   const selected = match[innings];
   const overRuns = selected.overRuns ?? mockOverRuns[match.id]?.[innings];
   const markers = overMarkers({ ...selected, overRuns }, match.maxOvers, innings === 'batting');
+  const previousTeam = view.previous ? match[view.previous] : null;
+  const previousMarkers = previousTeam ? overMarkers({
+    ...previousTeam,
+    overRuns: previousTeam.overRuns ?? mockOverRuns[match.id]?.[view.previous],
+  }, match.maxOvers, view.previous === 'batting') : [];
+  const markerText = marker => marker?.state === 'upcoming' ? '' : marker?.runs ?? '—';
   const teams = ['batting', 'bowling'];
 
   const selectWithKeyboard = (event, side) => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
     const next = event.key === 'Home' ? 'batting' : event.key === 'End' ? 'bowling' : teams.find(team => team !== side);
-    setInnings(next);
+    selectInnings(next);
     document.getElementById(`${id}-${next}`)?.focus();
   };
 
@@ -35,7 +45,7 @@ function InningsCard({ match }) {
               aria-selected={innings === side}
               aria-controls={`${id}-overs`}
               tabIndex={innings === side ? 0 : -1}
-              onClick={() => setInnings(side)}
+              onClick={() => selectInnings(side)}
               onKeyDown={event => selectWithKeyboard(event, side)}
             >
               <span className="innings-scoreline">
@@ -64,14 +74,17 @@ function InningsCard({ match }) {
       </dl>
       <div id={`${id}-overs`} role="tabpanel" aria-labelledby={`${id}-${innings}`} tabIndex={0}>
         <span className="sr-only">Runs per over. Green marks completed overs. Red marks the current over. Dashes indicate unavailable totals. Blank circles are upcoming overs.</span>
-        <ol className="over-grid" aria-label={`${selected.name} runs per over`}>
+        <ol className="over-grid" data-direction={innings} aria-label={`${selected.name} runs per over`}>
           {markers.map(marker => {
             const description = marker.state === 'upcoming'
               ? 'upcoming'
               : `${marker.state}, ${marker.runs === null ? 'runs unavailable' : `${marker.runs} runs`}`;
             return (
               <li key={marker.over} className={`over-marker ${marker.state}`} aria-label={`Over ${marker.over}: ${description}`} title={`Over ${marker.over}: ${description}`}>
-                <span aria-hidden="true">{marker.state === 'upcoming' ? '' : marker.runs ?? '—'}</span>
+                <span key={`${view.revision}-${marker.over}`} className={`over-reel${view.previous ? ' rolling' : ''}`} style={{ '--roll-delay': `${((marker.over - 1) % 10) * 12}ms` }} aria-hidden="true">
+                  {view.previous && <span className="over-face outgoing">{markerText(previousMarkers[marker.over - 1])}</span>}
+                  <span className="over-face incoming">{markerText(marker)}</span>
+                </span>
               </li>
             );
           })}

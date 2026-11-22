@@ -191,7 +191,6 @@ img { display: block; }
 .innings-tabs button:last-child .innings-label { flex-direction: row; align-self: flex-end; }
 .innings-meta-dot { color: var(--muted); opacity: .6; }
 .innings-team { display: inline-flex; align-items: center; gap: 5px; }
-.innings-tabs button[aria-selected='true'] .innings-team { color: var(--accent); }
 .innings-metrics { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 16px; padding-top: 10px; border-top: 1px solid #ffffff0d; }
 .innings-metrics > div { display: flex; align-items: baseline; gap: 6px; }
 .innings-metrics dt { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); }
@@ -200,9 +199,7 @@ img { display: block; }
 .innings-metrics dd { margin: 0; font-family: var(--font-head); font-size: 13px; font-weight: 700; }
 .innings-metrics > div:last-child dd { color: var(--accent); }
 .innings-label strong { font-weight: 600; overflow-wrap: anywhere; }
-.innings-role { display: inline-flex; flex: none; }
-.innings-role.batting { color: var(--accent); }
-.innings-role.bowling { color: var(--crimson-text); }
+.innings-role { display: inline-flex; flex: none; color: var(--muted); }
 .innings-overs { color: var(--muted); font-size: 11px; white-space: nowrap; }
 .over-grid { list-style: none; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 7px 5px; margin: 0; padding: 0; }
 .over-marker { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border-radius: 50%; font-family: var(--font-head); font-size: 11px; line-height: 1; border: 1px solid #ffffff15; color: #68717c; }
@@ -431,3 +428,19 @@ img { display: block; }
 
 .innings-scoreline { display: inline-flex; flex-direction: row-reverse; align-items: center; gap: 8px; }
 .innings-tabs button:last-child .innings-scoreline { flex-direction: row; }
+
+/* Per-over totals roll vertically when the viewed innings changes. */
+.over-marker { position: relative; overflow: hidden; transition: background-color .3s ease, border-color .3s ease, color .3s ease; }
+.over-reel { position: absolute; inset: 0; }
+.over-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.over-grid { --roll-in: 110%; --roll-out: -110%; }
+.over-grid[data-direction='batting'] { --roll-in: -110%; --roll-out: 110%; }
+.over-reel.rolling .incoming { animation: over-roll-in .65s cubic-bezier(.22, 1, .36, 1) var(--roll-delay) both; }
+.over-reel.rolling .outgoing { animation: over-roll-out .65s cubic-bezier(.22, 1, .36, 1) var(--roll-delay) both; }
+@keyframes over-roll-in { from { transform: translateY(var(--roll-in)); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes over-roll-out { from { transform: translateY(0); opacity: 1; } to { transform: translateY(var(--roll-out)); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .over-marker { transition: none; }
+  .over-reel.rolling .incoming { animation: none; }
+  .over-reel.rolling .outgoing { display: none; animation: none; }
+}

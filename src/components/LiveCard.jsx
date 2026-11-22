@@ -59,10 +59,7 @@ export default function LiveSection({ matches, onAskCue }) {
           <div className="card-title">
             <span className="series">{m.series}</span>
             <span className="sep" aria-hidden="true">·</span>
-            <span className="venue">
-              <I.Pin size={13} />
-              {m.venue}
-            </span>
+            <span className="venue">{m.venue}</span>
           </div>
         </div>
 

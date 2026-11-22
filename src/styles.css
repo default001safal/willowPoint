@@ -192,31 +192,6 @@ img { display: block; }
 .row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .meta-inline { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); white-space: nowrap; }
 
-.innings-card { padding: 20px; border-radius: 28px; background: #141414; box-shadow: inset 0 1px 0 #ffffff05; }
-.innings-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-bottom: 12px; }
-.innings-tabs button { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 0; border: 0; background: none; min-width: 0; min-height: 48px; text-align: left; }
-.innings-tabs button:last-child { align-items: flex-end; text-align: right; }
-.innings-score { font-family: var(--font-head); font-size: clamp(22px, 6vw, 32px); font-weight: 700; line-height: 1.2; letter-spacing: -0.065em; white-space: nowrap; }
-.innings-score > span { font-size: .72em; letter-spacing: -.04em; }
-.innings-label { display: flex; flex-direction: row-reverse; align-self: flex-start; align-items: center; gap: 6px; font-size: 11px; min-width: 0; }
-.innings-tabs button:last-child .innings-label { flex-direction: row; align-self: flex-end; }
-.innings-meta-dot { color: var(--muted); opacity: .6; }
-.innings-team { display: inline-flex; align-items: center; gap: 5px; padding: 3px 7px; min-height: 23px; border: 1px solid #ffffff12; border-radius: 999px; background: #ffffff04; }
-.innings-metrics { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 16px; padding-top: 10px; border-top: 1px solid #ffffff0d; }
-.innings-metrics > div { display: flex; align-items: center; gap: 6px; }
-.innings-metrics dt { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; line-height: 1; color: var(--muted); }
-.innings-metrics dt svg { flex: none; }
-.innings-metrics abbr { text-decoration: none; cursor: help; }
-.innings-metrics dd { margin: 0; font-family: var(--font-head); font-size: 13px; line-height: 1; font-weight: 700; }
-.innings-metrics > div:last-child dd { color: var(--accent); }
-.innings-label strong { font-weight: 600; overflow-wrap: anywhere; }
-.innings-role { display: inline-flex; flex: none; color: var(--muted); }
-.over-grid { list-style: none; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 7px 5px; margin: 0; padding: 0; }
-.over-marker { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border-radius: 50%; font-family: var(--font-head); font-size: 11px; line-height: 1; border: 1px solid #ffffff15; color: #68717c; }
-.over-marker.completed { background: var(--accent-tint); border-color: #00ff1e55; color: var(--accent); }
-.over-marker.current { background: var(--crimson); border-color: var(--crimson-text); color: white; font-weight: 700; }
-.over-marker.upcoming { border-color: #ffffff0a; color: #ffffff26; }
-.innings-cue { display: flex; align-items: center; justify-content: flex-end; gap: 5px; align-self: flex-end; min-height: 44px; padding: 0 5px; margin-block: -10px; border: 0; background: none; color: var(--accent); font-size: 12px; font-weight: 600; }
 
 /* ---------- Ribbons ---------- */
 .ribbon {
@@ -444,23 +419,9 @@ img { display: block; }
 .story .photo { padding: 0; }
 .story .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-@media (max-width: 380px) {
-  .innings-card { padding: 16px; }
-  .innings-tabs { gap: 10px; }
-  .innings-tabs button { gap: 5px; }
-  .innings-label { font-size: 10px; }
-  .innings-role svg { width: 12px; height: 12px; }
-  .innings-team { gap: 3px; }
-}
-
-.innings-scoreline { display: inline-flex; flex-direction: row-reverse; align-items: center; gap: 8px; }
-.innings-tabs button:last-child .innings-scoreline { flex-direction: row; }
-
 /* Per-over totals roll vertically when the viewed innings changes. */
-.over-marker { position: relative; overflow: hidden; transition: background-color .3s ease, border-color .3s ease, color .3s ease; }
 .over-reel { position: absolute; inset: 0; }
 .over-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.over-grid { --roll-in: 110%; --roll-out: -110%; }
 .over-grid[data-direction='batting'] { --roll-in: -110%; --roll-out: 110%; }
 .over-reel.rolling .incoming { animation: over-roll-in .65s cubic-bezier(.22, 1, .36, 1) var(--roll-delay) both; }
 .over-reel.rolling .outgoing { animation: over-roll-out .65s cubic-bezier(.22, 1, .36, 1) var(--roll-delay) both; }
@@ -472,9 +433,6 @@ img { display: block; }
   .over-reel.rolling .outgoing { display: none; animation: none; }
 }
 
-.innings-tabs button { color: #8b929c; transition: color .22s ease; }
-.innings-tabs button .innings-role { color: inherit; }
-.innings-tabs button[aria-selected='true'] { color: #ffffff; }
 @media (prefers-reduced-motion: reduce) {
   .innings-tabs button { transition: none; }
 }
@@ -520,3 +478,47 @@ img { display: block; }
 .ob-cta { height: 54px; border-radius: 999px; border: 0; background: var(--text); color: var(--ink); font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .ob-cta:disabled { opacity: .4; }
 .result .line b { white-space: nowrap; flex: none; }
+
+/* ---------- Live innings card ---------- */
+.live-actions { display: flex; align-items: center; gap: 4px; }
+.innings-cue { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 0 2px 0 6px; border: 0; background: none; color: var(--accent); font-size: 13px; font-weight: 600; }
+.innings-cue b { color: var(--crimson-text); font-weight: 600; }
+.innings-cue span { color: var(--text); }
+.innings-card { padding: 18px 18px 16px; border-radius: 26px; background: #141414; box-shadow: inset 0 1px 0 #ffffff05; }
+.innings-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.innings-tabs button { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; padding: 2px 0 10px; border: 0; background: none; text-align: left; color: #7d848e; transition: color .22s ease; }
+.innings-tabs button:last-child { align-items: flex-end; text-align: right; }
+.innings-tabs button[aria-selected='true'] { color: var(--text); }
+/* A short bar marks which innings the over grid is showing. */
+.innings-tabs button::after { content: ''; position: absolute; bottom: 0; left: 0; width: 22px; height: 2px; border-radius: 2px; background: var(--accent); opacity: 0; transition: opacity .22s ease; }
+.innings-tabs button:last-child::after { left: auto; right: 0; }
+.innings-tabs button[aria-selected='true']::after { opacity: 1; }
+.innings-team { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; font-size: 13px; }
+.innings-tabs button:last-child .innings-team { flex-direction: row-reverse; }
+.innings-team strong { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.innings-role { display: inline-flex; flex: none; color: var(--muted); opacity: .8; }
+.innings-score { font-family: var(--font-head); font-size: clamp(26px, 7.4vw, 32px); font-weight: 700; line-height: 1.05; letter-spacing: -0.06em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.innings-score > span { font-size: .66em; letter-spacing: -.03em; opacity: .7; }
+.innings-overs { font-size: 11px; color: var(--muted); }
+.innings-metrics { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 0; padding: 12px 0; border-top: 1px solid #ffffff0d; border-bottom: 1px solid #ffffff0d; }
+.innings-metrics > div { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.innings-metrics dt { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; line-height: 1; color: var(--muted); align-self: center; }
+.innings-metrics dt svg { flex: none; }
+.innings-metrics abbr { text-decoration: none; cursor: help; }
+.innings-metrics dd { margin: 0; font-size: 14px; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.innings-metrics .need dd { color: var(--accent); }
+.over-caption { display: flex; justify-content: space-between; margin: 12px 1px 9px; font-size: 10.5px; letter-spacing: .02em; color: #6f7680; }
+.over-grid { --roll-in: 110%; --roll-out: -110%; list-style: none; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; }
+.over-marker { position: relative; overflow: hidden; transition: background-color .3s ease, color .3s ease; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border-radius: 50%; font-size: 11px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; color: #6f7680; }
+.over-marker.completed { background: #13261a; color: #8fe39a; }
+/* Big overs (10+) stand out. */
+.over-marker.completed.big { background: #164a20; color: var(--accent); }
+.over-marker.current { background: var(--crimson); color: #fff; font-weight: 700; }
+/* Upcoming overs are just a small dot, so the grid reads as progress, not clutter. */
+.over-marker.upcoming { background: none; }
+.over-marker.upcoming::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: #ffffff1f; }
+@media (max-width: 360px) {
+  .innings-card { padding: 16px 14px 14px; }
+  .innings-metrics dd { font-size: 13px; }
+  .over-grid { gap: 5px; }
+}

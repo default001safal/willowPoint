@@ -5,53 +5,66 @@ import { Divider, SaveButton, SectionHead, addDays, parts, relativeDay } from '.
 import { useContent } from '../lib/content.jsx';
 import { SearchField, SearchFilters, SearchResults } from '../components/Search.jsx';
 import { useWeather, weatherSentence } from '../lib/weather.js';
-import { MarkPair, TeamMark } from '../components/TeamMark.jsx';
+import { TeamMark } from '../components/TeamMark.jsx';
 
 function Fixtures({ saved, toggleSaved, onSeeAll }) {
   const { today: TODAY, fixtures: all } = useContent();
-  const fixtures = all.filter((f) => f.nepal !== false && f.date > TODAY);
-  const [day, setDay] = useState('all');
+  const fixtures = all
+    .filter((f) => f.nepal !== false && f.date > TODAY)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const [day, setDay] = useState(null);
   const week = Array.from({ length: 7 }, (_, i) => addDays(TODAY, i + 1));
   const hasMatch = new Set(fixtures.map((f) => f.date));
-  const shown = day === 'all' ? fixtures : fixtures.filter((f) => f.date === day);
+  const selected = day === 'all' || week.includes(day)
+    ? day
+    : fixtures.find((f) => week.includes(f.date))?.date ?? week[0];
+  const shown = (selected === 'all' ? fixtures : fixtures.filter((f) => f.date === selected)).slice(0, 2);
+  const first = parts(week[0]);
+  const last = parts(week[6]);
+  const firstYear = week[0].slice(0, 4);
+  const lastYear = week[6].slice(0, 4);
+  const monthLabel = firstYear !== lastYear
+    ? `${first.month} ${firstYear} – ${last.month} ${lastYear}`
+    : `${first.month}${first.month !== last.month ? ` – ${last.month}` : ''} ${firstYear}`;
 
   return (
-    <section className="section">
+    <section className="section fixtures-bare" aria-label="Nepal's next matches">
       <SectionHead title="Nepal's next matches">
-        <button type="button" className="section-link" onClick={onSeeAll}>See all</button>
+        <button type="button" className="section-link" onClick={onSeeAll}>
+          All fixtures <I.ArrowUp size={11} style={{ transform: 'rotate(45deg)' }} />
+        </button>
       </SectionHead>
-      <div className="card">
-        <div className="strip">
-          <button type="button" aria-pressed={day === 'all'} aria-label="All dates" onClick={() => setDay('all')}>
-            <I.Calendar size={16} />
-            <small style={{ fontWeight: 600 }}>All</small>
-          </button>
-          {week.map((d) => {
-            const p = parts(d);
-            return (
-              <button key={d} type="button" aria-pressed={day === d} aria-label={`${p.day} ${p.date} ${p.month}`} onClick={() => setDay(d)}>
-                <small>{p.day}</small>
-                <b>{p.date}</b>
-                <span className={`dot${hasMatch.has(d) ? ' on' : ''}`} />
-              </button>
-            );
-          })}
-        </div>
-        {shown.length === 0 && <p className="empty">No Nepal matches on this day.</p>}
-        {shown.map((f) => {
-          const p = parts(f.date);
+      <div className="fixture-month">
+        <span>{monthLabel}</span>
+        <button type="button" aria-label="Show all upcoming Nepal matches" aria-pressed={selected === 'all'} onClick={() => setDay('all')}>All</button>
+      </div>
+      <div className="fixture-week" role="group" aria-label="Choose fixture date">
+        {week.map((d) => {
+          const p = parts(d);
           return (
-            <div className="list-row" key={f.id}>
-              <div className="date-block"><b>{p.date}</b><small>{p.month}</small></div>
-              <div className="row-text">
-                <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
-                <span>{relativeDay(f.date, TODAY)} · {f.time} · {f.venue}</span>
-              </div>
-              <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
-            </div>
+            <button key={d} type="button" aria-pressed={selected === d} aria-label={`${p.day} ${p.date} ${p.month}`} onClick={() => setDay(d)}>
+              <small>{p.day}</small>
+              <b>{p.date}</b>
+              <span aria-hidden="true" className={`fixture-match-dot${hasMatch.has(d) ? ' has-match' : ''}`} />
+            </button>
           );
         })}
       </div>
+      <ul className="fixture-matches" aria-live="polite">
+        {shown.length === 0 && <li className="fixture-empty">No Nepal matches on this date.</li>}
+        {shown.map((f) => (
+          <li className="fixture-match" key={f.id}>
+            <div>
+              <h3>{f.title}</h3>
+              <p>
+                {selected === 'all' && <><time dateTime={f.date}>{parts(f.date).date} {parts(f.date).month}</time><span aria-hidden="true">·</span></>}
+                <span>{f.time}</span><span aria-hidden="true">·</span><span>{f.venue}</span>
+              </p>
+            </div>
+            <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

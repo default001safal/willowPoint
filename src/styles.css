@@ -113,9 +113,10 @@ img { display: block; }
   min-height: 44px;
 }
 .section-head h2 {
-  font-family: var(--font-head); margin: 0; font-size: 17px; font-weight: 700;
-  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-head); margin: 0; font-size: 27px; line-height: 1.15; font-weight: 700;
+  letter-spacing: -0.02em; font-style: italic; display: flex; align-items: center; gap: 10px; min-width: 0;
 }
+.section-head > :last-child:not(h2) { flex: none; }
 .section-link { font-size: 13px; font-weight: 600; padding: 12px 0; background: none; border: 0; color: var(--accent); }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--crimson); }
 

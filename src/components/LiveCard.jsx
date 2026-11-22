@@ -22,9 +22,10 @@ function LiveTiles({ match }) {
       {chasing && <StatTile value={need} unit={`off ${match.ballsLeft}`} label="To win" badge={`${10 - batting.wickets} wickets left`} title={`${need} runs off ${match.ballsLeft} balls`} />}
       <StatTile
         value={match.runRate ?? '—'}
-        unit="RPO"
-        label="Run rate"
-        badge={chasing && match.requiredRate ? `${match.requiredRate} needed` : null}
+        unit="Now"
+        label="Runs per over"
+        badge={chasing && match.requiredRate ? `${pace === 'down' ? 'Slower' : 'Faster'} than the ${match.requiredRate} needed` : null}
+        wrap
         trend={pace}
       />
     </TileGrid>

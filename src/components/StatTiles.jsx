@@ -4,7 +4,7 @@
 // One tile per section is "inverse" (white): the thing to read first.
 import * as I from './Icons.jsx';
 
-export function StatTile({ value, unit, label, mark, badge, trend = 'neutral', inverse = false, title }) {
+export function StatTile({ value, unit, label, mark, badge, trend = 'neutral', inverse = false, wrap = false, title }) {
   return (
     <div className={`tile${inverse ? ' inverse' : ''}`} title={title}>
       <p className="tile-value">
@@ -13,7 +13,7 @@ export function StatTile({ value, unit, label, mark, badge, trend = 'neutral', i
       </p>
       <p className="tile-label">{mark}{label}</p>
       {badge && (
-        <p className={`tile-badge ${trend}`}>
+        <p className={`tile-badge ${trend}${wrap ? ' wrap' : ''}`}>
           <span className="tile-badge-dot" aria-hidden="true">
             {trend === 'neutral' ? <span className="tile-pip" /> : (
               <I.ArrowUp size={10} sw={3} style={trend === 'down' ? { transform: 'rotate(180deg)' } : undefined} />

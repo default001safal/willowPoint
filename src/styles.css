@@ -187,8 +187,8 @@ img { display: block; }
 .innings-tabs button:last-child { align-items: flex-end; text-align: right; }
 .innings-score { font-family: var(--font-head); font-size: clamp(22px, 6vw, 32px); font-weight: 700; line-height: 1.2; letter-spacing: -0.065em; white-space: nowrap; }
 .innings-score > span { font-size: .72em; letter-spacing: -.04em; }
-.innings-label { display: flex; align-items: center; gap: 6px; font-size: 11px; min-width: 0; }
-.innings-tabs button:last-child .innings-label { justify-content: flex-end; }
+.innings-label { display: flex; flex-direction: row-reverse; align-self: flex-end; align-items: center; gap: 6px; font-size: 11px; min-width: 0; }
+.innings-tabs button:last-child .innings-label { flex-direction: row; align-self: flex-start; }
 .innings-meta-dot { color: var(--muted); opacity: .6; }
 .innings-team { display: inline-flex; align-items: center; gap: 5px; }
 .innings-tabs button[aria-selected='true'] .innings-team { color: var(--accent); }
@@ -429,5 +429,5 @@ img { display: block; }
   .innings-team { gap: 3px; }
 }
 
-.innings-scoreline { display: inline-flex; align-items: center; gap: 8px; }
-.innings-tabs button:last-child .innings-scoreline { flex-direction: row-reverse; }
+.innings-scoreline { display: inline-flex; flex-direction: row-reverse; align-items: center; gap: 8px; }
+.innings-tabs button:last-child .innings-scoreline { flex-direction: row; }

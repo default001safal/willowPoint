@@ -4,6 +4,7 @@ import LiveSection from '../components/LiveCard.jsx';
 import { Divider, SaveButton, SectionHead, addDays, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { SearchField, SearchFilters, SearchResults } from '../components/Search.jsx';
+import { useWeather, weatherSentence } from '../lib/weather.js';
 
 function Fixtures({ saved, toggleSaved, onSeeAll }) {
   const { today: TODAY, fixtures: all } = useContent();
@@ -88,6 +89,7 @@ function NplFinal({ onPreview }) {
 
 export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
   const { liveMatches, nplFinal, stories, worldNews } = useContent();
+  const weather = useWeather();
   const [query, setQuery] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [scope, setScope] = useState('All');
@@ -117,7 +119,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
 
       <section className="greeting">
         <h1>Namaskar, hajur!</h1>
-        <p className="subhead">Your cricket, closer.</p>
+        <p className="subhead" aria-live="polite">{weatherSentence(weather) || '\u00a0'}</p>
         <SearchField
           query={query}
           setQuery={setQuery}

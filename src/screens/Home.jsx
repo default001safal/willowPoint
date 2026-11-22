@@ -120,7 +120,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
       <hr className="divider top" aria-hidden="true" />
 
       <section className="greeting">
-        <h1>Namaskar, hajur!</h1>
+        <h1>Namaskar, <span className="soft">hajur!</span></h1>
         <p className="subhead" aria-live="polite">{weatherSentence(weather) || '\u00a0'}</p>
         <SearchField
           query={query}

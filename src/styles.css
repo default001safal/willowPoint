@@ -27,6 +27,7 @@
 
   --font-head: 'Space Mono', ui-monospace, monospace;
   --font-body: 'Work Sans', system-ui, sans-serif;
+  --font-score: 'Space Grotesk', system-ui, sans-serif; /* big live scores */
 }
 
 * { box-sizing: border-box; }
@@ -181,9 +182,9 @@ img { display: block; }
   width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 9px; font-weight: 700;
   display: flex; align-items: center; justify-content: center; flex: none;
 }
-.score { display: flex; align-items: baseline; gap: 2px; font-family: var(--font-head); }
-.score b { font-size: 32px; line-height: 1; letter-spacing: -0.03em; }
-.score span { font-size: 18px; color: var(--muted); }
+.score { display: flex; align-items: baseline; gap: 2px; font-family: var(--font-score); font-feature-settings: 'tnum' 1; }
+.score b { font-size: 34px; line-height: 1; letter-spacing: -0.02em; font-weight: 700; }
+.score span { font-size: 18px; font-weight: 500; color: var(--muted); }
 .team .overs { font-size: 12px; color: var(--muted); }
 .tag {
   font-size: 10px; font-weight: 600; color: var(--accent); background: var(--accent-tint);

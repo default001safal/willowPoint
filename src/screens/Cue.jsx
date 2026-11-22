@@ -36,7 +36,7 @@ export default function CueScreen({ pending, clearPending }) {
     <main style={{ paddingBottom: 200 }}>
       <section className="cue-hero">
         <span className="cue-mark" role="img" aria-label="Cue"><I.SparkGlint size={30} sw={1.7} /></span>
-        <h1 className="screen-title">Ask Cue</h1>
+        <h1 className="screen-title">Ask <span className="soft">Cue</span></h1>
         <p>Quick, sourced answers on Nepal cricket.</p>
       </section>
 

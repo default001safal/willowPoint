@@ -5,6 +5,7 @@ import { Divider, SaveButton, SectionHead, addDays, parts, relativeDay } from '.
 import { useContent } from '../lib/content.jsx';
 import { SearchField, SearchFilters, SearchResults } from '../components/Search.jsx';
 import { useWeather, weatherSentence } from '../lib/weather.js';
+import { MarkPair, TeamMark } from '../components/TeamMark.jsx';
 
 function Fixtures({ saved, toggleSaved, onSeeAll }) {
   const { today: TODAY, fixtures: all } = useContent();
@@ -43,7 +44,7 @@ function Fixtures({ saved, toggleSaved, onSeeAll }) {
             <div className="list-row" key={f.id}>
               <div className="date-block"><b>{p.date}</b><small>{p.month}</small></div>
               <div className="row-text">
-                <strong>{f.title}</strong>
+                <strong className="with-marks"><MarkPair title={f.title} size={18} />{f.title}</strong>
                 <span>{relativeDay(f.date, TODAY)} · {f.time} · {f.venue}</span>
               </div>
               <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
@@ -73,9 +74,9 @@ function NplFinal({ onPreview }) {
       </SectionHead>
       <article className="card final-card">
         <div className="versus">
-          <span className="name">{nplFinal.home}</span>
+          <span className="name"><TeamMark name={nplFinal.home} size={30} />{nplFinal.home}</span>
           <span className="vs">VS</span>
-          <span className="name">{nplFinal.away}</span>
+          <span className="name"><TeamMark name={nplFinal.away} size={30} />{nplFinal.away}</span>
         </div>
         <div className="chips">
           <span className="chip"><span className="today" />{relativeDay(nplFinal.date, TODAY)} {nplFinal.time}</span>
@@ -180,7 +181,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
           <div className="carousel">
             {stories.map((s) => (
               <a key={s.id} href="#" className="card story">
-                <div className="photo">Photo · {s.credit}</div>
+                <div className="photo">{s.art ? <img src={`/art/${s.art}.svg`} alt="" /> : null}</div>
                 <div className="body">
                   <strong>{s.title}</strong>
                   <span>{s.source}</span>

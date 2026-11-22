@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import * as I from './Icons.jsx';
 import { SectionHead } from './ui.jsx';
+import { TeamMark } from './TeamMark.jsx';
 
 function Team({ team, batting }) {
   return (
     <div className={`team${batting ? ' batting' : ''}`}>
       <div className="team-name">
-        <span className="badge" style={{ background: team.color }}>{team.code}</span>
+        <TeamMark name={team.name} size={26} fallback={<span className="badge" style={{ background: team.color }}>{team.code}</span>} />
         <span>{team.name}</span>
       </div>
       <div className="score">

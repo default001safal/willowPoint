@@ -63,9 +63,9 @@ export const results = [
 ];
 
 export const stories = [
-  { id: 's1', title: 'Lions. Royals. One final.', source: 'The Kathmandu Post', credit: 'Hemanta Shrestha / TKP' },
-  { id: 's2', title: "Nepal are heading to Lord's", source: 'MCC', credit: 'Nik V / Unsplash' },
-  { id: 's3', title: 'A difficult start in Doha', source: 'BCCI', credit: 'Sumeet Parmar' },
+  { id: 's1', title: 'Lions. Royals. One final.', source: 'The Kathmandu Post', art: 'final' },
+  { id: 's2', title: "Nepal are heading to Lord's", source: 'MCC', art: 'lords' },
+  { id: 's3', title: 'A difficult start in Doha', source: 'BCCI', art: 'doha' },
 ];
 
 export const worldNews = [

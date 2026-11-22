@@ -2,6 +2,7 @@ import { useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { SaveButton, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
+import { MarkPair, TeamMark } from '../components/TeamMark.jsx';
 
 const FILTERS = ['All', 'Nepal', 'NPL', 'Nepal Women', 'World'];
 const TABS = ['Matches', 'News', 'Events'];
@@ -30,8 +31,8 @@ function Matches({ filter, saved, toggleSaved }) {
                   <span className="meta-inline">{m.series} · {m.venue}</span>
                   <span className="status live">LIVE</span>
                 </div>
-                <div className="line"><span>{m.batting.name}</span><b>{m.batting.runs}/{m.batting.wickets} <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}>({m.batting.overs})</span></b></div>
-                <div className="line lose"><span>{m.bowling.name}</span><b>{m.bowling.runs}/{m.bowling.wickets} <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}>({m.bowling.overs})</span></b></div>
+                <div className="line"><span className="with-marks"><TeamMark name={m.batting.name} size={18} />{m.batting.name}</span><b>{m.batting.runs}/{m.batting.wickets} <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}>({m.batting.overs})</span></b></div>
+                <div className="line lose"><span className="with-marks"><TeamMark name={m.bowling.name} size={18} />{m.bowling.name}</span><b>{m.bowling.runs}/{m.bowling.wickets} <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}>({m.bowling.overs})</span></b></div>
                 <span className="summary live">{m.batting.name} need {m.target - m.batting.runs} from {m.ballsLeft} balls</span>
               </div>
             ))}
@@ -39,7 +40,7 @@ function Matches({ filter, saved, toggleSaved }) {
               <div className={`list-row${live.length ? ' row-top' : ''}`}>
                 <div className="row-text">
                   <span>Nepal Premier League · Final</span>
-                  <strong>{nplFinal.home} v {nplFinal.away}</strong>
+                  <strong className="with-marks"><MarkPair title={`${nplFinal.home} v ${nplFinal.away}`} size={18} />{nplFinal.home} v {nplFinal.away}</strong>
                   <span>{nplFinal.time} NPT · {nplFinal.venue}</span>
                 </div>
                 <SaveButton label="NPL final" saved={saved.includes('npl-final')} onToggle={() => toggleSaved('npl-final')} />
@@ -59,7 +60,7 @@ function Matches({ filter, saved, toggleSaved }) {
                 <div className="list-row" key={f.id}>
                   <div className="date-block"><b>{p.date}</b><small>{p.month}</small></div>
                   <div className="row-text">
-                    <strong>{f.title}</strong>
+                    <strong className="with-marks"><MarkPair title={f.title} size={18} />{f.title}</strong>
                     <span>{relativeDay(f.date, TODAY)} · {f.time} · {f.venue}</span>
                   </div>
                   <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
@@ -81,7 +82,7 @@ function Matches({ filter, saved, toggleSaved }) {
               </div>
               {r.lines.map((l, i) => (
                 <div key={l.team} className={`line${i ? ' lose' : ''}`}>
-                  <span>{l.team}</span>
+                  <span className="with-marks"><TeamMark name={l.team} size={18} />{l.team}</span>
                   <b>{l.score}{l.overs && <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}> ({l.overs})</span>}</b>
                 </div>
               ))}
@@ -101,7 +102,7 @@ function News() {
     <section className="section" style={{ paddingTop: 22 }}>
       {stories.map((s) => (
         <a key={s.id} href="#" className="card story" style={{ flex: 'none' }}>
-          <div className="photo">Photo · {s.credit}</div>
+          <div className="photo">{s.art ? <img src={`/art/${s.art}.svg`} alt="" /> : null}</div>
           <div className="body"><strong>{s.title}</strong><span>{s.source}</span></div>
         </a>
       ))}

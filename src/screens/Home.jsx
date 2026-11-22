@@ -147,7 +147,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
         <LiveSection matches={liveMatches} onSeeAll={() => go('discover')} />
 
         {liveMatches.length > 0 && <Divider />}
-        <NextForNepal onSeeAll={() => go('discover', 'Nepal')} />
+        <NextForNepal saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
 
         {nplFinal && <Divider />}
         <NplFinal onPreview={() => askCue(nplFinal?.result ? 'Recap the NPL final' : 'Set the scene for the NPL final')} />

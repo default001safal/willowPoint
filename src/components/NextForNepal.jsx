@@ -1,15 +1,12 @@
-// "Next for Nepal" as stat tiles: the next game leads (white), then the one after.
+// "Next for Nepal": the same fixture rows as Discover's Upcoming list.
 import { useEffect, useState } from 'react';
 import * as I from './Icons.jsx';
-import { SectionHead, parts } from './ui.jsx';
-import { StatTile, TileGrid } from './StatTiles.jsx';
-import { TeamMark } from './TeamMark.jsx';
+import { SaveButton, SectionHead, parts, relativeDay } from './ui.jsx';
+import { MarkPair } from './TeamMark.jsx';
 import { useContent } from '../lib/content.jsx';
 import { isLiveFixture } from '../lib/fixtures.js';
-import { clockTime, kickoffUTC } from '../lib/statcard.js';
+import { kickoffUTC } from '../lib/statcard.js';
 
-const pad = (n) => String(n).padStart(2, '0');
-const opponent = (title) => title.replace(/\s+v\s+Nepal$|^Nepal\s+v\s+/i, '');
 
 function useNow(everyMs = 60_000) {
   const [now, setNow] = useState(() => Date.now());
@@ -20,7 +17,7 @@ function useNow(everyMs = 60_000) {
   return now;
 }
 
-export default function NextForNepal({ onSeeAll }) {
+export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () => {} }) {
   const { today, fixtures, liveMatches } = useContent();
   const now = useNow();
   // Today's live game has its own section right above.
@@ -29,7 +26,7 @@ export default function NextForNepal({ onSeeAll }) {
     // A game whose start time has passed isn't "next" any more, even without live data.
     .filter((f) => (kickoffUTC(f.date, f.time) ?? Infinity) > now)
     .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 2);
+    .slice(0, 3);
 
   return (
     <section className="section" aria-label="Nepal's next matches">
@@ -41,25 +38,22 @@ export default function NextForNepal({ onSeeAll }) {
       {upcoming.length === 0 ? (
         <p className="empty" style={{ padding: '4px 4px 0' }}>No Nepal matches scheduled yet.</p>
       ) : (
-        <TileGrid label="Upcoming Nepal matches">
-          {upcoming.map((f, i) => {
+        // Same rows as Discover's Upcoming list.
+        <div className="card">
+          {upcoming.map((f) => {
             const p = parts(f.date);
-            const clock = clockTime(f.time) ?? 'TBC';
-            // Same shape for every game: date, opponent, then start time (NPT) and place.
             return (
-              <StatTile
-                key={f.id}
-                inverse={i === 0}
-                value={pad(p.date)}
-                unit={p.month}
-                mark={<TeamMark name={opponent(f.title)} size={11} />}
-                label={`v ${opponent(f.title)}`}
-                badge={`${clock} · ${f.venue}`}
-                title={f.title}
-              />
+              <div className="list-row" key={f.id}>
+                <div className="date-block"><b>{p.date}</b><small>{p.month}</small></div>
+                <div className="row-text">
+                  <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
+                  <span>{relativeDay(f.date, today)} · {f.time} · {f.venue}</span>
+                </div>
+                <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
+              </div>
             );
           })}
-        </TileGrid>
+        </div>
       )}
     </section>
   );

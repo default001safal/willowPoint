@@ -27,8 +27,27 @@ export const liveMatches = [
 export const fixtures = [
   { id: 'uae-nep', date: '2026-11-22', title: 'UAE v Nepal', time: '11:45 NPT', venue: 'Doha', competition: 'Nepal', nepal: true },
   { id: 'pka-nep', date: '2026-11-24', title: 'Pakistan A v Nepal', time: '15:45 NPT', venue: 'Doha', competition: 'Nepal', nepal: true },
-  { id: 'nep-ita', date: '2026-12-04', title: 'Nepal v Italy', time: 'Time TBC', venue: 'Kirtipur', competition: 'Nepal', nepal: true },
+  // ICC Men's CWC Qualifier Play-off, Kirtipur, 4–21 Dec 2026 (8:45 IST = 09:00 NPT).
+  { id: 'nep-ita', date: '2026-12-04', title: 'Nepal v Italy', time: '09:00 NPT', venue: 'Kirtipur', competition: 'Nepal', nepal: true, event: 'cwc-qp-2026' },
+  { id: 'nep-uga', date: '2026-12-06', title: 'Nepal v Uganda', time: '09:00 NPT', venue: 'Kirtipur', competition: 'Nepal', nepal: true, event: 'cwc-qp-2026' },
+  { id: 'nep-uae-qp', date: '2026-12-10', title: 'Nepal v UAE', time: '09:00 NPT', venue: 'Kirtipur', competition: 'Nepal', nepal: true, event: 'cwc-qp-2026' },
+  { id: 'nep-jer', date: '2026-12-12', title: 'Nepal v Jersey', time: '09:00 NPT', venue: 'Kirtipur', competition: 'Nepal', nepal: true, event: 'cwc-qp-2026' },
+  { id: 'nep-can', date: '2026-12-14', title: 'Nepal v Canada', time: '09:00 NPT', venue: 'Kirtipur', competition: 'Nepal', nepal: true, event: 'cwc-qp-2026' },
+  { id: 'nep-nam', date: '2026-12-18', title: 'Nepal v Namibia', time: '09:00 NPT', venue: 'Kirtipur', competition: 'Nepal', nepal: true, event: 'cwc-qp-2026' },
+  { id: 'nep-kuw', date: '2026-12-21', title: 'Nepal v Kuwait', time: '09:00 NPT', venue: 'Kirtipur', competition: 'Nepal', nepal: true, event: 'cwc-qp-2026' },
 ];
+
+// The next big event for Home's featured slot (after the NPL champions week).
+export const featuredEvent = {
+  id: 'cwc-qp-2026',
+  title: "ICC Men's CWC Qualifier Play-off",
+  short: 'World Cup Qualifier',
+  start: '2026-12-04',
+  end: '2026-12-21',
+  venue: 'Kirtipur',
+  note: 'Top 4 advance',
+  showFrom: '2026-11-29',
+};
 
 export const nplFinal = {
   home: 'Lumbini Lions',

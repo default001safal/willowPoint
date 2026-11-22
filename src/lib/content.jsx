@@ -27,6 +27,7 @@ const fromSnapshot = {
   stories: snapshot.stories,
   worldNews: snapshot.worldNews,
   nplFinal: snapshot.nplFinal,
+  featuredEvent: snapshot.featuredEvent,
   teamLogos: {},
 };
 
@@ -39,6 +40,7 @@ const empty = {
   stories: [],
   worldNews: [],
   nplFinal: null,
+  featuredEvent: null,
   teamLogos: {},
 };
 
@@ -66,6 +68,14 @@ export function ContentProvider({ children }) {
         doc(db, 'config', 'featured'),
         (d) => set('nplFinal', d.exists() ? d.data() : null),
         onError('featured'),
+      ),
+    );
+    // The next big event for Home's featured slot.
+    stops.push(
+      onSnapshot(
+        doc(db, 'config', 'event'),
+        (d) => set('featuredEvent', d.exists() ? d.data() : null),
+        onError('event'),
       ),
     );
     // Official team logos: { "<Team name>": "<image URL>" }. Missing teams fall back to flags/crests.

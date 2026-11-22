@@ -2,11 +2,66 @@ import { useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import LiveSection from '../components/LiveCard.jsx';
 import NextForNepal from '../components/NextForNepal.jsx';
-import { Divider, SectionHead, relativeDay } from '../components/ui.jsx';
+import { Divider, SaveButton, SectionHead, addDays, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
+import { MarkPair } from '../components/TeamMark.jsx';
 import { SearchField, SearchFilters, SearchResults } from '../components/Search.jsx';
 import { useWeather, weatherSentence } from '../lib/weather.js';
 import { TeamMark } from '../components/TeamMark.jsx';
+
+// The next big event: one card, the event on top, Nepal's next games under it.
+function EventCard({ event, saved, toggleSaved, onSeeAll }) {
+  const { today, fixtures } = useContent();
+  const games = fixtures
+    .filter((f) => f.event === event.id && f.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, 2);
+  const s = parts(event.start);
+  const e = parts(event.end);
+  const range = s.month === e.month ? `${s.date}–${e.date} ${e.month}` : `${s.date} ${s.month} – ${e.date} ${e.month}`;
+  return (
+    <section className="section">
+      <SectionHead title={event.short || event.title}>
+        <button type="button" className="section-link" onClick={onSeeAll}>
+          All games <I.ArrowUp size={11} style={{ transform: 'rotate(45deg)' }} />
+        </button>
+      </SectionHead>
+      <div className="card champ-rows">
+        <div className="list-row">
+          <div className="date-block champ-crest"><I.Trophy size={22} /></div>
+          <div className="row-text">
+            <strong>{event.title}</strong>
+            <span>{range} · {event.venue}{event.note ? ` · ${event.note}` : ''}</span>
+          </div>
+        </div>
+        {games.map((f) => {
+          const p = parts(f.date);
+          return (
+            <div className="list-row row-top" key={f.id}>
+              <div className="date-block"><b>{p.date}</b><small>{p.month}</small></div>
+              <div className="row-text">
+                <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
+                <span>{relativeDay(f.date, today)} · {f.time} · {f.venue}</span>
+              </div>
+              <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// Home's featured slot: NPL champions for a week after the final, then the next big event.
+function Featured({ onPreview, saved, toggleSaved, onSeeAll }) {
+  const { today, nplFinal, featuredEvent: event } = useContent();
+  const champsUntil = nplFinal?.result ? addDays(nplFinal.date, 7) : null;
+  if (nplFinal && (!nplFinal.result || today <= champsUntil)) return <NplFinal onPreview={onPreview} />;
+  if (event && today >= (event.showFrom || event.start) && today <= event.end) {
+    return <EventCard event={event} saved={saved} toggleSaved={toggleSaved} onSeeAll={onSeeAll} />;
+  }
+  return null;
+}
 
 function NplFinal({ onPreview }) {
   const { today: TODAY, nplFinal } = useContent();
@@ -152,7 +207,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
         <NextForNepal saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
 
         {nplFinal && <Divider />}
-        <NplFinal onPreview={() => askCue(nplFinal?.result ? 'Recap the NPL final' : 'Set the scene for the NPL final')} />
+        <Featured onPreview={() => askCue(nplFinal?.result ? 'Recap the NPL final' : 'Set the scene for the NPL final')} saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
 
         <Divider />
         <section className="section" style={{ paddingLeft: 0, paddingRight: 0 }}>

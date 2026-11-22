@@ -518,3 +518,18 @@ img { display: block; }
 .champ-badge { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--accent-tint); color: var(--accent); margin-right: 6px; }
 .champ-badge.quiet { background: #1d1d1d; color: var(--muted); }
 .champ-rows .date-block b { font-size: 20px; }
+/* Next for Nepal: the week strip (restored) above the fixture rows. */
+.fixtures-bare { gap: 0; }
+.fixture-month { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 11px; margin: 10px 4px 9px; min-height: 24px; }
+.fixture-month button { border: 0; background: none; color: var(--muted); min-width: 44px; height: 44px; margin-block: -10px; padding: 0; font-size: 11px; }
+.fixture-month button[aria-pressed='true'] { color: var(--accent); }
+.fixture-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.fixture-week button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 4px 0; min-width: 0; min-height: 66px; background: none; border: 0; color: var(--text); }
+.fixture-week small { font-size: 10px; font-weight: 400; color: #8d929b; }
+.fixture-week small.is-today { color: var(--text); font-weight: 600; }
+.fixture-week b { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: 500; }
+.fixture-week button[aria-pressed='true'] b { background: var(--crimson); color: #fff; }
+.fixture-match-dot { width: 3px; height: 3px; border-radius: 50%; background: transparent; }
+.fixture-match-dot.has-match { background: var(--crimson-text); }
+.fixture-list { margin-top: 10px; }
+.fixture-empty { margin: 0; color: var(--muted); font-size: 12px; padding: 14px 4px; }

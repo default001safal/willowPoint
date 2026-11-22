@@ -1,4 +1,5 @@
-// Team marks: national flags (public/flags, unframed, natural shape) and team logos.
+// Team marks: national flags (public/flags, unframed, natural shape; Uganda, Jersey, Canada,
+// Namibia and Kuwait come from the MIT-licensed flag-icons set) and team logos.
 // Official franchise logos can be set without a code change: add the image URL to
 // Firestore config/teamLogos as { "<Team name>": "https://…" }. Until then NPL teams show a
 // neutral monogram crest (public/crests).
@@ -16,6 +17,11 @@ const FLAGS = {
   england: 'england',
   'new zealand': 'new-zealand',
   australia: 'australia',
+  uganda: 'uganda',
+  jersey: 'jersey',
+  canada: 'canada',
+  namibia: 'namibia',
+  kuwait: 'kuwait',
 };
 
 // Official logos where we have them (PNG), placeholder monograms (SVG) otherwise.

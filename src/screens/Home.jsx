@@ -117,6 +117,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
 
       <section className="greeting">
         <h1>Namaskar, hajur!</h1>
+        <p className="subhead">Your cricket, closer.</p>
         <SearchField
           query={query}
           setQuery={setQuery}

@@ -1,0 +1,37 @@
+{
+  "icc-qualifier-schedule-reference": {
+    "events": [
+      { "id": "icc-qualifier-2026", "eventKey": "2026_Cricket_World_Cup_Qualifier_Play-off", "title": "Cricket World Cup Qualifier Play-off", "date": "2026-12-04", "endDate": "2026-12-21", "venue": "Nepal" }
+    ],
+    "fixtures": [
+      { "id": "icc-playoff-nep-ita", "eventKey": "2026_Cricket_World_Cup_Qualifier_Play-off", "teams": ["Nepal", "Italy"], "date": "2026-12-04", "venue": "Tribhuvan University Cricket Ground" },
+      { "id": "icc-playoff-nep-uga", "eventKey": "2026_Cricket_World_Cup_Qualifier_Play-off", "teams": ["Nepal", "Uganda"], "date": "2026-12-06", "venue": "Tribhuvan University Cricket Ground" },
+      { "id": "icc-playoff-nep-uae", "eventKey": "2026_Cricket_World_Cup_Qualifier_Play-off", "teams": ["Nepal", "UAE"], "date": "2026-12-10", "venue": "Tribhuvan University Cricket Ground" },
+      { "id": "icc-playoff-nep-jer", "eventKey": "2026_Cricket_World_Cup_Qualifier_Play-off", "teams": ["Nepal", "Jersey"], "date": "2026-12-12", "venue": "Tribhuvan University Cricket Ground" },
+      { "id": "icc-playoff-nep-can", "eventKey": "2026_Cricket_World_Cup_Qualifier_Play-off", "teams": ["Nepal", "Canada"], "date": "2026-12-14", "venue": "Tribhuvan University Cricket Ground" },
+      { "id": "icc-playoff-nep-nam", "eventKey": "2026_Cricket_World_Cup_Qualifier_Play-off", "teams": ["Nepal", "Namibia"], "date": "2026-12-18", "venue": "Tribhuvan University Cricket Ground" },
+      { "id": "icc-playoff-nep-kuw", "eventKey": "2026_Cricket_World_Cup_Qualifier_Play-off", "teams": ["Nepal", "Kuwait"], "date": "2026-12-21", "venue": "Tribhuvan University Cricket Ground" }
+    ]
+  },
+  "icc-womens-u19-schedule-reference": {
+    "events": [
+      { "id": "icc-u19-women-2027", "eventKey": "u19-women-world-cup-2027", "title": "Women's U19 T20 World Cup", "date": "2027-01-21", "endDate": "2027-02-06", "venue": "Bangladesh and Nepal" }
+    ]
+  },
+  "icc-womens-t20-final-reference": {
+    "results": [
+      {
+        "id": "cricsheet-1490709",
+        "date": "2026-07-05",
+        "label": "Women's T20 World Cup final · 5 Jul 2026",
+        "competition": "World",
+        "status": "Final",
+        "summary": "Australia won by 7 wickets",
+        "lines": [
+          { "team": "England", "score": "150/4", "overs": "20.0" },
+          { "team": "Australia", "score": "153/3", "overs": "17.1" }
+        ]
+      }
+    ]
+  }
+}

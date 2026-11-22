@@ -81,6 +81,8 @@ class Fetcher:
 
 def provenance(source, url=None):
     result = {"source": source["name"], "sourceUrl": url or source["url"]}
+    if "id" in source:
+        result.update(sourceId=source["id"], sourceGroup=source.get("group", source["name"]))
     if source.get("license"):
         result["licenseUrl"] = source["license"]
     return result
@@ -147,7 +149,9 @@ def collect_archive(body, source, today):
                 continue
             title = info.get("event", {}).get("name") or " v ".join(info["teams"])
             status, summary = archive_outcome(info["outcome"])
-            competition = "Nepal Women" if info["gender"] == "female" else "Nepal"
+            competition = "World"
+            if "Nepal" in info["teams"]:
+                competition = "Nepal Women" if info["gender"] == "female" else "Nepal"
             if title == "Nepal Premier League":
                 competition = "NPL"
             results.append({
@@ -254,7 +258,7 @@ def collect_calendar(body, source, today):
             day = scheduled.isoformat()
             series = events.setdefault(section, {
                 "id": stable_id("event", section), "title": event["title"],
-                "date": day, "endDate": day, "venue": event["venue"], **info,
+                "eventKey": section, "date": day, "endDate": day, "venue": event["venue"], **info,
             })
             series["date"] = min(day, series["date"])
             series["endDate"] = max(day, series["endDate"])
@@ -264,6 +268,7 @@ def collect_calendar(body, source, today):
                 continue
             fixtures.append({
                 "id": stable_id("fixture", section + ":" + row["no."]),
+                "eventKey": section, "teams": [home, away],
                 "date": day, "title": f"{home} v {away}", "time": "Time TBC",
                 "venue": row["venue"], "competition": "Nepal", "nepal": True, **info,
             })
@@ -359,12 +364,111 @@ def collect_news(body, source, today):
         if not published or not today - timedelta(days=7) <= published <= today:
             continue
         canonical = urlunsplit((url.scheme, url.netloc, url.path.rstrip("/"), "", ""))
+        title = clean(item.findtext("title", ""))
+        if not title or (source.get("headlinePattern") and not re.search(source["headlinePattern"], title, re.I)):
+            continue
         candidates.append({
             "id": stable_id("story", canonical), "date": published.isoformat(),
-            "title": clean(item.findtext("title", "")), "reviewRequired": True,
+            "title": title, "section": source.get("section", "Nepal"), "reviewRequired": True,
             **provenance(source, canonical),
         })
     return {"newsCandidates": candidates}
+
+
+class PageText(HTMLParser):
+    def __init__(self, body):
+        super().__init__()
+        self.parts = []
+        self.metadata = {}
+        self.hidden = False
+        self.feed(body.decode("utf-8-sig"))
+
+    def handle_starttag(self, tag, attrs):
+        if tag in {"script", "style"}:
+            self.hidden = True
+        if tag == "meta":
+            properties = dict(attrs)
+            if properties.get("property"):
+                self.metadata[properties["property"]] = properties.get("content", "")
+
+    def handle_endtag(self, tag):
+        if tag in {"script", "style"}:
+            self.hidden = False
+
+    def handle_data(self, text):
+        if not self.hidden:
+            self.parts.append(text)
+
+
+def collect_match_report(body, source, today):
+    # The patterns in the source list capture score facts, not prose for republication.
+    page = PageText(body)
+    text = clean(" ".join(page.parts))
+    played = re.search(source["datePattern"], text)
+    if not played:
+        raise ValueError("Match date could not be read from the report")
+    published = instant(page.metadata["article:published_time"]).astimezone(NPT).date()
+    stamp = datetime.strptime(f"{played[1]} {published.year}", "%b %d %Y").date()
+    if not published - timedelta(days=2) <= stamp <= published:
+        raise ValueError("Report date does not agree with the match dateline")
+    if stamp > today:
+        return {"results": []}
+    lines = []
+    for innings in source["innings"]:
+        score = re.search(innings["pattern"], text, re.I)
+        if not score:
+            raise ValueError("An innings total is missing from the report")
+        values = score.groupdict()
+        wickets = values.get("wickets") or innings.get("wickets")
+        lines.append({"team": innings["team"], "score": f"{values['runs']}/{wickets}", "overs": values["overs"]})
+    outcome = re.search(source["outcomePattern"], text, re.I)
+    if not outcome:
+        raise ValueError("Match outcome is missing from the report")
+    return {"results": [{
+        "id": "cricsheet-" + source["matchId"], "date": stamp.isoformat(),
+        "label": f"{source['title']} · {stamp.day} {stamp:%b %Y}", "competition": source["competition"],
+        "lines": lines, "status": "Final", "summary": f"{outcome['winner']} won by {outcome['margin']} {outcome['unit']}",
+        **provenance(source),
+    }]}
+
+
+def collect_event_page(body, source, today):
+    for _, attrs, rows in Tables(body).tables:
+        if "infobox" not in attrs.get("class", "").split():
+            continue
+        fields = {row[0]: row[1] for row in rows if len(row) == 2}
+        dates = fields.get("Dates", "")
+        match = re.fullmatch(r"(\d{1,2})(?: ([A-Za-z]+))?(?:\s*[–-]\s*(\d{1,2}) ([A-Za-z]+))?\s+(\d{4})", dates)
+        if not match:
+            continue
+        start_day, start_month, end_day, end_month, year = match.groups()
+        first = datetime.strptime(f"{start_day} {start_month or end_month} {year}", "%d %B %Y").date()
+        last = datetime.strptime(f"{end_day} {end_month} {year}", "%d %B %Y").date() if end_day else first
+        if last < today:
+            return {"events": []}
+        place = fields.get("Hosts", fields.get("Host", ""))
+        if source.get("venue"):
+            # The infobox can concatenate the two host names without a separator.
+            host_tokens = source["venue"].split(" and ")
+            context = place or clean(" ".join(PageText(body).parts))
+            if not all(token.casefold() in context.casefold() for token in host_tokens):
+                continue
+            place = source["venue"]
+        if place:
+            return {"events": [{"id": stable_id("event", source["eventKey"]), "eventKey": source["eventKey"],
+                                "title": source["title"], "date": first.isoformat(), "endDate": last.isoformat(),
+                                "venue": place, **provenance(source)}]}
+    raise ValueError("Tournament dates and venue could not be read")
+
+
+def collect_reference(source, today):
+    records = json.loads((ROOT / "scripts/cricket_references.json").read_text(encoding="utf-8"))[source["id"]]
+    return {
+        name: [dict(item, recordedReference=True, **provenance(source)) for item in items
+               if (name == "results" and item["date"] <= today.isoformat())
+               or (name != "results" and item.get("endDate", item["date"]) >= today.isoformat())]
+        for name, items in records.items()
+    }
 
 
 def instant(value):
@@ -427,7 +531,7 @@ def collect_live(body, source, now):
     if batting["wickets"] == 10 or not remaining or (target is not None and batting["runs"] >= target):
         return {"liveMatches": []}
     return {"liveMatches": [{
-        "id": source["id"], "batting": batting, "bowling": bowling, "target": target,
+        "id": source.get("matchId", source["id"]), "batting": batting, "bowling": bowling, "target": target,
         "maxOvers": limit, "ballsLeft": remaining,
         "runRate": f"{6 * batting['runs'] / balls:.2f}" if balls else None,
         "requiredRate": f"{6 * max(0, target - batting['runs']) / remaining:.2f}" if target and remaining else None,
@@ -442,23 +546,38 @@ def live_sources(sources, now):
             and instant(source["startAt"]) <= now <= instant(source["endAt"])]
 
 
-def collect(sources, lane, now, fetch):
+def collect(sources, lane, now, fetch, include_reports=False):
     snapshot = {"collectedAt": now.isoformat(), "fixtures": [], "events": [],
                 "results": [], "newsCandidates": [], "liveMatches": []}
     today = now.astimezone(NPT).date()
     adapters = {"archive": collect_archive, "calendar": collect_calendar,
-                "final": collect_final, "rss": collect_news}
+                "final": collect_final, "rss": collect_news,
+                "event": collect_event_page, "match-report": collect_match_report}
     selected = live_sources(sources, now) if lane == "live" else [
         source for source in sources if source.get("enabled", True) and source["kind"] != "live"
     ]
+    checks = []
     for source in selected:
         try:
-            body = fetch(source["url"])
-            records = collect_live(body, source, now) if lane == "live" else adapters[source["kind"]](body, source, today)
+            if source["kind"] == "reference":
+                records = collect_reference(source, today)
+                status = "recorded reference"
+            else:
+                body = fetch(source["url"])
+                records = collect_live(body, source, now) if lane == "live" else adapters[source["kind"]](body, source, today)
+                status = "fetched"
             for name, items in records.items():
                 snapshot[name].extend(items)
+            checks.append({"id": source["id"], "status": status, "records": sum(map(len, records.values()))})
         except (OSError, ValueError, KeyError, TypeError, AttributeError, BadZipFile, ElementTree.ParseError) as error:
-            raise ValueError(f"{source['id']}: {error}") from error
+            if not include_reports:
+                raise ValueError(f"{source['id']}: {error}") from error
+            checks.append({"id": source["id"], "status": "unavailable", "error": str(error)})
+
+    if include_reports:
+        if checks and all(check["status"] == "unavailable" for check in checks):
+            raise ValueError("Every configured source failed")
+        return {**snapshot, "sourceChecks": checks}
 
     for name in ("fixtures", "events", "results", "newsCandidates", "liveMatches"):
         items = {}
@@ -487,6 +606,7 @@ def main():
     parser.add_argument("--sources", type=Path, default=ROOT / "scripts/cricket_sources.json")
     parser.add_argument("--lane", choices=("daily", "live"), default="daily")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--reports", action="store_true", help="retain reports from each source for verification")
     parser.add_argument("--watch", action="store_true", help="repeat live checks during active match windows")
     args = parser.parse_args()
     if args.watch and args.lane != "live":
@@ -497,7 +617,7 @@ def main():
         fetch = Fetcher().get
         while True:
             now = datetime.now(timezone.utc)
-            snapshot = collect(sources, args.lane, now, fetch)
+            snapshot = collect(sources, args.lane, now, fetch, args.reports)
             write_snapshot(snapshot, output)
             if not args.watch or not live_sources(sources, now):
                 return 0

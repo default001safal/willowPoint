@@ -196,7 +196,8 @@ img { display: block; }
 .score { display: flex; align-items: baseline; gap: 2px; font-family: var(--font-score); font-feature-settings: 'tnum' 1; }
 .score b { font-size: 34px; line-height: 1; font-weight: 700; letter-spacing: -0.03em; }
 .score span { font-size: 18px; font-weight: 500; color: var(--muted); }
-.team .overs { font-size: 12px; color: var(--muted); }
+.team .overs { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.team .tag { flex: none; }
 .tag {
   font-size: 10px; font-weight: 600; color: var(--accent); background: var(--accent-tint);
   padding: 3px 7px; border-radius: 999px;

@@ -190,7 +190,7 @@ img { display: block; }
   padding: 3px 7px; border-radius: 999px;
 }
 .card-title { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex: 1; min-width: 0; white-space: nowrap; font-size: 13px; }
-.card-title .series { overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 128px; }
+.card-title .series { font-weight: 600; color: var(--text-2); }
 .card-title .sep { color: var(--muted); }
 .card-title .venue { display: flex; align-items: center; gap: 4px; color: var(--muted); flex: none; }
 .live-card .ask {

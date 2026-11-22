@@ -7,6 +7,7 @@ export const liveMatches = [
   {
     id: 'nep-uae-tri',
     series: 'Himalayan T20I Tri-Series',
+    short: 'Himalayan T20I', // shown on the Home live card
     venue: 'Kirtipur',
     batting: {
       code: 'NEP', name: 'Nepal', color: '#DC143C',

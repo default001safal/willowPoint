@@ -56,7 +56,7 @@ export default function LiveSection({ matches, onAskCue }) {
             Ask Cue
           </button>
           <div className="card-title">
-            <span className="series" title={m.series}>{m.series}</span>
+            <span className="series">{m.short || m.series}</span>
             <span className="sep" aria-hidden="true">·</span>
             <span className="venue">{m.venue}</span>
           </div>

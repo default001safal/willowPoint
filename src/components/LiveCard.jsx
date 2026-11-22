@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import * as I from './Icons.jsx';
 import { SectionHead } from './ui.jsx';
-import { ScoreTile, StatTile, TileGrid } from './StatTiles.jsx';
+import { MatchupTiles, StatTile, TileGrid } from './StatTiles.jsx';
 import { TeamMark } from './TeamMark.jsx';
 
-// First: one tile with both sides' scores. Then: what the chase needs and how it's going.
+// First: the two sides facing each other. Then: what the chase needs and how it's going.
 function LiveTiles({ match }) {
   const { batting, bowling } = match;
   const need = match.target != null ? match.target - batting.runs : null;
@@ -14,8 +14,7 @@ function LiveTiles({ match }) {
   const pace = chasing && Number.isFinite(crr) && Number.isFinite(rrr) ? (crr >= rrr ? 'up' : 'down') : 'neutral';
   return (
     <TileGrid label={`${batting.name} v ${bowling.name}`}>
-      <ScoreTile
-        inverse={false}
+      <MatchupTiles
         sides={[batting, bowling].map((s, i) => ({
           ...s, active: i === 0, mark: <TeamMark name={s.name} size={11} />,
         }))}

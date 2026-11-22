@@ -59,7 +59,7 @@ export default function LiveSection({ matches, onAskCue }) {
             className="ask"
             onClick={() => onAskCue(`Talk me through ${m.batting.name} v ${m.bowling.name}`)}
           >
-            <I.Spark size={14} />
+            <I.Spark size={12} />
             Ask Cue
           </button>
         </div>

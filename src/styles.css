@@ -191,9 +191,10 @@ img { display: block; }
 }
 .card-title { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .live-card .ask {
-  display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 13px; border-radius: 999px; flex: none;
-  border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: 13px; font-weight: 600;
+  position: relative; display: flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; border-radius: 999px;
+  flex: none; border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: 12px; font-weight: 600;
 }
+.live-card .ask::before { content: ''; position: absolute; inset: -8px; } /* keeps a comfortable tap area */
 .stat-ribbon {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; height: 46px; padding: 0 6px;
   border-radius: 999px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);

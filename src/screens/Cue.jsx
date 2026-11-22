@@ -33,11 +33,11 @@ export default function CueScreen({ pending, clearPending }) {
   }, [thread]);
 
   return (
-    <main style={{ paddingBottom: 96 }}>
+    <main style={{ paddingBottom: 200 }}>
       <section className="cue-hero">
-        <span className="cue-icon"><I.SparkPlus size={26} /></span>
-        <h1 className="screen-title">Ask Cue <span className="soft">anything about Nepal cricket</span></h1>
-        <p>Short, sourced answers. Every reply shows where it came from.</p>
+        <span className="cue-mark" role="img" aria-label="Cue"><I.SparkGlint size={30} sw={1.7} /></span>
+        <h1 className="screen-title">Ask Cue</h1>
+        <p>Quick, sourced answers on Nepal cricket.</p>
       </section>
 
       <Divider />
@@ -64,10 +64,25 @@ export default function CueScreen({ pending, clearPending }) {
         <div className="composer-inner">
           <form onSubmit={(e) => { e.preventDefault(); ask(draft); }}>
             <label className="sr-only" htmlFor="cue-input">Ask Cue</label>
-            <input id="cue-input" type="text" placeholder="Ask about the latest cricket" value={draft} onChange={(e) => setDraft(e.target.value)} />
-            <button type="submit" className="send" aria-label="Send" disabled={!draft.trim()}>
-              <I.ArrowUp size={18} />
-            </button>
+            <textarea
+              id="cue-input"
+              rows={2}
+              placeholder="Ask Cue anything about Nepal cricket…"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  ask(draft);
+                }
+              }}
+            />
+            <div className="composer-foot">
+              <span className="hint"><I.Spark size={13} style={{ color: 'var(--accent)' }} />Every answer shows its sources</span>
+              <button type="submit" className="send" aria-label="Send" disabled={!draft.trim()}>
+                <I.ArrowUp size={18} sw={2.2} />
+              </button>
+            </div>
           </form>
         </div>
       </div>

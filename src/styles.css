@@ -365,11 +365,8 @@ img { display: block; }
 
 /* ---------- Cue ---------- */
 .cue-hero { padding: 40px 24px 0; display: flex; flex-direction: column; gap: 14px; }
-.cue-icon {
-  width: 52px; height: 52px; border-radius: 16px; background: var(--accent-tint); color: var(--accent);
-  display: flex; align-items: center; justify-content: center;
-}
-.cue-hero p { margin: 0; font-size: 15px; font-weight: 300; line-height: 1.45; letter-spacing: 0.01em; color: var(--muted); }
+.cue-mark { color: var(--accent); display: flex; margin-left: -3px; }
+.cue-hero p { margin: -8px 0 0; font-size: 15px; font-weight: 300; line-height: 1.45; letter-spacing: 0.01em; color: var(--muted); }
 .suggestion {
   display: flex; align-items: center; gap: 14px; padding: 14px 14px 14px 16px; min-height: 64px;
   text-align: left; color: var(--text); width: 100%;
@@ -383,18 +380,27 @@ img { display: block; }
   position: fixed; left: 0; right: 0; bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 9;
   padding: 12px 16px; background: linear-gradient(transparent, var(--bg) 30%);
 }
-.composer-inner { max-width: 448px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+.composer-inner { max-width: 448px; margin: 0 auto; }
 .composer form {
-  display: flex; align-items: center; gap: 8px; height: 54px; padding: 0 6px 0 16px;
-  background: var(--surface); border: 1px solid var(--border-strong); border-radius: 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 10px; padding: 16px 12px 12px 18px;
+  background: var(--surface); border: 1px solid #1e4d24; border-radius: 26px;
+  box-shadow: 0 0 0 4px rgba(0, 255, 30, 0.06), var(--shadow);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.composer input { border: 0; outline: 0; background: transparent; font: inherit; font-size: 15px; color: var(--text); flex: 1; min-width: 0; }
-.composer input::placeholder { color: var(--muted); }
+.composer form:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(0, 255, 30, 0.14), var(--shadow); }
+.composer textarea {
+  border: 0; outline: 0; background: transparent; resize: none; font: inherit; font-size: 16px; line-height: 1.45;
+  color: var(--text); padding: 0 6px 0 0; min-height: 46px; max-height: 140px;
+}
+.composer textarea::placeholder { color: var(--muted); }
+.composer textarea:focus-visible { outline: none; }
+.composer-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.composer-foot .hint { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
 .send {
-  width: 44px; height: 44px; border: 0; border-radius: 12px; background: var(--text); color: var(--ink);
-  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--text); color: var(--ink); flex: none;
+  display: flex; align-items: center; justify-content: center; transition: opacity 0.15s ease;
 }
-.send:disabled { opacity: 0.4; cursor: default; }
+.send:disabled { opacity: 0.35; cursor: default; }
 
 /* ---------- Profile ---------- */
 .profile-top { display: flex; align-items: center; gap: 14px; padding: 16px; }

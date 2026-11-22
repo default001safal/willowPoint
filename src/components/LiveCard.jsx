@@ -31,7 +31,7 @@ function LiveTiles({ match }) {
   );
 }
 
-export default function LiveSection({ matches, onAskCue }) {
+export default function LiveSection({ matches, onSeeAll }) {
   const [selectedId, setSelectedId] = useState(null);
   const match = matches.find((item) => item.id === selectedId) ?? matches[0];
   if (!match) return null;
@@ -49,8 +49,8 @@ export default function LiveSection({ matches, onAskCue }) {
               ))}
             </div>
           )}
-          <button type="button" className="innings-cue" onClick={() => onAskCue(`Talk me through ${match.batting.name} v ${match.bowling.name}`)}>
-            <I.SparkGlint size={14} /><span><b>Ask</b> Cue</span>
+          <button type="button" className="section-link" onClick={onSeeAll}>
+            See all <I.ArrowUp size={11} style={{ transform: 'rotate(45deg)' }} />
           </button>
         </div>
       </SectionHead>

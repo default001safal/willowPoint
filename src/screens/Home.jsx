@@ -144,7 +144,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
       ) : (
         <>
         {liveMatches.length > 0 && <Divider />}
-        <LiveSection matches={liveMatches} onAskCue={askCue} />
+        <LiveSection matches={liveMatches} onSeeAll={() => go('discover')} />
 
         {liveMatches.length > 0 && <Divider />}
         <NextForNepal onSeeAll={() => go('discover', 'Nepal')} />

@@ -168,13 +168,17 @@ export const Compass = (p) => (
 
 export const CricketBat = (p) => (
   <Svg {...p}>
-    <path d="m14 8 5-5M12 7l5 5-10 10-5-5z" />
+    <g transform="rotate(35 12 12)">
+      <path d="M12 3v6" strokeWidth="2.4" />
+      <rect x="9" y="8" width="6" height="13" rx="1.5" fill="currentColor" stroke="none" />
+    </g>
   </Svg>
 );
 
 export const CricketBall = (p) => (
   <Svg {...p}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M8 4c5 4 3 12 8 16" />
+    <circle cx="12" cy="12" r="8.5" fill="currentColor" stroke="none" />
+    <path d="M8 4.5c5 4 3 11 8 15" stroke="var(--surface)" strokeWidth="1.4" />
+    <path d="M10.5 4c5 4 3 11 8 15" stroke="var(--surface)" strokeWidth="1" strokeDasharray="1 2" />
   </Svg>
 );

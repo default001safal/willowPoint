@@ -60,8 +60,6 @@ function InningsCard({ match }) {
                   </span>
                   <strong>{team.name}</strong>
                 </span>
-                <span className="innings-meta-dot" aria-hidden="true">·</span>
-                <span className="innings-overs">{team.overs} ov</span>
               </span>
             </button>
           );

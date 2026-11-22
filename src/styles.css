@@ -196,7 +196,7 @@ img { display: block; }
 .innings-label { display: flex; flex-direction: row-reverse; align-self: flex-start; align-items: center; gap: 6px; font-size: 11px; min-width: 0; }
 .innings-tabs button:last-child .innings-label { flex-direction: row; align-self: flex-end; }
 .innings-meta-dot { color: var(--muted); opacity: .6; }
-.innings-team { display: inline-flex; align-items: center; gap: 5px; }
+.innings-team { display: inline-flex; align-items: center; gap: 5px; padding: 3px 7px; min-height: 23px; border: 1px solid #ffffff12; border-radius: 999px; background: #ffffff04; }
 .innings-metrics { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 16px; padding-top: 10px; border-top: 1px solid #ffffff0d; }
 .innings-metrics > div { display: flex; align-items: center; gap: 6px; }
 .innings-metrics dt { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; line-height: 1; color: var(--muted); }
@@ -206,7 +206,6 @@ img { display: block; }
 .innings-metrics > div:last-child dd { color: var(--accent); }
 .innings-label strong { font-weight: 600; overflow-wrap: anywhere; }
 .innings-role { display: inline-flex; flex: none; color: var(--muted); }
-.innings-overs { color: var(--muted); font-size: 11px; white-space: nowrap; }
 .over-grid { list-style: none; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 7px 5px; margin: 0; padding: 0; }
 .over-marker { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border-radius: 50%; font-family: var(--font-head); font-size: 11px; line-height: 1; border: 1px solid #ffffff15; color: #68717c; }
 .over-marker.completed { background: var(--accent-tint); border-color: #00ff1e55; color: var(--accent); }
@@ -452,7 +451,6 @@ img { display: block; }
 }
 
 .innings-tabs button { color: #8b929c; transition: color .22s ease; }
-.innings-tabs button .innings-overs,
 .innings-tabs button .innings-role { color: inherit; }
 .innings-tabs button[aria-selected='true'] { color: #ffffff; }
 @media (prefers-reduced-motion: reduce) {

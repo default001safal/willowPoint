@@ -580,3 +580,7 @@ img { display: block; }
 .mt-flags > span + span { margin-left: 0; }
 .mt-flags i { font-family: var(--font-head); font-style: italic; font-weight: 700; font-size: 12px; color: var(--crimson-text); }
 .mt-sub { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-weight: 500; }
+/* Flags sit loose (no chips); "VS" between them. */
+.mt-flags { gap: 10px; }
+.mt-flags > span { width: auto; height: auto; background: none; border: 0; border-radius: 0; }
+.mt-flags i { font-style: normal; font-size: 12px; letter-spacing: .06em; }

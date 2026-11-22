@@ -597,3 +597,8 @@ img { display: block; }
 /* Experiment, cont.: big score text follows the tiles down ~10%. */
 .tile-value { font-size: 41px; }
 @media (max-width: 360px) { .tile-value { font-size: 34px; } }
+/* Sections separated by space, not lines: the old gap (divider margin + section
+   padding) rolled into one, +5%. The one divider left keeps it balanced. */
+.section { padding-top: 38px; }
+.divider { margin-top: 19px; }
+.divider + .section { padding-top: 19px; }

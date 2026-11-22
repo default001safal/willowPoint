@@ -81,7 +81,6 @@ export default function ProfileScreen({ prefs }) {
         </div>
       </section>
 
-      <Divider />
       <section className="section">
         <h2 className="group-label">Preferences</h2>
         <div className="card">
@@ -112,7 +111,6 @@ export default function ProfileScreen({ prefs }) {
         </div>
       </section>
 
-      <Divider />
       <section className="section">
         <div className="card about">
           <img src="/logo-light.png" alt="willowPoint logo" />

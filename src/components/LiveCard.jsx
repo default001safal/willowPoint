@@ -1,79 +1,89 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import * as I from './Icons.jsx';
 import { SectionHead } from './ui.jsx';
-import { TeamMark } from './TeamMark.jsx';
+import { overMarkers } from '../lib/innings.js';
 
-function Team({ team, batting }) {
+function InningsCard({ match }) {
+  const [innings, setInnings] = useState('batting');
+  const id = useId();
+  const selected = match[innings];
+  const markers = overMarkers(selected, match.maxOvers, innings === 'batting');
+  const teams = ['batting', 'bowling'];
+
+  const selectWithKeyboard = (event, side) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === 'Home' ? 'batting' : event.key === 'End' ? 'bowling' : teams.find(team => team !== side);
+    setInnings(next);
+    document.getElementById(`${id}-${next}`)?.focus();
+  };
+
   return (
-    <div className={`team${batting ? ' batting' : ''}`}>
-      <div className="team-name">
-        <TeamMark name={team.name} size={20} fallback={<span className="badge" style={{ background: team.color }}>{team.code}</span>} />
-        <span>{team.name}</span>
+    <article className="card innings-card" aria-label={`${match.batting.name} v ${match.bowling.name}`}>
+      <div className="innings-tabs" role="tablist" aria-label="Choose innings">
+        {teams.map(side => {
+          const team = match[side];
+          return (
+            <button
+              key={side}
+              id={`${id}-${side}`}
+              type="button"
+              role="tab"
+              aria-selected={innings === side}
+              aria-controls={`${id}-overs`}
+              tabIndex={innings === side ? 0 : -1}
+              onClick={() => setInnings(side)}
+              onKeyDown={event => selectWithKeyboard(event, side)}
+            >
+              <span className="innings-score">{team.runs}<span>/{team.wickets}</span></span>
+              <span className="innings-label">
+                <i className={`innings-dot ${side}`} aria-hidden="true" />
+                <strong>{team.name}</strong>
+                <span className="innings-overs">{team.overs} ov</span>
+              </span>
+            </button>
+          );
+        })}
       </div>
-      <div className="score">
-        <b style={batting ? undefined : { color: 'var(--text-2)' }}>{team.runs}</b>
-        <span>/{team.wickets}</span>
+      <div id={`${id}-overs`} role="tabpanel" aria-labelledby={`${id}-${innings}`} tabIndex={0}>
+        <span className="sr-only">Runs per over. Green marks the current over. Dashes indicate unavailable totals. Empty circles are upcoming overs.</span>
+        <ol className="over-grid" aria-label={`${selected.name} runs per over`}>
+          {markers.map(marker => {
+            const description = marker.state === 'upcoming'
+              ? 'upcoming'
+              : `${marker.state}, ${marker.runs === null ? 'runs unavailable' : `${marker.runs} runs`}`;
+            return (
+              <li key={marker.over} className={`over-marker ${marker.state}`} aria-label={`Over ${marker.over}: ${description}`} title={`Over ${marker.over}: ${description}`}>
+                <span aria-hidden="true">{marker.runs ?? (marker.state === 'completed' ? '—' : '·')}</span>
+              </li>
+            );
+          })}
+        </ol>
       </div>
-      <div className="row-between">
-        <span className="overs">{team.overs} overs</span>
-        {batting && <span className="tag">BATTING</span>}
-      </div>
-    </div>
+    </article>
   );
 }
 
 export default function LiveSection({ matches, onAskCue }) {
-  const [index, setIndex] = useState(0);
-  if (!matches.length) return null;
-  const m = matches[Math.min(index, matches.length - 1)];
+  const [selectedId, setSelectedId] = useState(null);
+  const match = matches.find(item => item.id === selectedId) ?? matches[0];
+  if (!match) return null;
 
   return (
     <section className="section" aria-labelledby="live-title">
       <SectionHead title={<span id="live-title">Live now</span>} leading={<span className="live-dot" />}>
-        <div className="pager" role="tablist" aria-label="Live matches">
-          {matches.map((match, i) => (
-            <button
-              key={match.id}
-              type="button"
-              role="tab"
-              aria-selected={i === index}
-              aria-label={`${match.batting.name} v ${match.bowling.name}`}
-              onClick={() => setIndex(i)}
-            >
-              <span>{i + 1}</span>
+        <div className="pager" role="group" aria-label="Live matches">
+          {matches.map((item, index) => (
+            <button key={item.id} type="button" aria-pressed={item.id === match.id} aria-label={`${item.batting.name} v ${item.bowling.name}`} onClick={() => setSelectedId(item.id)}>
+              <span>{index + 1}</span>
             </button>
           ))}
         </div>
       </SectionHead>
-
-      <article className="card live-card">
-        <div className="row-between">
-          <button
-            type="button"
-            className="ask"
-            onClick={() => onAskCue(`Talk me through ${m.batting.name} v ${m.bowling.name}`)}
-          >
-            <I.SparkGlint size={14} />
-            Ask Cue
-          </button>
-          <div className="card-title">
-            <span className="series">{m.short || m.series}</span>
-            <span className="sep" aria-hidden="true">·</span>
-            <span className="venue">{m.venue}</span>
-          </div>
-        </div>
-
-        <div className="teams">
-          <Team team={m.batting} batting />
-          <Team team={m.bowling} />
-        </div>
-      </article>
-
-      <div className="stat-ribbon" aria-label="Match stats">
-        <div><small><I.Target size={11} sw={2.4} />Target</small><b>{m.target}</b></div>
-        <div><small><I.Trend size={11} sw={2.4} />Run rate</small><b>{m.runRate}</b></div>
-        <div><small><I.Gauge size={11} sw={2.4} />Req. rate</small><b className="good">{m.requiredRate}</b></div>
-      </div>
+      <InningsCard key={match.id} match={match} />
+      <button type="button" className="innings-cue" onClick={() => onAskCue(`Talk me through ${match.batting.name} v ${match.bowling.name}`)}>
+        <I.SparkGlint size={14} /> Ask Cue
+      </button>
     </section>
   );
 }

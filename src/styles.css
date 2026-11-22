@@ -444,3 +444,11 @@ img { display: block; }
   .over-reel.rolling .incoming { animation: none; }
   .over-reel.rolling .outgoing { display: none; animation: none; }
 }
+
+.innings-tabs button { color: #8b929c; transition: color .22s ease; }
+.innings-tabs button .innings-overs,
+.innings-tabs button .innings-role { color: inherit; }
+.innings-tabs button[aria-selected='true'] { color: #ffffff; }
+@media (prefers-reduced-motion: reduce) {
+  .innings-tabs button { transition: none; }
+}

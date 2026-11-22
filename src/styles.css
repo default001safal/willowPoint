@@ -129,8 +129,8 @@ img { display: block; }
   min-height: 44px;
 }
 .section-head h2 {
-  font-family: var(--font-head); margin: 0; font-size: 27px; line-height: 1.15; font-weight: 700;
-  letter-spacing: -0.02em; font-style: italic; color: var(--crimson-text); display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-head); margin: 0; font-size: 17px; line-height: 1.2; font-weight: 700;
+  font-style: italic; color: var(--crimson-text); display: flex; align-items: center; gap: 8px;
   min-width: 0; white-space: nowrap;
 }
 .section-head h2 > :last-child { overflow: hidden; text-overflow: ellipsis; }

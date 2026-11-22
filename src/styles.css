@@ -186,7 +186,6 @@ img { display: block; }
   display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: var(--radius-sm);
   border: 1px solid var(--border);
 }
-.team.batting { background: var(--panel); border-color: var(--border-strong); }
 .team-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; min-width: 0; }
 .badge {
   width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 9px; font-weight: 700;

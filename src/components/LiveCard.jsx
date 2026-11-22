@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import * as I from './Icons.jsx';
 import { SectionHead } from './ui.jsx';
+import { TeamMark } from './TeamMark.jsx';
 import { overMarkers } from '../lib/innings.js';
 import { mockOverRuns } from '../data.js';
 
@@ -38,8 +39,9 @@ function InningsCard({ match }) {
               onKeyDown={event => selectWithKeyboard(event, side)}
             >
               <span className="innings-scoreline">
+                <TeamMark name={team.name} size={18} />
+                <span className="innings-meta-dot" aria-hidden="true">·</span>
                 <span className="innings-score">{team.runs}<span>/{team.wickets}</span></span>
-                <span className="innings-overs">{team.overs} ov</span>
               </span>
               <span className="innings-label">
                 <span className="innings-team">
@@ -48,6 +50,8 @@ function InningsCard({ match }) {
                   </span>
                   <strong>{team.name}</strong>
                 </span>
+                <span className="innings-meta-dot" aria-hidden="true">·</span>
+                <span className="innings-overs">{team.overs} ov</span>
               </span>
             </button>
           );

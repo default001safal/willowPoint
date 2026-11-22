@@ -18,10 +18,11 @@ const FLAGS = {
   australia: 'australia',
 };
 
+// Official logos where we have them (PNG), placeholder monograms (SVG) otherwise.
 const CRESTS = {
-  'lumbini lions': 'lumbini-lions',
-  'sudurpaschim royals': 'sudurpaschim-royals',
-  'chitwan rhinos': 'chitwan-rhinos',
+  'lumbini lions': 'lumbini-lions.svg',
+  'sudurpaschim royals': 'sudurpaschim-royals.png',
+  'chitwan rhinos': 'chitwan-rhinos.svg',
 };
 
 const key = (name = '') => name.trim().toLowerCase();
@@ -32,7 +33,7 @@ export function useMark(name) {
   const logo = Object.entries(teamLogos).find(([n]) => key(n) === k)?.[1];
   if (logo) return { src: logo, kind: 'logo' };
   if (FLAGS[k]) return { src: `/flags/${FLAGS[k]}.svg`, kind: 'flag' };
-  if (CRESTS[k]) return { src: `/crests/${CRESTS[k]}.svg`, kind: 'crest' };
+  if (CRESTS[k]) return { src: `/crests/${CRESTS[k]}`, kind: 'crest' };
   return null;
 }
 

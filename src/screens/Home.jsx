@@ -28,7 +28,7 @@ function NplFinal({ onPreview }) {
         {/* Same rows as Next for Nepal: a block on the left, the story, a mark on the right. */}
         <div className="card champ-rows">
           <div className="list-row">
-            <div className="date-block champ-crest"><TeamMark name={r.winner} size={30} /></div>
+            <div className="date-block champ-crest"><TeamMark name={r.winner} size={42} /></div>
             <div className="row-text">
               <strong>{r.winner}</strong>
               <span>Beat {r.winner === nplFinal.home ? nplFinal.away : nplFinal.home} by {margin ? `${margin[1]} ${margin[2].toLowerCase().startsWith('w') ? 'wickets' : 'runs'}` : r.summary}</span>

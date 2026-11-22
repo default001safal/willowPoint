@@ -1,57 +1,49 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import LiveSection from '../components/LiveCard.jsx';
-import { Divider, SaveButton, SectionHead, addDays, parts, relativeDay } from '../components/ui.jsx';
+import { Divider, SaveButton, SectionHead, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { SearchField, SearchFilters, SearchResults } from '../components/Search.jsx';
 import { useWeather, weatherSentence } from '../lib/weather.js';
-import { MarkPair, TeamMark } from '../components/TeamMark.jsx';
+import { TeamMark } from '../components/TeamMark.jsx';
 
 function Fixtures({ saved, toggleSaved, onSeeAll }) {
+  const titleId = useId();
   const { today: TODAY, fixtures: all } = useContent();
-  const fixtures = all.filter((f) => f.nepal !== false && f.date > TODAY);
-  const [day, setDay] = useState('all');
-  const week = Array.from({ length: 7 }, (_, i) => addDays(TODAY, i + 1));
-  const hasMatch = new Set(fixtures.map((f) => f.date));
-  const shown = day === 'all' ? fixtures : fixtures.filter((f) => f.date === day);
+  const fixtures = all
+    .filter((f) => f.nepal !== false && f.date > TODAY)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, 2);
 
   return (
-    <section className="section">
-      <SectionHead title="Nepal's next matches">
-        <button type="button" className="section-link" onClick={onSeeAll}>See all</button>
-      </SectionHead>
-      <div className="card">
-        <div className="strip">
-          <button type="button" aria-pressed={day === 'all'} aria-label="All dates" onClick={() => setDay('all')}>
-            <I.Calendar size={16} />
-            <small style={{ fontWeight: 600 }}>All</small>
-          </button>
-          {week.map((d) => {
-            const p = parts(d);
-            return (
-              <button key={d} type="button" aria-pressed={day === d} aria-label={`${p.day} ${p.date} ${p.month}`} onClick={() => setDay(d)}>
-                <small>{p.day}</small>
-                <b>{p.date}</b>
-                <span className={`dot${hasMatch.has(d) ? ' on' : ''}`} />
-              </button>
-            );
-          })}
-        </div>
-        {shown.length === 0 && <p className="empty">No Nepal matches on this day.</p>}
-        {shown.map((f) => {
+    <section className="section fixture-ribbons" aria-labelledby={titleId}>
+      <div className="section-head">
+        <h2 id={titleId}>Next for Nepal</h2>
+        <button type="button" className="section-link" onClick={onSeeAll}>
+          All fixtures <I.ArrowUp size={12} style={{ transform: 'rotate(45deg)' }} />
+        </button>
+      </div>
+      <ul className="fixture-column">
+        {fixtures.length === 0 && <li className="fixture-empty">No upcoming Nepal fixtures yet.</li>}
+        {fixtures.map((f) => {
           const p = parts(f.date);
           return (
-            <div className="list-row" key={f.id}>
-              <div className="date-block"><b>{p.date}</b><small>{p.month}</small></div>
-              <div className="row-text">
-                <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
-                <span>{relativeDay(f.date, TODAY)} · {f.time} · {f.venue}</span>
+            <li className="fixture-entry" key={f.id}>
+              <div className="fixture-copy">
+                <h3>{f.title}</h3>
+                <p>
+                  <time dateTime={f.date}>{p.date} {p.month}</time>
+                  <span aria-hidden="true">·</span>
+                  <span>{f.time}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{f.venue}</span>
+                </p>
               </div>
               <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </section>
   );
 }

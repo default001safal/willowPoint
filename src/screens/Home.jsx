@@ -117,20 +117,26 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
     setFiltersOpen(false);
   };
   return (
-    <main>
-      <header className="topbar">
-        <img src="/logo-light.png" alt="willowPoint" />
-        <div className="icon-row">
-          <button type="button" className="icon-btn" aria-label="Notifications">
-            <I.Bell size={19} />
-            <span className="notif-dot" />
-          </button>
-          <button type="button" className="icon-btn" aria-label="Open profile" onClick={() => go('profile')}>
-            <I.User size={19} />
-          </button>
+    <main className="home-screen">
+      <header className="home-masthead">
+        <img
+          className="home-masthead-photo"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Kirtipur_Cricket_Stadium.jpg/960px-Kirtipur_Cricket_Stadium.jpg"
+          alt=""
+        />
+        <div className="topbar home-masthead-bar">
+          <img src="/logo-light.png" alt="willowPoint" />
+          <div className="icon-row">
+            <button type="button" className="icon-btn" aria-label="Notifications">
+              <I.Bell size={19} />
+              <span className="notif-dot" />
+            </button>
+            <button type="button" className="icon-btn" aria-label="Open profile" onClick={() => go('profile')}>
+              <I.User size={19} />
+            </button>
+          </div>
         </div>
       </header>
-      <hr className="divider top" aria-hidden="true" />
 
       <section className="greeting">
         <h1>Namaskar, <span className="soft">hajur!</span></h1>

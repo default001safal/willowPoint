@@ -638,3 +638,33 @@ img { display: block; }
 /* ---------- Stone is the default: warm charcoal, not black ---------- */
 :root { --bg: #100e0d; --surface: #1a1716; --border: #2a2523; --border-strong: #403b37; --tile-bg: #1a1716; --tile-line: #2a2523; --block-bg: #211d1a; }
 [data-bg='black'] { --bg: #0a0a0a; --surface: #1a1a1a; --border: #2e2e2e; --border-strong: #3a3a3a; --tile-bg: #151515; --tile-line: #262626; --block-bg: #1d1d1d; }
+
+/* Groundside: more separation between Home sections, closer grouping within them. */
+.home-screen { --section-space: 22px; --content-gap: 5px; }
+.home-masthead {
+  position: relative; height: 148px; overflow: hidden;
+  border-radius: 0 0 22px 22px; background: var(--surface); isolation: isolate;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.08), 0 14px 30px rgba(0,0,0,.34);
+}
+.home-masthead-photo {
+  position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center 57%;
+  filter: saturate(.8) contrast(1.05) brightness(.8);
+}
+.home-masthead::after {
+  content: ''; position: absolute; z-index: -1; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(5,8,6,.28), rgba(5,8,6,.08) 44%, rgba(5,8,6,.78));
+}
+.home-masthead-bar { padding-top: max(14px, env(safe-area-inset-top)); }
+.home-masthead .icon-row .icon-btn {
+  background: rgba(10,10,10,.68); border-color: rgba(255,255,255,.16);
+  backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+}
+.home-masthead .notif-dot { border-color: rgba(10,10,10,.68); }
+.home-screen .greeting { padding-top: 18px; }
+.home-screen .tile-grid, .home-screen .matchup, .home-screen .match-tiles { gap: 6px; }
+.home-screen .tile-label { margin-top: 6px !important; }
+.home-screen .tile-badge { margin-top: 8px !important; }
+.home-screen .fixture-month { margin-block: 4px 6px; }
+.home-screen .fixture-list { margin-top: 7px; }
+.home-screen .carousel { gap: 8px; }

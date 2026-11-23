@@ -2,15 +2,15 @@ name: Deploy Firebase Hosting
 
 on:
   push:
-    branches: [main]
+    branches: [main, work/ui-refinement]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: firebase-hosting-production
-  cancel-in-progress: false
+  group: firebase-hosting-${{ github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -33,9 +33,9 @@ jobs:
             echo "::error::Add FIREBASE_SERVICE_ACCOUNT_WILLOWPOINT_FF851 to this repository's Actions secrets."
             exit 1
           fi
-      - name: Publish live site
+      - name: Publish hosting channel
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WILLOWPOINT_FF851 || secrets.FIREBASE_SERVICE_ACCOUNT }}
           projectId: willowpoint-ff851
-          channelId: live
+          channelId: ${{ github.ref_name == 'main' && 'live' || 'polish-review' }}

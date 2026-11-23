@@ -6,10 +6,15 @@ import { Divider, SaveButton, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { MarkPair } from '../components/TeamMark.jsx';
 
-// Resolve saved ids (fixtures and the NPL final) into rows; unknown ids are skipped.
+// Resolve saved fixtures, the NPL final and the featured competition into rows.
 function useSavedItems(saved) {
-  const { today, fixtures, nplFinal } = useContent();
+  const { today, fixtures, nplFinal, featuredEvent } = useContent();
   return saved.map((id) => {
+    if (id === featuredEvent?.id) {
+      const start = parts(featuredEvent.start);
+      const end = parts(featuredEvent.end);
+      return { id, title: featuredEvent.title, meta: `${start.date} ${start.month} – ${end.date} ${end.month} · ${featuredEvent.venue}` };
+    }
     if (id === 'npl-final' && nplFinal) {
       return { id, title: `${nplFinal.home} v ${nplFinal.away}`, meta: `NPL final · ${relativeDay(nplFinal.date, today)} · ${nplFinal.venue}` };
     }
@@ -118,7 +123,7 @@ export default function ProfileScreen({ prefs }) {
           <img src="/logo-light.png" alt="willowPoint logo" />
           <span className="muted" style={{ fontSize: 14 }}>Our game. In focus.</span>
           <div style={{ display: 'flex', gap: 18 }}>
-            <a href="#" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>Photo credits</a>
+            <a href="/photo-credits.html" target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>Photo credits</a>
             <a href="#" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>About</a>
           </div>
         </div>

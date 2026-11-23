@@ -20,6 +20,7 @@ export default function App() {
     }
   });
   const [discoverFilter, setDiscoverFilter] = useState('All');
+  const [discoverView, setDiscoverView] = useState('browse');
   const [pendingQuestion, setPendingQuestion] = useState(null);
   const prefs = useUserPrefs();
   const [welcome, setWelcome] = useState(needsOnboarding);
@@ -33,7 +34,10 @@ export default function App() {
   }, []);
 
   const go = (next, filter) => {
-    if (next === 'discover') setDiscoverFilter(filter || 'All');
+    if (next === 'discover') {
+      setDiscoverFilter(filter || 'All');
+      setDiscoverView(filter ? 'matches' : 'browse');
+    }
     setTab(next);
   };
 
@@ -51,7 +55,7 @@ export default function App() {
       <div className="app">
         {tab === 'home' && <HomeScreen saved={prefs.saved} toggleSaved={prefs.toggleSaved} go={go} askCue={askCue} />}
         {tab === 'discover' && (
-          <DiscoverScreen key={discoverFilter} initialFilter={discoverFilter} saved={prefs.saved} toggleSaved={prefs.toggleSaved} />
+          <DiscoverScreen key={`${discoverView}-${discoverFilter}`} initialFilter={discoverFilter} initialView={discoverView} saved={prefs.saved} toggleSaved={prefs.toggleSaved} prefs={prefs} />
         )}
         {tab === 'cue' && <CueScreen pending={pendingQuestion} clearPending={() => setPendingQuestion(null)} />}
         {tab === 'profile' && <ProfileScreen prefs={prefs} />}

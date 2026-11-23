@@ -189,7 +189,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
               <button type="button" className="pill" onClick={() => askCue('Give me my quick Nepal briefing')}>
                 <I.Spark size={14} style={{ color: 'var(--accent)' }} />Quick brief
               </button>
-              <button type="button" className="pill" onClick={() => go('discover')}>
+              <button type="button" className="pill" onClick={() => go('discover', 'Nepal')}>
                 <I.Calendar size={14} style={{ color: 'var(--muted)' }} />Nepal next
               </button>
               <button type="button" className="pill" onClick={() => go('discover', 'NPL')}>
@@ -208,7 +208,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
       ) : (
         <>
         {liveMatches.length > 0 && <Divider />}
-        <LiveSection matches={liveMatches} onSeeAll={() => go('discover')} />
+        <LiveSection matches={liveMatches} onSeeAll={() => go('discover', 'All')} />
 
         {liveMatches.length > 0 && <Divider />}
         <NextForNepal saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />

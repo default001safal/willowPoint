@@ -5,6 +5,8 @@ import { useContent } from '../lib/content.jsx';
 import { isLiveFixture } from '../lib/fixtures.js';
 import { MarkPair, TeamMark } from '../components/TeamMark.jsx';
 import { LiveTiles } from '../components/LiveCard.jsx';
+import DiscoverBrowse from '../components/DiscoverBrowse.jsx';
+import './Discover.css';
 
 const FILTERS = [
   { id: 'All', icon: <I.Grid size={14} /> },
@@ -13,7 +15,6 @@ const FILTERS = [
   { id: 'Nepal Women', icon: <I.Female size={14} /> },
   { id: 'World', icon: <I.Globe size={14} /> },
 ];
-const TABS = ['Matches', 'News', 'Events'];
 
 // Search matches any of the given strings, case-insensitively; an empty query matches everything.
 const hits = (q, ...fields) => !q || fields.some((f) => String(f || '').toLowerCase().includes(q));
@@ -167,31 +168,47 @@ function News({ query }) {
   );
 }
 
-export default function DiscoverScreen({ initialFilter = 'All', saved, toggleSaved }) {
-  const [tab, setTab] = useState('Matches');
+export default function DiscoverScreen({ initialFilter = 'All', initialView = 'browse', saved, toggleSaved, prefs }) {
+  const [view, setView] = useState(initialView);
   const [filter, setFilter] = useState(initialFilter);
   const [query, setQuery] = useState('');
+  const searching = query.trim().length > 0;
+  const openSchedule = ({ filter: nextFilter = 'All', query: nextQuery = '' }) => {
+    setFilter(nextFilter);
+    setQuery(nextQuery);
+    setView('matches');
+    window.scrollTo(0, 0);
+  };
+  const browse = () => {
+    setView('browse');
+    setFilter('All');
+    setQuery('');
+    window.scrollTo(0, 0);
+  };
+  const openStory = (story) => {
+    setView('news');
+    setQuery(story.title);
+    window.scrollTo(0, 0);
+  };
 
   return (
-    <main>
+    <main className="discover-screen">
       <header className="screen-head">
         <h1 className="screen-title">Discover</h1>
-        <p className="subhead">Matches, stories and events, all in Nepal time.</p>
+        <p className="subhead">{view === 'browse' ? 'Competitions, grounds and the teams to follow.' : view === 'matches' ? 'Every match, in Nepal time.' : 'Stories from Nepal and beyond.'}</p>
         <label className="search" style={{ marginTop: 0 }}>
           <I.Search size={14} />
           <span className="sr-only">Search</span>
           <input type="search" placeholder="Teams, matches, stories" value={query} onChange={(e) => setQuery(e.target.value)} />
         </label>
-        <div className="segmented" role="tablist">
-          {TABS.map((t) => (
-            <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setTab(t)}>{t}</button>
-          ))}
-        </div>
       </header>
 
-      {tab === 'Matches' && (
+      {view === 'browse' && !searching && <DiscoverBrowse saved={saved} toggleSaved={toggleSaved} following={prefs.following} toggleFollow={prefs.toggleFollow} onOpenSchedule={openSchedule} onStory={openStory} />}
+
+      {view === 'matches' && (
         <>
           <div className="pill-row" style={{ margin: '14px 0 0', padding: '0 16px 4px' }}>
+            <button type="button" className="pill" onClick={browse}><I.Chevron size={13} style={{ transform: 'rotate(180deg)' }} />Browse</button>
             {FILTERS.map((f) => (
               <button key={f.id} type="button" className="pill" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
                 {f.icon}
@@ -202,8 +219,15 @@ export default function DiscoverScreen({ initialFilter = 'All', saved, toggleSav
           <Matches filter={filter} query={query} saved={saved} toggleSaved={toggleSaved} />
         </>
       )}
-      {tab === 'News' && <News query={query} />}
-      {tab === 'Events' && <p className="empty" style={{ padding: '24px 20px' }}>Events are coming soon.</p>}
+      {view === 'browse' && searching && <>
+        <div className="pill-row" style={{ margin: '14px 0 0', padding: '0 16px 4px' }}><button type="button" className="pill" onClick={browse}><I.Chevron size={13} style={{ transform: 'rotate(180deg)' }} />Browse</button></div>
+        <Matches filter="All" query={query} saved={saved} toggleSaved={toggleSaved} />
+        <News query={query} />
+      </>}
+      {view === 'news' && <>
+        <div className="pill-row" style={{ margin: '14px 0 0', padding: '0 16px 4px' }}><button type="button" className="pill" onClick={browse}><I.Chevron size={13} style={{ transform: 'rotate(180deg)' }} />Browse</button></div>
+        <News query={query} />
+      </>}
     </main>
   );
 }

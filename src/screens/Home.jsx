@@ -150,24 +150,16 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
   };
   return (
     <main className="home-screen">
-      <header className="home-masthead">
-        {/* Kirtipur Cricket Stadium · Samir.giri · CC BY-SA 3.0 (Wikimedia Commons). */}
-        <img
-          className="home-masthead-photo"
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Kirtipur_Cricket_Stadium.jpg/960px-Kirtipur_Cricket_Stadium.jpg"
-          alt=""
-        />
-        <div className="topbar home-masthead-bar">
-          <img src="/logo-light.png" alt="willowPoint" />
-          <div className="icon-row">
-            <button type="button" className="icon-btn" aria-label="Notifications">
-              <I.Bell size={19} />
-              <span className="notif-dot" />
-            </button>
-            <button type="button" className="icon-btn" aria-label="Open profile" onClick={() => go('profile')}>
-              <I.User size={19} />
-            </button>
-          </div>
+      <header className="topbar">
+        <img src="/logo-light.png" alt="willowPoint" />
+        <div className="icon-row">
+          <button type="button" className="icon-btn" aria-label="Notifications">
+            <I.Bell size={19} />
+            <span className="notif-dot" />
+          </button>
+          <button type="button" className="icon-btn" aria-label="Open profile" onClick={() => go('profile')}>
+            <I.User size={19} />
+          </button>
         </div>
       </header>
 

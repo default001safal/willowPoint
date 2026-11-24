@@ -36,8 +36,8 @@ const TILE_ICONS = {
 };
 
 const FEATURES = [
-  { icon: <span className="ob-live-dot" />, text: 'Live scores as they happen' },
-  { icon: <I.Calendar size={19} style={{ color: 'var(--muted)' }} />, text: 'Every Nepal fixture, at a glance' },
+  { icon: <span className="ob-live-dot" />, text: 'Verified live scores when available' },
+  { icon: <I.Calendar size={19} style={{ color: 'var(--muted)' }} />, text: 'Nepal fixtures, at a glance' },
   { icon: <I.Spark size={19} style={{ color: 'var(--accent)' }} />, text: 'Ask Cue about matches and results' },
 ];
 

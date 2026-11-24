@@ -42,6 +42,6 @@ Scope: current review branch, local build and browser flows, public Firestore re
 - `node --test tests/*.test.mjs`
 - `npm run build`
 - `npm run ingest:live:check` (read-only dry run)
-- Browser smoke: Home, Discover, Cue, Profile, search, Save/Follow, onboarding, and live empty states on local/review builds.
+- Browser smoke: Home, Discover, Cue, Profile, match navigation, Save, onboarding choices and completion, and live empty states on local/review builds. Network-loss behavior still needs deployed device testing.
 
 Record exact results and review deployment in the branch history; none of these checks writes Firebase data.

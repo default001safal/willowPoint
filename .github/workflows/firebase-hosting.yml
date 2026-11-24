@@ -2,7 +2,7 @@ name: Deploy Firebase Hosting
 
 on:
   push:
-    branches: [main, work/groundside-current]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -38,4 +38,4 @@ jobs:
         with:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WILLOWPOINT_FF851 || secrets.FIREBASE_SERVICE_ACCOUNT }}
           projectId: willowpoint-ff851
-          channelId: ${{ github.ref_name == 'main' && 'live' || 'polish-review' }}
+          channelId: live

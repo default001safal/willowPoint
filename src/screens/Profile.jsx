@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { followables } from '../data.js';
-import { firebaseEnabled } from '../lib/firebase.js';
 import { Divider, SaveButton, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { MarkPair } from '../components/TeamMark.jsx';
@@ -26,8 +25,7 @@ function useSavedItems(saved) {
 }
 
 export default function ProfileScreen({ prefs }) {
-  const { saved, following, alerts, toggleFollow: toggle, setAlerts: setAlertsTo, toggleSaved, synced } = prefs;
-  const setAlerts = (fn) => setAlertsTo(fn(alerts));
+  const { saved, following, toggleFollow: toggle, toggleSaved, synced } = prefs;
   const [showSaved, setShowSaved] = useState(false);
   const savedItems = useSavedItems(saved);
 
@@ -35,7 +33,7 @@ export default function ProfileScreen({ prefs }) {
     <main>
       <header className="screen-head">
         <h1 className="screen-title">Profile</h1>
-        <p className="subhead">Your teams, alerts and settings.</p>
+        <p className="subhead">Your teams, saved matches and settings.</p>
       </header>
 
       <section className="section">
@@ -46,7 +44,7 @@ export default function ProfileScreen({ prefs }) {
               <strong style={{ fontSize: 17, fontWeight: 700 }}>Cricket fan</strong>
               <span style={{ fontSize: 13 }}>Following {following.length}</span>
             </div>
-            <button type="button" className="ghost-btn">Edit</button>
+            <span className="muted" style={{ fontSize: 12 }}>{synced ? 'Synced here' : 'Saved here'}</span>
           </div>
           <button type="button" className="setting row-top" aria-expanded={showSaved} onClick={() => setShowSaved((s) => !s)}>
             <I.Bookmark size={20} style={{ color: 'var(--muted)' }} />
@@ -90,30 +88,21 @@ export default function ProfileScreen({ prefs }) {
       <section className="section">
         <h2 className="group-label">Preferences</h2>
         <div className="card">
-          <button type="button" className="setting">
+          <div className="setting">
             <span style={{ flex: 1 }}>Time zone</span>
             <span className="muted" style={{ fontSize: 14 }}>Nepal (NPT)</span>
-            <I.Chevron size={16} style={{ color: 'var(--muted)' }} />
-          </button>
-          <button type="button" className="setting">
+          </div>
+          <div className="setting">
             <span style={{ flex: 1 }}>Language</span>
             <span className="muted" style={{ fontSize: 14 }}>English</span>
-            <I.Chevron size={16} style={{ color: 'var(--muted)' }} />
-          </button>
+          </div>
           <div className="setting" style={{ paddingTop: 12, paddingBottom: 12 }}>
             <div className="row-text">
               <strong style={{ fontWeight: 400 }}>Match alerts</strong>
-              <span>For matches you save</span>
+              <span>Coming later</span>
             </div>
-            <button type="button" role="switch" className="switch" aria-checked={alerts} aria-label="Match alerts" onClick={() => setAlerts((a) => !a)}>
-              <span />
-            </button>
           </div>
-          <button type="button" className="setting">
-            <span style={{ flex: 1 }}>Sources</span>
-            <span className="muted" style={{ fontSize: 13 }}>Checked 10:03 NPT</span>
-            <I.Chevron size={16} style={{ color: 'var(--muted)' }} />
-          </button>
+          <div className="setting"><span style={{ flex: 1 }}>Sources</span><span className="muted" style={{ fontSize: 13 }}>Shown with available records</span></div>
         </div>
       </section>
 
@@ -124,11 +113,11 @@ export default function ProfileScreen({ prefs }) {
           <span className="muted" style={{ fontSize: 14 }}>Our game. In focus.</span>
           <div style={{ display: 'flex', gap: 18 }}>
             <a href="/photo-credits.html" target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>Photo credits</a>
-            <a href="#" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>About</a>
+            <a href="/about.html" target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>About</a>
           </div>
         </div>
         <p className="footnote" style={{ textAlign: 'center' }}>
-          {firebaseEnabled && synced ? 'Your preferences sync to your account.' : 'Your preferences are saved on this device.'}
+          {synced ? 'Your preferences are synced to this browser session.' : 'Your preferences are saved on this device.'}
         </p>
       </section>
     </main>

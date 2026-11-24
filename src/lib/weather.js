@@ -20,11 +20,8 @@ function describe(code, isDay) {
   return 'mixed weather';
 }
 
-// Mock reading shown until the live one arrives (and if the weather service can't be reached).
-const MOCK = { city: CITY.name, temp: 18, phrase: 'clear skies' };
-
 export function useWeather() {
-  const [weather, setWeather] = useState(MOCK);
+  const [weather, setWeather] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,7 +41,7 @@ export function useWeather() {
           });
         })
         .catch(() => {
-          /* keep the last (or mock) reading */
+          /* keep the last verified reading, if one exists */
         });
 
     load();
@@ -59,5 +56,5 @@ export function useWeather() {
 }
 
 export function weatherSentence(w) {
-  return w ? `It's ${w.temp}°C with ${w.phrase} in ${w.city}.` : '';
+  return w ? `It's ${w.temp}°C with ${w.phrase} in ${w.city}.` : 'Nepal cricket, in one place.';
 }

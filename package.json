@@ -7,11 +7,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "ingest:live:check": "node scripts/ingest-live.mjs --dry-run",
     "preview": "vite preview",
     "seed": "node scripts/seed.mjs",
     "deploy": "vite build && firebase deploy --only hosting,firestore:rules"
   },
   "dependencies": {
+    "cheerio": "^1.0.0",
     "firebase": "^11.10.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

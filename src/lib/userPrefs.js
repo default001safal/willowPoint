@@ -9,7 +9,7 @@ const KEY = 'wp.prefs';
 const DEFAULTS = {
   saved: [],
   following: followables.filter((f) => f.default).map((f) => f.id),
-  alerts: true,
+  alerts: false,
 };
 
 function readLocal() {
@@ -33,7 +33,10 @@ const toggleIn = (list, id) => (list.includes(id) ? list.filter((x) => x !== id)
 
 export function useUserPrefs() {
   const [prefs, setPrefs] = useState(readLocal);
+  const prefsRef = useRef(prefs);
   const uidRef = useRef(null);
+  const readyRef = useRef(false);
+  const dirtyRef = useRef(false);
   const [synced, setSynced] = useState(false);
 
   // Sign in anonymously, then follow this fan's doc. First visit: upload what's on the device.
@@ -42,22 +45,38 @@ export function useUserPrefs() {
     const stopAuth = watchUser((user) => {
       stopDoc();
       uidRef.current = user?.uid ?? null;
+      readyRef.current = false;
+      setSynced(false);
       if (!user || !db) return;
       const ref = doc(db, 'users', user.uid);
       stopDoc = onSnapshot(
         ref,
         (snap) => {
+          if (!readyRef.current) {
+            readyRef.current = true;
+            if (dirtyRef.current || !snap.exists()) {
+              const local = prefsRef.current;
+              setDoc(ref, { ...local, updatedAt: serverTimestamp() }, { merge: true })
+                .then(() => { if (prefsRef.current === local) { dirtyRef.current = false; setSynced(true); } })
+                .catch((err) => { dirtyRef.current = true; console.warn('[willowPoint] prefs sync failed:', err.code || err.message); });
+              return;
+            }
+          }
+          if (dirtyRef.current) return;
           if (snap.exists()) {
             const remote = { ...DEFAULTS, ...snap.data() };
-            const next = { saved: remote.saved, following: remote.following, alerts: remote.alerts };
+            const next = {
+              saved: Array.isArray(remote.saved) ? remote.saved : [],
+              following: Array.isArray(remote.following) ? remote.following : [],
+              alerts: typeof remote.alerts === 'boolean' ? remote.alerts : false,
+            };
+            prefsRef.current = next;
             setPrefs(next);
             writeLocal(next);
-          } else {
-            setDoc(ref, { ...readLocal(), updatedAt: serverTimestamp() });
+            setSynced(true);
           }
-          setSynced(true);
         },
-        (err) => console.warn('[willowPoint] prefs sync failed:', err.code || err.message),
+        (err) => { setSynced(false); console.warn('[willowPoint] prefs sync failed:', err.code || err.message); },
       );
     });
     return () => {
@@ -67,15 +86,16 @@ export function useUserPrefs() {
   }, []);
 
   const update = useCallback((change) => {
-    setPrefs((current) => {
-      const next = { ...current, ...change(current) };
-      writeLocal(next);
-      if (db && uidRef.current) {
-        setDoc(doc(db, 'users', uidRef.current), { ...next, updatedAt: serverTimestamp() }, { merge: true })
-          .catch((err) => console.warn('[willowPoint] could not save prefs:', err.code || err.message));
-      }
-      return next;
-    });
+    const next = { ...prefsRef.current, ...change(prefsRef.current) };
+    prefsRef.current = next;
+    dirtyRef.current = true;
+    setPrefs(next);
+    writeLocal(next);
+    if (db && uidRef.current && readyRef.current) {
+      setDoc(doc(db, 'users', uidRef.current), { ...next, updatedAt: serverTimestamp() }, { merge: true })
+        .then(() => { if (prefsRef.current === next) { dirtyRef.current = false; setSynced(true); } })
+        .catch((err) => { setSynced(false); console.warn('[willowPoint] could not save prefs:', err.code || err.message); });
+    }
   }, []);
 
   return {

@@ -38,7 +38,7 @@ const TILE_ICONS = {
 const FEATURES = [
   { icon: <span className="ob-live-dot" />, text: 'Live scores as they happen' },
   { icon: <I.Calendar size={19} style={{ color: 'var(--muted)' }} />, text: 'Every Nepal fixture, at a glance' },
-  { icon: <I.Spark size={19} style={{ color: 'var(--accent)' }} />, text: 'Ask Cue, with sources' },
+  { icon: <I.Spark size={19} style={{ color: 'var(--accent)' }} />, text: 'Ask Cue about matches and results' },
 ];
 
 export default function Onboarding({ prefs, onDone }) {
@@ -77,7 +77,7 @@ export default function Onboarding({ prefs, onDone }) {
         {step === 1 && (
           <>
             <h1 className="ob-title">Pick your <span>cricket</span></h1>
-            <p className="ob-sub">We'll put these first. Change them any time in Profile.</p>
+            <p className="ob-sub">Follow the cricket you care about. Change your picks any time in Profile.</p>
             <div className="ob-tiles">
               {followables.map((f) => {
                 const on = prefs.following.includes(f.id);
@@ -95,18 +95,15 @@ export default function Onboarding({ prefs, onDone }) {
 
         {step === 2 && (
           <>
-            <h1 className="ob-title">Make it <span>yours</span></h1>
-            <p className="ob-sub">One quick setting. You can change it later.</p>
+            <h1 className="ob-title">You're <span>all set</span></h1>
+            <p className="ob-sub">Your picks shape what you follow. Change them any time in Profile.</p>
             <div className="card ob-settings">
               <div className="setting">
-                <I.Bell size={19} style={{ color: 'var(--muted)' }} />
+                <I.Check size={19} style={{ color: 'var(--accent)' }} />
                 <span className="row-text" style={{ flex: 1 }}>
-                  <strong style={{ fontWeight: 500 }}>Match alerts</strong>
-                  <span>Start, wickets and results for saved matches</span>
+                  <strong style={{ fontWeight: 500 }}>Following {prefs.following.length} topics</strong>
+                  <span>See them in Discover and Profile</span>
                 </span>
-                <button type="button" role="switch" className="switch" aria-checked={prefs.alerts} aria-label="Match alerts" onClick={() => prefs.setAlerts(!prefs.alerts)}>
-                  <span />
-                </button>
               </div>
               <div className="setting">
                 <I.Globe size={19} style={{ color: 'var(--muted)' }} />

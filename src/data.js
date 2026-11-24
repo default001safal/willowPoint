@@ -112,7 +112,7 @@ export const worldNews = [
 export const cuePrompts = [
   { id: 'q1', title: 'Recap the NPL final', hint: 'How the Royals won their maiden title' },
   { id: 'q2', title: 'When do Nepal play next?', hint: 'Confirmed fixtures in Nepal time' },
-  { id: 'q3', title: 'What happened in Doha?', hint: "Nepal's latest result, explained" },
+  { id: 'q3', title: 'What happened in Doha?', hint: 'Most recent result in this app' },
 ];
 
 export const followables = [

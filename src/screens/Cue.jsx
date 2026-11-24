@@ -2,24 +2,22 @@ import { useEffect, useRef, useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { cuePrompts } from '../data.js';
 import { Divider } from '../components/ui.jsx';
+import { useContent } from '../lib/content.jsx';
+import { cueAnswer } from '../lib/cueAnswers.js';
 
-// Cue is UI-only for now: questions are shown in the thread and a placeholder reply explains
-// that answers will appear here once the Cue backend is connected.
-const PLACEHOLDER_REPLY =
-  "Cue isn't connected yet. Once it is, your answer will appear here with its sources.";
-
-const exchange = (q) => [{ from: 'me', text: q }, { from: 'cue', text: PLACEHOLDER_REPLY }];
+const exchange = (q, content) => [{ from: 'me', text: q }, { from: 'cue', ...cueAnswer(q, content) }];
 
 export default function CueScreen({ pending, clearPending }) {
+  const content = useContent();
   // A question handed over from another screen opens the thread straight away.
-  const [thread, setThread] = useState(() => (pending ? exchange(pending) : []));
+  const [thread, setThread] = useState(() => (pending ? exchange(pending, content) : []));
   const [draft, setDraft] = useState('');
   const endRef = useRef(null);
 
   const ask = (text) => {
     const q = text.trim();
     if (!q) return;
-    setThread((t) => [...t, ...exchange(q)]);
+    setThread((t) => [...t, ...exchange(q, content)]);
     setDraft('');
   };
 
@@ -37,7 +35,7 @@ export default function CueScreen({ pending, clearPending }) {
       <section className="cue-hero">
         <span className="cue-mark" role="img" aria-label="Cue"><I.SparkGlint size={30} sw={1.7} /></span>
         <h1 className="screen-title">Ask <span className="soft">Cue</span></h1>
-        <p>Quick, sourced answers on Nepal cricket.</p>
+        <p>Quick answers from the latest available match data.</p>
       </section>
 
       <Divider />
@@ -54,7 +52,15 @@ export default function CueScreen({ pending, clearPending }) {
       ) : (
         <section className="thread" aria-live="polite">
           {thread.map((m, i) => (
-            <div key={i} className={`bubble ${m.from}`}>{m.text}</div>
+            <div key={i} className={`bubble ${m.from}`}>
+              {m.text}
+              {m.sources?.length > 0 && <span className="cue-sources">From {m.sources.map((s, index) => (
+                <span key={`${s.label}-${index}`}>
+                  {index > 0 && ' · '}
+                  {s.url ? <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a> : s.label}
+                </span>
+              ))}</span>}
+            </div>
           ))}
           <button type="button" className="thread-reset" onClick={() => setThread([])}>
             <I.Plus size={14} />New question
@@ -81,7 +87,7 @@ export default function CueScreen({ pending, clearPending }) {
               }}
             />
             <div className="composer-foot">
-              <span className="hint"><I.Spark size={13} style={{ color: 'var(--accent)' }} />Every answer shows its sources</span>
+              <span className="hint"><I.Spark size={13} style={{ color: 'var(--accent)' }} />From current match data</span>
               <button type="submit" className="send" aria-label="Send" disabled={!draft.trim()}>
                 <I.ArrowUp size={18} sw={2.2} />
               </button>

@@ -65,7 +65,6 @@ function Featured({ onPreview, saved, toggleSaved, onSeeAll }) {
 
 function NplFinal({ onPreview }) {
   const { today: TODAY, nplFinal } = useContent();
-  const [remind, setRemind] = useState(false);
   if (!nplFinal) return null;
   const r = nplFinal.result;
 
@@ -109,9 +108,6 @@ function NplFinal({ onPreview }) {
     <section className="section">
       <SectionHead title="NPL final">
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="round-btn" aria-label={remind ? 'Reminder set' : 'Remind me'} aria-pressed={remind} onClick={() => setRemind((v) => !v)}>
-            <I.Bell size={15} sw={2} />
-          </button>
           <button type="button" className="round-btn" aria-label="Preview with Cue" onClick={onPreview}>
             <I.Spark size={15} style={{ color: 'var(--accent)' }} />
           </button>
@@ -134,7 +130,7 @@ function NplFinal({ onPreview }) {
 }
 
 export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
-  const { liveMatches, nplFinal, stories, worldNews } = useContent();
+  const { liveMatches, liveState, loadState, nplFinal, stories } = useContent();
   const weather = useWeather();
   const [query, setQuery] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -153,10 +149,6 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
       <header className="topbar">
         <img src="/logo-light.png" alt="willowPoint" />
         <div className="icon-row">
-          <button type="button" className="icon-btn" aria-label="Notifications">
-            <I.Bell size={19} />
-            <span className="notif-dot" />
-          </button>
           <button type="button" className="icon-btn" aria-label="Open profile" onClick={() => go('profile')}>
             <I.User size={19} />
           </button>
@@ -196,60 +188,28 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
       </section>
 
       {searching ? (
-        <SearchResults query={query} scope={scope} competition={competition} onClear={clearSearch} />
+        <SearchResults query={query} scope={scope} competition={competition} onClear={clearSearch} onSelect={(hit) => go('discover', hit.scope === 'News' ? 'News' : 'All', hit.title)} />
       ) : (
         <>
-        {liveMatches.length > 0 && <Divider />}
-        <LiveSection matches={liveMatches} onSeeAll={() => go('discover', 'All')} />
+        <Divider />
+        <LiveSection matches={liveMatches} state={liveState} loading={loadState === 'loading'} onSeeAll={() => go('discover', 'All')} />
 
-        {liveMatches.length > 0 && <Divider />}
+        <Divider />
         <NextForNepal saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
 
         {nplFinal && <Divider />}
         <Featured onPreview={() => askCue(nplFinal?.result ? 'Recap the NPL final' : 'Set the scene for the NPL final')} saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
 
-        <Divider />
-        <section className="section" style={{ paddingLeft: 0, paddingRight: 0 }}>
-          <div style={{ padding: '0 16px' }}>
-            <SectionHead title="Featured News">
-              <button type="button" className="section-link">More</button>
-            </SectionHead>
-          </div>
-          <div style={{ padding: '0 16px' }}>
-            <button type="button" className="ribbon simple" onClick={() => askCue('Give me my quick Nepal briefing')}>
-              <span className="lead"><I.Spark size={15} /></span>
-              <span className="grow">Cue's quick read. Your Nepal briefing.</span>
-              <span className="chev"><I.Chevron size={14} /></span>
-            </button>
-          </div>
-          <div className="carousel">
-            {stories.map((s) => (
-              <a key={s.id} href="#" className="card story">
-                <div className="photo">{s.art ? <img src={`/art/${s.art}.svg`} alt="" /> : null}</div>
-                <div className="body">
-                  <strong>{s.title}</strong>
-                  <span>{s.source}</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        <Divider />
-        <section className="section">
-          <SectionHead title="Around the world">
-            <button type="button" className="section-link">More</button>
+        {stories.length > 0 && <Divider />}
+        {stories.length > 0 && <section className="section home-stories">
+          <SectionHead title="Stories">
+            <button type="button" className="section-link" onClick={() => go('discover', 'News')}>Explore <I.ArrowUp size={11} style={{ transform: 'rotate(45deg)' }} /></button>
           </SectionHead>
-          <div className="card">
-            {worldNews.map((n) => (
-              <a key={n.id} href="#" className="news-item">
-                <strong>{n.title}</strong>
-                <p>{n.blurb}</p>
-                <small>{n.source} · {n.date}</small>
-              </a>
-            ))}
+          <div className="card home-story">
+            <strong>{stories[0].title}</strong>
+            <span>{stories[0].source}</span>
           </div>
-        </section>
+        </section>}
         </>
       )}
     </main>

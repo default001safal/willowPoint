@@ -57,7 +57,7 @@ function MatchTiles({ fixture: f, today, now, saved, onSave }) {
 }
 
 export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () => {} }) {
-  const { today, fixtures: all, liveMatches } = useContent();
+  const { today, loadState, fixtures: all, liveMatches } = useContent();
   const now = useNow();
   // Today's live game has its own section above; a game whose start has passed isn't "next".
   const fixtures = all
@@ -70,7 +70,7 @@ export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () =>
   const hasMatch = new Set(fixtures.map((f) => f.date));
   const selected = day === 'all' || week.includes(day)
     ? day
-    : fixtures.find((f) => week.includes(f.date))?.date ?? week[0];
+    : fixtures.find((f) => week.includes(f.date))?.date ?? (fixtures.length ? 'all' : week[0]);
   const shown = (selected === 'all' ? fixtures : fixtures.filter((f) => f.date === selected)).slice(0, 3);
   const first = parts(week[0]);
   const last = parts(week[6]);
@@ -104,7 +104,7 @@ export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () =>
         })}
       </div>
       <div aria-live="polite" className="fixture-list">
-        {shown.length === 0 && <p className="fixture-empty">No Nepal matches on this date.</p>}
+        {shown.length === 0 && <p className="fixture-empty">{loadState === 'loading' ? 'Checking fixtures…' : fixtures.length ? 'No match on this date. Choose All to see what is next.' : 'No confirmed Nepal fixtures are listed yet.'}</p>}
         {selected !== 'all' && shown.length > 0 && (
           <MatchTiles fixture={shown[0]} today={today} now={now} saved={saved.includes(shown[0].id)} onSave={() => toggleSaved(shown[0].id)} />
         )}

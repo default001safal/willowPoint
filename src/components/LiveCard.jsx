@@ -31,14 +31,29 @@ export function LiveTiles({ match }) {
   );
 }
 
-export default function LiveSection({ matches, onSeeAll }) {
+export default function LiveSection({ matches, state, loading, onSeeAll }) {
   const [selectedId, setSelectedId] = useState(null);
   const match = matches.find((item) => item.id === selectedId) ?? matches[0];
-  if (!match) return null;
+  if (!match) {
+    const noGame = state === 'none';
+    const title = loading ? 'Checking live scores' : noGame ? 'No tracked matches live' : 'Live scores unavailable';
+    const detail = loading ? 'Connecting to the score feed.' : noGame ? 'The next Nepal fixture is below.' : 'Scores will appear after a fresh source check.';
+    return (
+      <section className="section live-section" aria-labelledby="live-title">
+        <SectionHead title={<span id="live-title">Live scores</span>}>
+          <button type="button" className="section-link" onClick={onSeeAll}>All matches <I.ArrowUp size={11} style={{ transform: 'rotate(45deg)' }} /></button>
+        </SectionHead>
+        <div className="live-empty" role="status">
+          <span className="live-empty-mark" aria-hidden="true"><I.CricketBall size={16} /></span>
+          <span><strong>{title}</strong><small>{detail}</small></span>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section live-section" aria-labelledby="live-title">
-      <SectionHead title={<span id="live-title">Live now</span>} leading={<span className="live-dot" />}>
+      <SectionHead title={<span id="live-title">{state === 'demo' ? 'Demo score' : 'Live now'}</span>} leading={state === 'demo' ? null : <span className="live-dot" />}>
         <div className="live-actions">
           {matches.length > 1 && (
             <div className="pager" role="group" aria-label="Live matches">
@@ -55,6 +70,7 @@ export default function LiveSection({ matches, onSeeAll }) {
         </div>
       </SectionHead>
       <LiveTiles key={match.id} match={match} />
+      {match.verifiedAt && <p className="live-source">Checked {Math.max(0, Math.floor((Date.now() - Date.parse(match.verifiedAt)) / 60_000))}m ago · <a href={match.sourceUrl} target="_blank" rel="noopener noreferrer">{match.source || 'Scorecard'}</a></p>}
     </section>
   );
 }

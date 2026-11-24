@@ -29,9 +29,9 @@ function useIndex() {
     );
     if (c.nplFinal) {
       items.push({
-        id: 'npl-final', scope: 'Fixtures', competition: 'NPL',
+        id: 'npl-final', scope: c.nplFinal.result ? 'Results' : 'Fixtures', competition: 'NPL',
         title: `${c.nplFinal.home} v ${c.nplFinal.away}`,
-        meta: `NPL final · ${relativeDay(c.nplFinal.date, c.today)} ${c.nplFinal.time} · ${c.nplFinal.venue}`,
+        meta: c.nplFinal.result ? `NPL final · ${c.nplFinal.result.summary}` : `NPL final · ${relativeDay(c.nplFinal.date, c.today)} ${c.nplFinal.time} · ${c.nplFinal.venue}`,
         text: `npl final premier league ${c.nplFinal.home} ${c.nplFinal.away} ${c.nplFinal.venue}`,
       });
     }
@@ -51,10 +51,10 @@ function useIndex() {
       }),
     );
     c.stories.forEach((s) =>
-      items.push({ id: s.id, scope: 'News', competition: 'Nepal', title: s.title, meta: s.source, text: `${s.title} ${s.source}`, href: '#' }),
+      items.push({ id: s.id, scope: 'News', competition: 'Nepal', title: s.title, meta: s.source, text: `${s.title} ${s.source}` }),
     );
     c.worldNews.forEach((n) =>
-      items.push({ id: n.id, scope: 'News', competition: 'World', title: n.title, meta: `${n.source} · ${n.date}`, text: `${n.title} ${n.blurb} ${n.source}`, href: '#' }),
+      items.push({ id: n.id, scope: 'News', competition: 'World', title: n.title, meta: `${n.source} · ${n.date}`, text: `${n.title} ${n.blurb} ${n.source}` }),
     );
     return items;
   }, [c]);
@@ -107,7 +107,7 @@ export function SearchFilters({ scope, setScope, competition, setCompetition }) 
   );
 }
 
-export function SearchResults({ query, scope, competition, onClear }) {
+export function SearchResults({ query, scope, competition, onClear, onSelect }) {
   const index = useIndex();
   const q = query.trim().toLowerCase();
   const words = q.split(/\s+/).filter(Boolean);
@@ -132,15 +132,14 @@ export function SearchResults({ query, scope, competition, onClear }) {
       ) : (
         <div className="card">
           {hits.map((h) => {
-            const Row = h.href ? 'a' : 'div';
             return (
-              <Row key={h.id} href={h.href} className="list-row search-hit">
+              <button key={h.id} type="button" onClick={() => onSelect(h)} className="list-row search-hit">
                 <div className="row-text">
                   <strong>{h.title}</strong>
                   <span>{h.meta}</span>
                 </div>
                 <span className={`chip${h.scope === 'Live' ? ' live' : ''}`}>{h.scope}</span>
-              </Row>
+              </button>
             );
           })}
         </div>

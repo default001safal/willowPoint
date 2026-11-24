@@ -39,12 +39,12 @@ export function MatchupTiles({ sides }) {
         <div key={s.name} className={`tile${i ? ' right' : ''}${s.active ? ' active' : ' idle'}`}>
           <p className="tile-value">
             {s.runs}
-            <sup>/{s.wickets}</sup>
+            {s.wickets != null && <sup>/{s.wickets}</sup>}
           </p>
           <p className="tile-label">{s.mark}{s.name}</p>
           <p className="tile-badge neutral">
             <span className="tile-badge-dot" aria-hidden="true"><span className="tile-pip" /></span>
-            {s.overs} overs
+            {s.overs && s.overs !== '—' ? `${s.overs} overs` : 'Overs pending'}
           </p>
         </div>
       ))}

@@ -32,6 +32,14 @@
   border-radius: 50%; border: 1px solid rgba(255,255,255,.28); background: #08060573; color: #fff;
 }
 .discover-screen .hero-save[aria-pressed='true'] { color: var(--accent); border-color: var(--accent); }
+.discover-screen .desk-card { overflow: hidden; }
+.discover-screen .desk-row { display: flex; flex-direction: column; gap: 4px; width: 100%; min-height: 70px; padding: 14px 16px; border: 0; background: none; color: var(--text); text-align: left; }
+.discover-screen button.desk-row { cursor: pointer; }
+.discover-screen .desk-row + .desk-row { border-top: 1px solid var(--border); }
+.discover-screen .desk-kicker { color: var(--crimson-text); font-family: var(--font-head); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+.discover-screen .desk-row strong { font-size: 15px; line-height: 1.25; }
+.discover-screen .desk-meta { color: var(--muted); font-size: 12px; }
+.discover-screen .poster[aria-pressed='true'] { border-color: color-mix(in srgb, var(--accent) 55%, var(--tile-line)); }
 .discover-screen .prow .carousel { padding-top: 10px; scroll-snap-type: x proximity; overscroll-behavior-x: contain; }
 .discover-screen .poster {
   flex: 0 0 158px; padding: 0; border: 1px solid var(--tile-line); border-radius: 18px;

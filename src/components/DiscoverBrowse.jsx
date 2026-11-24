@@ -1,29 +1,28 @@
 import { useState } from 'react';
 import * as I from './Icons.jsx';
-import { Divider, SectionHead } from './ui.jsx';
+import { Divider, SectionHead, parts } from './ui.jsx';
 import { TeamMark } from './TeamMark.jsx';
 import { followables } from '../data.js';
 import { useContent } from '../lib/content.jsx';
+import { kickoffUTC } from '../lib/statcard.js';
 
-// The portrait browse layout recovered from the original polish-review build.
-// Use Commons' supported thumbnail widths; the former 480px URLs returned 400.
-const thumb = (path, name, width = 330) => `https://upload.wikimedia.org/wikipedia/commons/thumb/${path}/${name}/${width}px-${name}`;
+// Locally served, credited Commons images avoid a third-party request for each poster.
 const PHOTOS = {
-  hero: thumb('e/e3', 'Kirtipur_Cricket_Stadium.jpg', 960),
-  npl: thumb('0/05', 'Kirtipur_Criket_Ground1.JPG'),
-  league: thumb('b/ba', 'Kirtipur_Criket_Ground3.JPG'),
-  women: thumb('4/41', 'Kirtipur_Criket_Ground4.JPG'),
-  youth: thumb('7/7d', 'Kirtipur_Criket_Ground5.JPG'),
-  mulpani: thumb('c/c1', 'Mulpani_cricket_ground.jpg', 960),
-  pokhara: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/Pokhara_Stadium_2022.jpg',
+  hero: '/photos/hero-kirtipur.jpg',
+  npl: '/photos/npl-kirtipur.jpg',
+  league: '/photos/league-kirtipur.jpg',
+  women: '/photos/women-kirtipur.jpg',
+  youth: '/photos/youth-kirtipur.jpg',
+  mulpani: '/photos/mulpani.jpg',
+  pokhara: '/photos/pokhara.jpg',
 };
 
 const COMPETITIONS = [
   { id: 'qualifier', title: 'Qualifier Play-off', caption: 'Eight teams, December', tag: 'Dec 4', photo: PHOTOS.hero, filter: 'Nepal' },
   { id: 'npl', title: 'Nepal Premier League', caption: 'Eight cities, one trophy', tag: 'Champions', photo: PHOTOS.npl, filter: 'NPL' },
-  { id: 'league', title: 'World Cup League 2', caption: "Nepal's ODI league", tag: 'Ongoing', photo: PHOTOS.league, filter: 'Nepal' },
-  { id: 'women', title: 'Nepal Women', caption: 'The national side', tag: 'Follow', photo: PHOTOS.women, filter: 'Nepal Women' },
-  { id: 'u19', title: 'Nepal U19', caption: 'The next ones through', tag: 'Youth', photo: PHOTOS.youth, filter: 'Nepal U19' },
+  { id: 'league', title: 'World Cup League 2', caption: "Nepal's ODI league", tag: 'ODI', photo: PHOTOS.league, filter: 'League 2' },
+  { id: 'women', title: 'Nepal Women', caption: 'The national side', tag: 'Women', photo: PHOTOS.women, filter: 'Nepal Women', topic: 'women' },
+  { id: 'u19', title: 'Nepal U19', caption: 'The next ones through', tag: 'Youth', photo: PHOTOS.youth, filter: 'Nepal U19', topic: 'u19' },
 ];
 
 const GROUNDS = [
@@ -43,9 +42,9 @@ function Frame({ src, className = '', children }) {
   );
 }
 
-function Poster({ item, onOpen }) {
+function Poster({ item, onOpen, pressed }) {
   return (
-    <button type="button" className="poster" onClick={() => onOpen(item)}>
+    <button type="button" className="poster" aria-pressed={pressed} onClick={() => onOpen(item)}>
       <Frame src={item.photo}>
         <span className="poster-tag">{item.tag}</span>
         <span className="poster-copy"><strong>{item.title}</strong><span>{item.caption}</span></span>
@@ -66,32 +65,64 @@ function BrowseRow({ title, children }) {
   );
 }
 
-export default function DiscoverBrowse({ saved, toggleSaved, following, toggleFollow, onOpenSchedule, onStory }) {
-  const { stories, featuredEvent } = useContent();
+export default function DiscoverBrowse({ saved, toggleSaved, following, toggleFollow, onOpenSchedule }) {
+  const { today, stories, fixtures, results, liveMatches, nplFinal, featuredEvent } = useContent();
+  const now = Date.now();
+  const upcoming = fixtures.filter((f) => f.date >= today && (kickoffUTC(f.date, f.time) ?? Infinity) > now).sort((a, b) => a.date.localeCompare(b.date) || String(a.time).localeCompare(String(b.time)));
+  const next = upcoming[0];
+  const finalResult = nplFinal?.result && nplFinal.date <= today ? { date: nplFinal.date, lines: nplFinal.result.lines, summary: nplFinal.result.summary } : null;
+  const recent = [...results, ...(finalResult ? [finalResult] : [])].filter((r) => r.date && r.date <= today).sort((a, b) => b.date.localeCompare(a.date))[0];
+  const event = featuredEvent && today <= featuredEvent.end ? featuredEvent : null;
   const eventId = featuredEvent?.id || 'cwc-qp-2026';
   const eventSaved = saved.includes(eventId);
+  const hasMatches = (filter) => [...fixtures, ...results, ...liveMatches].some((m) => m.competition === filter);
+  const competitions = COMPETITIONS.filter((item) => item.id !== 'league' || hasMatches(item.filter));
+  const openCompetition = (item) => {
+    if (item.topic && !hasMatches(item.filter)) toggleFollow(item.topic);
+    else onOpenSchedule({ filter: item.id === 'qualifier' ? 'Nepal' : item.filter });
+  };
   return (
     <>
       <section className="section hero-section">
         <article className="hero">
           <Frame src={PHOTOS.hero} className="hero-frame">
             <span className="hero-copy">
-              <span className="hero-kicker">4–21 Dec · Kirtipur</span>
-              <h2>The road to the World Cup</h2>
-              <p>Eight teams come to Kirtipur in December. The top four go through.</p>
+              <span className="hero-kicker">{event ? `${parts(event.start).date}–${parts(event.end).date} ${parts(event.end).month} · ${event.venue}` : 'Nepal cricket · In focus'}</span>
+              <h2>{event ? 'The road to the World Cup' : next ? 'The next match awaits' : 'Explore the game'}</h2>
+              <p>{event ? 'Eight teams come to Kirtipur. The top four go through.' : next ? `${next.title} · ${next.date} · ${next.venue}` : 'Fixtures, results, grounds and stories in one place.'}</p>
               <span className="hero-actions">
-                <button type="button" className="hero-btn" onClick={() => onOpenSchedule({ filter: 'Nepal' })}>Explore</button>
-                <button type="button" className="hero-save" aria-pressed={eventSaved} aria-label={eventSaved ? 'Remove World Cup Qualifier from saved' : 'Save World Cup Qualifier'} onClick={() => toggleSaved(eventId)}>
+                <button type="button" className="hero-btn" onClick={() => onOpenSchedule({ filter: event ? 'Nepal' : 'All' })}>Explore</button>
+                {event && <button type="button" className="hero-save" aria-pressed={eventSaved} aria-label={eventSaved ? 'Remove World Cup Qualifier from saved' : 'Save World Cup Qualifier'} onClick={() => toggleSaved(eventId)}>
                   <I.Bookmark size={15} filled={eventSaved} />
-                </button>
+                </button>}
               </span>
             </span>
           </Frame>
         </article>
       </section>
 
+      <Divider />
+      <section className="section discover-desk" aria-label="Match desk">
+        <SectionHead title="Match desk">
+          <button type="button" className="section-link" onClick={() => onOpenSchedule({})}>All matches <I.Chevron size={13} /></button>
+        </SectionHead>
+        <div className="card desk-card">
+          {next ? <button type="button" className="desk-row" onClick={() => onOpenSchedule({ query: next.title })}>
+            <span className="desk-kicker">Next fixture · {parts(next.date).date} {parts(next.date).month}</span>
+            <strong>{next.title}</strong><span className="desk-meta">{next.time} · {next.venue}</span>
+          </button> : <div className="desk-row"><span className="desk-kicker">Next fixture</span><strong>No confirmed fixture listed</strong></div>}
+          {recent && <button type="button" className="desk-row" onClick={() => onOpenSchedule({ query: recent.lines.map((l) => l.team).join(' v ') })}>
+            <span className="desk-kicker">Recent result · {parts(recent.date).date} {parts(recent.date).month}</span>
+            <strong>{recent.lines.map((l) => l.team).join(' v ')}</strong><span className="desk-meta">{recent.summary}</span>
+          </button>}
+        </div>
+      </section>
+
       <BrowseRow title="Competitions">
-        {COMPETITIONS.map((item) => <Poster key={item.id} item={item} onOpen={({ filter }) => onOpenSchedule({ filter })} />)}
+        {competitions.map((item) => {
+          const followOnly = item.topic && !hasMatches(item.filter);
+          return <Poster key={item.id} item={followOnly ? { ...item, tag: following.includes(item.topic) ? 'Following' : 'Follow', caption: 'Get updates when matches are added' } : item} pressed={followOnly ? following.includes(item.topic) : undefined} onOpen={openCompetition} />;
+        })}
       </BrowseRow>
 
       <BrowseRow title="Grounds">
@@ -113,14 +144,15 @@ export default function DiscoverBrowse({ saved, toggleSaved, following, toggleFo
         })}
       </BrowseRow>
 
-      <BrowseRow title="Stories">
-        {stories.map((story) => (
-          <button key={story.id} type="button" className="card story" onClick={() => onStory(story)}>
+      {stories.length > 0 && <BrowseRow title="Stories">
+        {stories.map((story) => {
+          const Tag = story.sourceUrl ? 'a' : 'article';
+          return <Tag key={story.id} href={story.sourceUrl || undefined} target={story.sourceUrl ? '_blank' : undefined} rel={story.sourceUrl ? 'noopener noreferrer' : undefined} className="card story">
             <Frame src={story.image || story.imageUrl || (story.art ? `/art/${story.art}.svg` : undefined)} className="story-frame" />
             <span className="body"><strong>{story.title}</strong><span>{story.source}</span></span>
-          </button>
-        ))}
-      </BrowseRow>
+          </Tag>;
+        })}
+      </BrowseRow>}
 
       <Divider />
       <section className="section">

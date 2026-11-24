@@ -1,4 +1,10 @@
-import { load } from 'cheerio';
+// Live-score source parsers for willowPoint.
+//
+// Zero-dependency by design: the collector runs on a bare Node runtime in CI, so
+// these parsers use nothing beyond string scanning — no DOM library, nothing to
+// install or lock. Every parser fails closed: a page whose shape drifts yields zero
+// candidates, and ingest-live.mjs treats an empty source page as a shape-change
+// error rather than publishing anything.
 
 const ORIGINS = {
   ndtv: 'https://sports.ndtv.com',
@@ -32,70 +38,143 @@ function score(raw = '') {
   return match ? { runs: Number(match[1]), wickets: match[2] == null ? null : Number(match[2]), overs: match[3] || null } : null;
 }
 
+// --- tiny HTML-scanning helpers (deliberately minimal; see header) -----------
+
+function getAttr(tag, name) {
+  const match = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, 'i').exec(tag);
+  return match ? (match[1] ?? match[2]) : null;
+}
+
+const stripTags = (fragment) => fragment.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+// Inner text of the first element opened by openTagRe: text up to its matching
+// close tag, with nested tags stripped. The elements we target never nest the
+// same tag inside itself, so scanning to the next close tag is exact.
+function textAfter(scope, openTagRe, closeTagName) {
+  const open = openTagRe.exec(scope);
+  if (!open) return '';
+  const tail = scope.slice(open.index + open[0].length);
+  const close = new RegExp(`</${closeTagName}\\s*>`, 'i').exec(tail);
+  return stripTags(close ? tail.slice(0, close.index) : tail);
+}
+
+// From an opening <div ...> at `from`, slice through its matching </div>,
+// honouring nesting depth. Returns '' when the document ends first.
+function sliceDiv(html, from) {
+  const re = /<div\b[^>]*>|<\/div\s*>/gi;
+  re.lastIndex = from;
+  let depth = 0;
+  let match;
+  while ((match = re.exec(html))) {
+    depth += match[0][1] === '/' ? -1 : 1;
+    if (depth === 0) return html.slice(from, re.lastIndex);
+  }
+  return html.slice(from);
+}
+
+function* anchorTags(html) {
+  yield* html.matchAll(/<a\b[^>]*>/gi);
+}
+
+// --- NDTV: the liveness authority (status text) + primary score --------------
+
+const NDTV_CARD_OPEN = /<div\b[^>]*class="[^"]*\bsp-scr_wrp\b[^"]*\bvevent\b[^"]*"[^>]*>/gi;
+
+export const countNdtvCards = (html) => [...html.matchAll(NDTV_CARD_OPEN)].length;
+
+const within = (className) => new RegExp(`<([a-z0-9]+)\b[^>]*class="[^"]*\\b${className}\\b[^"]*"[^>]*>`, 'gi');
+
 export function parseNdtv(html) {
-  const $ = load(html);
-  return $('.sp-scr_wrp.vevent').toArray().flatMap((node) => {
-    const card = $(node);
-    const status = card.find('.scr_inf-wrp .scr_dt-red').first().text().trim();
+  return [...html.matchAll(NDTV_CARD_OPEN)].flatMap((cardOpen) => {
+    const card = sliceDiv(html, cardOpen.index);
+    const status = textAfter(card, within('scr_dt-red'), 'span');
     if (!/play in progress|innings break|day \d+.*session/i.test(status)) return [];
-    const teams = card.find('.scr_tm-wrp').toArray().map((element) => {
-      const e = $(element);
-      return { name: e.find('.scr_tm-nm').first().text().trim(), score: score(e.find('.scr_tm-run').first().text()), active: e.find('.scr_tm-scr-act').length > 0 };
+    const teams = [...card.matchAll(within('scr_tm-wrp'))].map((teamOpen) => {
+      const block = sliceDiv(card, teamOpen.index);
+      const runTag = within('scr_tm-run').exec(block);
+      return {
+        name: textAfter(block, within('scr_tm-nm'), 'span'),
+        score: score(textAfter(block, within('scr_tm-run'), 'span')),
+        active: Boolean(runTag && /\bscr_tm-scr-act\b/.test(runTag[0])),
+      };
     });
     if (teams.length !== 2 || !eligible(teams[0].name, teams[1].name) || !teams.some((t) => t.score)) return [];
-    const href = card.find('a.sp-scr_lnk').first().attr('href');
-    const start = Date.parse(card.find('.dtstart').first().text());
-    const end = Date.parse(card.find('.dtend').first().text());
-    return [{ key: key(teams[0].name, teams[1].name), teams, start, end, status,
-      series: card.find('.scr_txt-ony').first().text().trim(),
-      venue: card.find('.location').first().text().trim(),
-      note: card.find('.scr-inf_lt').first().text().trim(),
-      crr: card.find('.scr-inf_rt').first().text().trim(),
+    const linkTag = /<a\b[^>]*class="[^"]*\bsp-scr_lnk\b[^"]*"[^>]*>/i.exec(card);
+    const href = linkTag ? getAttr(linkTag[0], 'href') : null;
+    return [{ key: key(teams[0].name, teams[1].name), teams,
+      start: Date.parse(textAfter(card, within('dtstart'), 'span')),
+      end: Date.parse(textAfter(card, within('dtend'), 'span')),
+      status,
+      series: textAfter(card, within('scr_txt-ony'), 'div'),
+      venue: textAfter(card, within('location'), 'span'),
+      note: textAfter(card, within('scr-inf_lt'), 'div'),
+      crr: textAfter(card, within('scr-inf_rt'), 'div'),
       url: href ? new URL(href, ORIGINS.ndtv).href : null }];
   });
 }
 
-// Cricbuzz's match strip titles read "Team1 vs Team2, Series - Status". We list every
-// match that has a score to corroborate (anything but a preview); liveness itself is
-// decided by the explicit status signals on the NDTV/Wisden cards, and a completed
-// match's final score only ever corroborates — it can never create a live record alone.
+// --- Cricbuzz: listing strip + detail-page scores (corroboration) ------------
+
 export function parseCricbuzz(html) {
-  const $ = load(html);
   const found = new Map();
-  $('a[title][href^="/live-cricket-scores/"]').each((_, node) => {
-    const element = $(node);
-    const title = element.attr('title') || '';
+  // Titles read "Team1 vs Team2, Series - Status"; href and title may appear in
+  // either order. We list every match that has a score to corroborate (anything
+  // but a preview); liveness itself is decided by the explicit status signals on
+  // the NDTV/Wisden cards, and a completed match's final score only ever
+  // corroborates — it can never create a live record alone.
+  for (const anchor of anchorTags(html)) {
+    const tag = anchor[0];
+    const href = getAttr(tag, 'href');
+    const title = getAttr(tag, 'title') || '';
+    if (!href || !href.startsWith('/live-cricket-scores/')) continue;
     const pair = /^(.+?) vs (.+?), .+ - (.+?)\s*$/.exec(title);
-    if (!pair || !eligible(pair[1], pair[2])) return;
-    if (/preview|abandon|cancel|postponed|delayed/i.test(pair[3])) return;
+    if (!pair || !eligible(pair[1], pair[2])) continue;
+    if (/preview|abandon|cancel|postponed|delayed/i.test(pair[3])) continue;
     const id = key(pair[1], pair[2]);
-    if (!found.has(id)) found.set(id, { key: id, teams: [pair[1], pair[2]], url: new URL(element.attr('href'), ORIGINS.cricbuzz).href });
-  });
+    if (!found.has(id)) found.set(id, { key: id, teams: [pair[1], pair[2]], url: new URL(href, ORIGINS.cricbuzz).href });
+  }
   return [...found.values()];
 }
 
+export const countCricbuzzStrips = (html) =>
+  [...anchorTags(html)].filter((anchor) => {
+    const tag = anchor[0];
+    const href = getAttr(tag, 'href');
+    return href && href.startsWith('/live-cricket-scores/') && getAttr(tag, 'title');
+  }).length;
+
 export function parseCricbuzzDetail(html) {
-  const $ = load(html);
-  const description = $('meta[name="description"]').attr('content') || $('meta[property="og:description"]').attr('content') || '';
+  const meta = /<meta\b[^>]*>/gi;
+  let description = '';
+  for (const tag of html.matchAll(meta)) {
+    const attrs = tag[0];
+    if (getAttr(attrs, 'name') === 'description' || getAttr(attrs, 'property') === 'og:description') {
+      description = getAttr(attrs, 'content') || '';
+      break;
+    }
+  }
   const matches = [...description.matchAll(/\b[A-Z]{2,5}\s+(\d+(?:\/\d+)?)(?:\s*\((\d+(?:\.\d+)?)\))?/g)];
   return matches.map((m) => score(`${m[1]}${m[2] ? ` (${m[2]})` : ''}`)).filter(Boolean);
 }
 
+// --- Wisden: tertiary liveness signal (explicit "Live" badge) ----------------
+
 export function parseWisden(html) {
-  const $ = load(html);
-  return $('a[href^="/match/"]').toArray().flatMap((node) => {
-    const e = $(node);
-    if (!e.find('span').toArray().some((s) => $(s).text().trim().toLowerCase() === 'live')) return [];
-    const teams = e.find('h2').toArray().slice(0, 2).map((h) => $(h).text().trim());
-    if (teams.length !== 2 || !eligible(teams[0], teams[1])) return [];
-    const rows = e.find('h2').toArray().slice(0, 2).map((h) => {
-      const parent = $(h).parent();
-      const row = parent.parent().find('h2').length === 1 ? parent.parent() : parent;
-      return { name: $(h).text().trim(), score: score(row.find('span').last().text()) };
-    });
-    return [{ key: key(...teams), teams: rows, url: new URL(e.attr('href'), ORIGINS.wisden).href }];
+  return [...anchorTags(html)].flatMap((anchor) => {
+    const href = getAttr(anchor[0], 'href');
+    if (!href || !href.startsWith('/match/')) return [];
+    const end = html.indexOf('</a>', anchor.index);
+    const block = html.slice(anchor.index, end < 0 ? undefined : end);
+    if (!/<span\b[^>]*>\s*Live\s*<\/span\s*>/i.test(block)) return [];
+    const rows = [...block.matchAll(/<h2[^>]*>([^<]*)<\/h2>((?:(?!<h2\b).)*)/gi)]
+      .slice(0, 2)
+      .map((row) => ({ name: stripTags(row[1]), score: score(textAfter(row[2], /<span\b[^>]*>/i, 'span')) }));
+    if (rows.length !== 2 || !eligible(rows[0].name, rows[1].name)) return [];
+    return [{ key: key(rows[0].name, rows[1].name), teams: rows, url: new URL(href, ORIGINS.wisden).href }];
   });
 }
+
+// --- cross-source agreement: publish only what independent pages confirm -----
 
 export function compatible(primary, checks) {
   const active = primary.teams.find((t) => t.active && t.score) || primary.teams.find((t) => t.score);

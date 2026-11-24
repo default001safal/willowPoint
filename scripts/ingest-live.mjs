@@ -14,8 +14,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { load } from 'cheerio';
-import { parseNdtv, parseCricbuzz, parseCricbuzzDetail, parseWisden, reconcile } from './live-sources.mjs';
+import { parseNdtv, parseCricbuzz, parseCricbuzzDetail, parseWisden, reconcile, countNdtvCards, countCricbuzzStrips } from './live-sources.mjs';
 
 const run = promisify(execFile);
 const URLS = {
@@ -109,8 +108,8 @@ async function markFeedError(message) {
 async function main() {
   const now = Date.now();
   const [ndtvHtml, cbHtml, wisdenHtml] = await Promise.all(Object.values(URLS).map(fetchHtml));
-  const ndtvCardCount = load(ndtvHtml)('.sp-scr_wrp.vevent').length;
-  const cbCardCount = load(cbHtml)('a[title][href^="/live-cricket-scores/"]').length;
+  const ndtvCardCount = countNdtvCards(ndtvHtml);
+  const cbCardCount = countCricbuzzStrips(cbHtml);
   if (ndtvCardCount === 0 || cbCardCount === 0) throw new Error('A source page changed shape; no Firestore records were touched.');
   const ndtv = parseNdtv(ndtvHtml);
   const cricbuzz = parseCricbuzz(cbHtml);

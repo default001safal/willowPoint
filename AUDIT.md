@@ -1,13 +1,13 @@
 # willowPoint audit — 24 November 2026
 
-Scope: current review branch, local build and browser flows, public Firestore reads, Hosting workflow, and a dry run of the proposed live-source verifier. This is a code and behavior audit, not a claim that the app is launch-ready.
+Scope: review branch, local build and browser flows, public Firestore reads, and Hosting workflow. This is a code and behavior audit, not a claim that the app is launch-ready.
 
 ## Phase 1 — repaired on the review branch
 
 | Area | Finding | Change and expected state |
 | --- | --- | --- |
-| Live feed | A 22 Nov Nepal–UAE sample was displayed as live on 24 Nov. | Frontend now requires a sourced observation within eight minutes. A fresh empty heartbeat says **No tracked matches live**; a missing or expired feed says **Live scores unavailable**; loading says **Checking live scores**. A scheduled check is proposed, but remains dry-run until approved on the default branch. |
-| Source checks | No score ingestion existed. | Three public score pages are parsed and reconciled; two agreeing observations are required. Failure leaves the prior records untouched, and the frontend automatically hides them when stale. Source URL and check age appear on a displayed card. |
+| Live feed | A 22 Nov Nepal–UAE sample was displayed as live on 24 Nov. | Frontend now requires a sourced observation within eight minutes. A fresh empty heartbeat says **No tracked matches live**; a missing or expired feed says **Live scores unavailable**; loading says **Checking live scores**. No scheduled collector is active. |
+| Source checks | No approved score ingestion exists. | An experimental three-page scraper was tested, then removed from the release because the providers restrict automated collection. The UI displays a source URL and check age when a permitted feed supplies a verified record. |
 | News | Undated, unlinked sample headlines looked current. | Production only displays a story with HTTPS source and publication time in the last seven days. Empty News has an honest state. Sample-mode content is explicitly a demo. |
 | Home | Duplicated large news and international stacks buried the fixtures. | Home now orders search, live status, Nepal week, time-limited event/champion feature, and a compact story entry when a current sourced story exists. Discover owns editorial browsing. |
 | Discover | Posters had little destination purpose and some led to empty match lists. | Match desk opens the next fixture/recent result; empty Women's/U19 posters toggle Follow; competitions without matches are hidden where appropriate. Browse still uses poster rails. |
@@ -30,7 +30,7 @@ Scope: current review branch, local build and browser flows, public Firestore re
 
 ## Phase 2 — launch blockers and remaining work
 
-1. **Automatic live feed:** The branch workflow does not run on a schedule; GitHub schedules operate on the default branch. Activate only after source-permission review, multiple days of dry runs, monitoring, and owner approval for a merge to `main`. A five-minute cron is best effort; it cannot guarantee delivery or zero cost at arbitrary scale. Cross-source agreement is useful but does not make a scraped feed authoritative.
+1. **Automatic live feed:** No scheduled ingestion is deployed. Cricbuzz and NDTV prohibit this kind of automated collection; Wisden also restricts systematic reuse. Obtain a permitted source or agreement, then implement the source-specific verifier, freshness heartbeat, monitoring, and incident handling. A cron cannot guarantee delivery or zero cost at arbitrary scale.
 2. **Fixture/result/news pipeline:** Existing Firestore content was seeded from a dated `src/data.js` snapshot. There is no reviewed, permitted, automated source ingestion for these collections. Fixtures and results need an editorial queue, source URLs, dates, corrections, expiry, and source-specific parser checks; current sourced-story gating intentionally leaves News empty until supplied.
 3. **Auth and alerts:** Anonymous Auth stores preferences for one browser session/device. Cross-device sign-in, account recovery, push tokens, notification delivery, and preferences for real alerts are not implemented. The interface no longer promises them.
 4. **Cue:** Bounded answers are wired to loaded content, but natural-language coverage and source quality require a later retrieval/answer service. Do not market it as general AI yet.
@@ -41,7 +41,6 @@ Scope: current review branch, local build and browser flows, public Firestore re
 
 - `node --test tests/*.test.mjs`
 - `npm run build`
-- `npm run ingest:live:check` (read-only dry run)
 - Browser smoke: Home, Discover, Cue, Profile, match navigation, Save, onboarding choices and completion, and live empty states on local/review builds. Network-loss behavior still needs deployed device testing.
 
 Record exact results and review deployment in the branch history; none of these checks writes Firebase data.

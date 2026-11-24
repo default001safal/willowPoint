@@ -11,3 +11,6 @@ dist
 .firebase/
 firebase-debug.log
 firestore-debug.log
+
+# Permitted live-score provider (keep keys in env vars, not in git)
+scripts/providers/custom.mjs

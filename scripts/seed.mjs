@@ -8,6 +8,10 @@
 // Usage:
 //   npm run seed            # upsert docs
 //   npm run seed -- --clear # delete existing content docs first, then upload
+//
+// This seeds editorial collections only. liveMatches and config/feed are owned by
+// the live-ingestion script — seeding a dated demo score here would fail the
+// frontend's 8-minute freshness gate and show stale scores as "unavailable".
 import { cert, initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { readFileSync } from 'node:fs';
@@ -26,7 +30,6 @@ const db = getFirestore();
 db.settings({ preferRest: true });
 
 const collections = {
-  liveMatches: data.liveMatches.map((m) => ({ competition: 'Nepal', ...m })),
   fixtures: data.fixtures,
   results: data.results,
   stories: data.stories,
@@ -53,4 +56,9 @@ for (const [name, items] of Object.entries(collections)) {
 
 await db.collection('config').doc('featured').set(data.nplFinal);
 console.log('✓ config/featured (NPL final card)');
+if (data.featuredEvent) {
+  await db.collection('config').doc('event').set(data.featuredEvent);
+  console.log('✓ config/event (next big event)');
+}
+console.log('— liveMatches and config/feed belong to the ingest script; not seeded.');
 console.log(`Done — project ${serviceAccount.project_id}.`);

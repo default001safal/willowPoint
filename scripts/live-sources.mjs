@@ -82,7 +82,7 @@ const NDTV_CARD_OPEN = /<div\b[^>]*class="[^"]*\bsp-scr_wrp\b[^"]*\bvevent\b[^"]
 
 export const countNdtvCards = (html) => [...html.matchAll(NDTV_CARD_OPEN)].length;
 
-const within = (className) => new RegExp(`<([a-z0-9]+)\b[^>]*class="[^"]*\\b${className}\\b[^"]*"[^>]*>`, 'gi');
+const within = (className) => new RegExp(`<([a-z0-9]+)\\b[^>]*class="[^"]*\\b${className}\\b[^"]*"[^>]*>`, 'gi');
 
 export function parseNdtv(html) {
   return [...html.matchAll(NDTV_CARD_OPEN)].flatMap((cardOpen) => {

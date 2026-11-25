@@ -1,16 +1,14 @@
-node_modules
-dist
-.DS_Store
-*.log
+node_modules/
+dist/
 .env
 .env.*
 !.env.example
-# Firebase admin keys and local caches
-*serviceAccount*.json
-*-firebase-adminsdk-*.json
+.DS_Store
 .firebase/
 firebase-debug.log
 firestore-debug.log
 
 # Permitted live-score provider (keep keys in env vars, not in git)
 scripts/providers/custom.mjs
+.cricket-collection/
+__pycache__/

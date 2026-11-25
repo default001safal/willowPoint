@@ -17,6 +17,11 @@ function recent(value, now, maxAge) {
 }
 
 export function livePresentation(matches = [], feed = null, now = Date.now()) {
+  // A fresh collector failure is authoritative: never leave a recently verified
+  // score on screen while the source checks that sustain it are failing.
+  if (feed?.state === 'error' && recent(feed.checkedAt, now, FEED_MAX_AGE_MS)) {
+    return { state: 'unavailable', matches: [] };
+  }
   const current = matches.filter((m) =>
     m.status === 'live' &&
     typeof m.sourceUrl === 'string' && /^https:\/\//.test(m.sourceUrl) &&

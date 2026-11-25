@@ -1,0 +1,27 @@
+{
+  "$schema": "https://developers.cloudflare.com/workers/wrangler/config-schema.json",
+  "name": "willowpoint-live-ingest",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-26",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "LIVE_COORDINATOR",
+        "class_name": "LiveCoordinator"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["LiveCoordinator"]
+    }
+  ],
+  "triggers": {
+    "crons": ["* * * * *"]
+  }
+}

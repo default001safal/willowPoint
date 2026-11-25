@@ -21,3 +21,8 @@ test('an empty feed is only a confirmed no-game state with a recent heartbeat', 
   assert.equal(livePresentation([], { state: 'ok', checkedAt: new Date(now - 60_000).toISOString() }, now).state, 'none');
   assert.equal(livePresentation([], { state: 'ok', checkedAt: new Date(now - 901_000).toISOString() }, now).state, 'unavailable');
 });
+
+test('a fresh collector error hides even recently verified scores', () => {
+  const feed = { state: 'error', checkedAt: new Date(now - 15_000).toISOString() };
+  assert.deepEqual(livePresentation([match], feed, now), { state: 'unavailable', matches: [] });
+});

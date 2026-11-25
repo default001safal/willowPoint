@@ -89,7 +89,9 @@ class CricketVerificationTests(unittest.TestCase):
         self.assertEqual([row["status"] for row in reports["sourceChecks"]], ["unavailable", "fetched"])
         delivery, review = verify(reports, NOW)
         self.assertEqual(len(review["newsCandidates"]), 1)
-        self.assertEqual(delivery["stories"], [])
+        self.assertEqual(len(delivery["stories"]), 1)
+        self.assertEqual(delivery["stories"][0]["kind"], "source-headline")
+        self.assertNotIn("Article body", str(delivery["stories"][0]))
 
 
 if __name__ == "__main__":

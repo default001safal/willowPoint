@@ -159,10 +159,41 @@ def briefs(results, now):
         lines = "; ".join(f"{line['team']} {line['score']}" for line in result["lines"])
         destination.append({
             "id": stable_id("brief", result["id"]), "title": result["summary"], "blurb": lines,
-            "date": result["date"], "source": "Match report", "sourceUrl": result["sourceUrl"],
+            "date": result["date"], "publishedAt": f"{result['date']}T00:00:00+05:45",
+            "source": "Match report", "sourceUrl": result["sourceUrl"],
             "verification": result["verification"], "order": len(destination),
         })
     return stories, world
+
+
+def attributed_headlines(candidates, now):
+    """Publish exact RSS headlines as attributed links, not as cross-source facts."""
+    stories, world = [], []
+    for candidate in candidates:
+        try:
+            published = instant(candidate.get("publishedAt") or f"{candidate['date']}T00:00:00+05:45")
+        except (KeyError, TypeError, ValueError):
+            continue
+        if not now - timedelta(days=7) <= published <= now + timedelta(minutes=5):
+            continue
+        destination = world if candidate.get("section") == "World" else stories
+        destination.append({
+            "id": candidate["id"],
+            "title": candidate["title"],
+            "date": candidate["date"],
+            "publishedAt": published.isoformat(),
+            "source": candidate["source"],
+            "sourceUrl": candidate["sourceUrl"],
+            "kind": "source-headline",
+            "blurb": "Source headline — open the original report for the full story.",
+        })
+    return stories, world
+
+
+def editorial_delivery(brief_items, headline_items):
+    unique = {item["id"]: item for item in [*headline_items, *brief_items]}
+    items = sorted(unique.values(), key=lambda item: (item["publishedAt"], item["id"]), reverse=True)[:20]
+    return [dict(item, order=order) for order, item in enumerate(items)]
 
 
 def verify(snapshot, now):
@@ -185,7 +216,10 @@ def verify(snapshot, now):
         items.sort(key=lambda item: (item.get("date", ""), item["id"]), reverse=collection == "results")
         for i, item in enumerate(items):
             item["order"] = i
-    delivery["stories"], delivery["worldNews"] = briefs(delivery["results"], now)
+    story_briefs, world_briefs = briefs(delivery["results"], now)
+    story_headlines, world_headlines = attributed_headlines(snapshot.get("newsCandidates", []), now)
+    delivery["stories"] = editorial_delivery(story_briefs, story_headlines)
+    delivery["worldNews"] = editorial_delivery(world_briefs, world_headlines)
     return delivery, review
 
 

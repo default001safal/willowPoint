@@ -88,11 +88,11 @@ export default function DiscoverBrowse({ saved, toggleSaved, following, toggleFo
           <Frame src={PHOTOS.hero} className="hero-frame">
             <span className="hero-copy">
               <span className="hero-kicker">{event ? `${parts(event.start).date}–${parts(event.end).date} ${parts(event.end).month} · ${event.venue}` : 'Nepal cricket · In focus'}</span>
-              <h2>{event ? 'The road to the World Cup' : next ? 'The next match awaits' : 'Explore the game'}</h2>
-              <p>{event ? 'Eight teams come to Kirtipur. The top four go through.' : next ? `${next.title} · ${next.date} · ${next.venue}` : 'Fixtures, results, grounds and stories in one place.'}</p>
+              <h2>{event ? event.short || event.title : next ? 'The next match awaits' : 'Explore the game'}</h2>
+              <p>{event ? [event.venue, event.note].filter(Boolean).join(' · ') : next ? `${next.title} · ${next.date} · ${next.venue}` : 'Fixtures, results, grounds and stories in one place.'}</p>
               <span className="hero-actions">
                 <button type="button" className="hero-btn" onClick={() => onOpenSchedule({ filter: event ? 'Nepal' : 'All' })}>Explore</button>
-                {event && <button type="button" className="hero-save" aria-pressed={eventSaved} aria-label={eventSaved ? 'Remove World Cup Qualifier from saved' : 'Save World Cup Qualifier'} onClick={() => toggleSaved(eventId)}>
+                {event && <button type="button" className="hero-save" aria-pressed={eventSaved} aria-label={eventSaved ? `Remove ${event.short || event.title} from saved` : `Save ${event.short || event.title}`} onClick={() => toggleSaved(eventId)}>
                   <I.Bookmark size={15} filled={eventSaved} />
                 </button>}
               </span>

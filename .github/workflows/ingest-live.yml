@@ -1,0 +1,40 @@
+name: Verify live scores
+on:
+  schedule:
+    - cron: '2,7,12,17,22,27,32,37,42,47,52,57 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Inspect sources without writing Firestore'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: willowpoint-live-ingestion
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Scrape, cross-check, and publish
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WILLOWPOINT_FF851 || secrets.FIREBASE_SERVICE_ACCOUNT }}
+          WILLOWPOINT_INGEST_ENABLED: ${{ secrets.WILLOWPOINT_INGEST_ENABLED }}
+          LIVE_PROVIDER_MODULE: ${{ vars.LIVE_PROVIDER_MODULE }}
+        run: |
+          if [ "${{ github.ref_name }}" != "main" ] || [ "${{ inputs.dry_run }}" = "true" ] || [ -z "$WILLOWPOINT_INGEST_ENABLED" ]; then
+            node scripts/ingest-live.mjs --dry-run
+          else
+            node scripts/ingest-live.mjs
+          fi

@@ -7,7 +7,7 @@ Scope: review branch, local build and browser flows, public Firestore reads, and
 | Area | Finding | Change and expected state |
 | --- | --- | --- |
 | Live feed | A 22 Nov Nepal–UAE sample was displayed as live on 24 Nov. | Frontend now requires a sourced observation within eight minutes. A fresh empty heartbeat says **No tracked matches live**; a missing or expired feed says **Live scores unavailable**; loading says **Checking live scores**. No scheduled collector is active. |
-| Source checks | No approved score ingestion exists. | An experimental three-page scraper was tested, then removed from the release because the providers restrict automated collection. The UI displays a source URL and check age when a permitted feed supplies a verified record. |
+| Source checks | No approved score ingestion exists. | The three-page cross-checking collector (two agreeing observations required) is restored on `main` behind two activation gates: the default branch must be `main`, and the `WILLOWPOINT_INGEST_ENABLED` secret must be set. Every displayed score carries a source URL and check age. Provider terms still restrict automated collection; the durable fix is a permitted provider via `LIVE_PROVIDER_MODULE`. |
 | News | Undated, unlinked sample headlines looked current. | Production only displays a story with HTTPS source and publication time in the last seven days. Empty News has an honest state. Sample-mode content is explicitly a demo. |
 | Home | Duplicated large news and international stacks buried the fixtures. | Home now orders search, live status, Nepal week, time-limited event/champion feature, and a compact story entry when a current sourced story exists. Discover owns editorial browsing. |
 | Discover | Posters had little destination purpose and some led to empty match lists. | Match desk opens the next fixture/recent result; empty Women's/U19 posters toggle Follow; competitions without matches are hidden where appropriate. Browse still uses poster rails. |
@@ -30,7 +30,7 @@ Scope: review branch, local build and browser flows, public Firestore reads, and
 
 ## Phase 2 — launch blockers and remaining work
 
-1. **Automatic live feed:** No scheduled ingestion is deployed. Cricbuzz and NDTV prohibit this kind of automated collection; Wisden also restricts systematic reuse. Obtain a permitted source or agreement, then implement the source-specific verifier, freshness heartbeat, monitoring, and incident handling. A cron cannot guarantee delivery or zero cost at arbitrary scale.
+1. **Automatic live feed:** The collector is code-complete and scheduled (every five minutes) but inert until the default branch is `main` **and** the `WILLOWPOINT_INGEST_ENABLED` secret is set. Before activating: run repeated dry runs (`npm run ingest:live:check`) across days, confirm each source's current terms, and set up monitoring and incident handling. A cron cannot guarantee delivery or zero cost at arbitrary scale. Cricbuzz and NDTV prohibit automated collection; Wisden restricts systematic reuse — a permitted provider (`LIVE_PROVIDER_MODULE`) remains the durable answer.
 2. **Fixture/result/news pipeline:** Existing Firestore content was seeded from a dated `src/data.js` snapshot. There is no reviewed, permitted, automated source ingestion for these collections. Fixtures and results need an editorial queue, source URLs, dates, corrections, expiry, and source-specific parser checks; current sourced-story gating intentionally leaves News empty until supplied.
 3. **Auth and alerts:** Anonymous Auth stores preferences for one browser session/device. Cross-device sign-in, account recovery, push tokens, notification delivery, and preferences for real alerts are not implemented. The interface no longer promises them.
 4. **Cue:** Bounded answers are wired to loaded content, but natural-language coverage and source quality require a later retrieval/answer service. Do not market it as general AI yet.
@@ -41,6 +41,7 @@ Scope: review branch, local build and browser flows, public Firestore reads, and
 
 - `node --test tests/*.test.mjs`
 - `npm run build`
+- `npm run ingest:live:check` (read-only dry run; NDTV Sports is not reachable from every network — TLS reset — so the full pipeline was also verified end-to-end against staged fixtures via `WILLOWPOINT_SOURCE_URLS`)
 - Browser smoke: Home, Discover, Cue, Profile, match navigation, Save, onboarding choices and completion, and live empty states on local/review builds. Network-loss behavior still needs deployed device testing.
 
 Record exact results and review deployment in the branch history; none of these checks writes Firebase data.

@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "ingest:live:check": "node scripts/ingest-live.mjs --dry-run",
     "preview": "vite preview",
     "seed": "node scripts/seed.mjs",
     "deploy": "vite build && firebase deploy --only hosting,firestore:rules"

@@ -31,6 +31,11 @@ export function LiveTiles({ match }) {
   );
 }
 
+function formatCheckedAgo(verifiedAt) {
+  const seconds = Math.max(0, Math.floor((Date.now() - Date.parse(verifiedAt)) / 1000));
+  return seconds < 90 ? `${seconds}s ago` : `${Math.floor(seconds / 60)}m ago`;
+}
+
 export default function LiveSection({ matches, state, loading, onSeeAll }) {
   const [selectedId, setSelectedId] = useState(null);
   const match = matches.find((item) => item.id === selectedId) ?? matches[0];
@@ -70,7 +75,7 @@ export default function LiveSection({ matches, state, loading, onSeeAll }) {
         </div>
       </SectionHead>
       <LiveTiles key={match.id} match={match} />
-      {match.verifiedAt && <p className="live-source">Checked {Math.max(0, Math.floor((Date.now() - Date.parse(match.verifiedAt)) / 60_000))}m ago · <a href={match.sourceUrl} target="_blank" rel="noopener noreferrer">{match.source || 'Scorecard'}</a></p>}
+      {match.verifiedAt && <p className="live-source">Checked {formatCheckedAgo(match.verifiedAt)} · <a href={match.sourceUrl} target="_blank" rel="noopener noreferrer">{match.source || 'Scorecard'}</a></p>}
     </section>
   );
 }

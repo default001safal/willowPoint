@@ -159,6 +159,9 @@ export function parseCricbuzzDetail(html) {
 
 // --- Wisden: tertiary liveness signal (explicit "Live" badge) ----------------
 
+export const countWisdenCards = (html) =>
+  [...anchorTags(html)].filter((anchor) => getAttr(anchor[0], 'href')?.startsWith('/match/')).length;
+
 export function parseWisden(html) {
   return [...anchorTags(html)].flatMap((anchor) => {
     const href = getAttr(anchor[0], 'href');
@@ -172,6 +175,21 @@ export function parseWisden(html) {
     if (rows.length !== 2 || !eligible(rows[0].name, rows[1].name)) return [];
     return [{ key: key(rows[0].name, rows[1].name), teams: rows, url: new URL(href, ORIGINS.wisden).href }];
   });
+}
+
+// Normalize Wisden's explicit Live cards to the authority shape used by reconcile.
+export function wisdenAuthorities(matches, now = Date.now()) {
+  return matches.map((match) => ({
+    ...match,
+    source: 'Wisden',
+    start: now,
+    end: now,
+    status: 'Live',
+    series: 'Live cricket',
+    venue: '',
+    note: '',
+    crr: '',
+  }));
 }
 
 // --- cross-source agreement: publish only what independent pages confirm -----
@@ -205,7 +223,7 @@ export function reconcile(ndtv, cricbuzz, wisden, details = new Map(), now = Dat
     const secondary = cb.get(m.key); const tertiary = ws.get(m.key);
     const detail = details.get(m.key);
     const cricbuzzAgrees = Boolean(secondary && detail?.length && detailCompatible(m, detail));
-    const wisdenAgrees = Boolean(tertiary && compatible(m, [tertiary]));
+    const wisdenAgrees = Boolean(m.source !== 'Wisden' && tertiary && compatible(m, [tertiary]));
     if (!cricbuzzAgrees && !wisdenAgrees) return [];
     const active = m.teams.find((t) => t.active) || m.teams[0];
     const other = m.teams.find((t) => t !== active);
@@ -219,7 +237,7 @@ export function reconcile(ndtv, cricbuzz, wisden, details = new Map(), now = Dat
       target: need ? Number(need[1]) + active.score.runs : null,
       ballsLeft: need ? Number(need[2]) : null,
       runRate: rate?.[1] || null, requiredRate: need ? (Number(need[1]) * 6 / Number(need[2])).toFixed(2) : null,
-      verifiedAt: new Date(now).toISOString(), source: 'NDTV Sports', sourceUrl: m.url,
+      verifiedAt: new Date(now).toISOString(), source: m.source || 'NDTV Sports', sourceUrl: m.url,
       corroboratedBy: [cricbuzzAgrees && secondary.url, wisdenAgrees && tertiary.url].filter(Boolean),
     }];
   });

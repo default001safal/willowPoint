@@ -1,9 +1,48 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { followables } from '../data.js';
 import { Divider, SaveButton, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { MarkPair } from '../components/TeamMark.jsx';
+import { watchUser, signInWithGoogle, signOutUser } from '../lib/firebase.js';
+
+// Account card: anonymous by default, upgradeable to Google without losing data.
+function AccountCard() {
+  const [user, setUser] = useState(undefined);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => watchUser(setUser), []);
+  const authed = user && !user.isAnonymous;
+
+  const google = async () => {
+    setBusy(true); setError('');
+    try { await signInWithGoogle(); }
+    catch (e) {
+      setError(e.code === 'auth/operation-not-allowed'
+        ? 'Google sign-in is not enabled yet — enable it in Firebase Console → Authentication → Sign-in method.'
+        : (e.code === 'auth/popup-closed-by-user' ? '' : (e.message || 'Sign-in failed')));
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div className="card" style={{ padding: 16 }}>
+      <div className="row-text" style={{ marginBottom: 10 }}>
+        <strong style={{ fontSize: 15 }}>{authed ? 'Signed in' : 'Your account'}</strong>
+        <span style={{ fontSize: 13 }}>
+          {authed ? (user.email || 'Google account') : 'Playing as a local fan — follows and saves sync to this device.'}
+        </span>
+      </div>
+      {authed ? (
+        <button type="button" className="setting" onClick={() => signOutUser()}>Sign out</button>
+      ) : (
+        <button type="button" className="setting" disabled={busy} onClick={google}>
+          {busy ? 'Opening Google…' : 'Continue with Google'}
+        </button>
+      )}
+      {error && <p style={{ color: 'var(--accent)', fontSize: 12, marginTop: 8 }}>{error}</p>}
+    </div>
+  );
+}
 
 // Resolve saved fixtures, the NPL final and the featured competition into rows.
 function useSavedItems(saved) {
@@ -35,6 +74,10 @@ export default function ProfileScreen({ prefs }) {
         <h1 className="screen-title">Profile</h1>
         <p className="subhead">Your teams, saved matches and settings.</p>
       </header>
+
+      <section className="section">
+        <AccountCard />
+      </section>
 
       <section className="section">
         <div className="card">

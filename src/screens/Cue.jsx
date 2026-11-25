@@ -3,26 +3,35 @@ import * as I from '../components/Icons.jsx';
 import { cuePrompts } from '../data.js';
 import { Divider } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
-import { cueAnswer } from '../lib/cueAnswers.js';
+import { cueReply } from '../lib/cueEngine.js';
 
-const exchange = (q, content) => [{ from: 'me', text: q }, { from: 'cue', ...cueAnswer(q, content) }];
+// Conversation so far in OpenAI-style roles, for follow-up questions.
+const toHistory = (thread) => thread
+  .filter((m) => !m.pending)
+  .map((m) => ({ role: m.from === 'me' ? 'user' : 'assistant', content: m.text }));
 
 export default function CueScreen({ pending, clearPending }) {
   const content = useContent();
   // A question handed over from another screen opens the thread straight away.
-  const [thread, setThread] = useState(() => (pending ? exchange(pending, content) : []));
+  const [thread, setThread] = useState([]);
   const [draft, setDraft] = useState('');
+  const [busy, setBusy] = useState(false);
   const endRef = useRef(null);
 
-  const ask = (text) => {
+  const ask = async (text) => {
     const q = text.trim();
-    if (!q) return;
-    setThread((t) => [...t, ...exchange(q, content)]);
+    if (!q || busy) return;
+    const history = toHistory(thread);
+    setThread((t) => [...t, { from: 'me', text: q }, { from: 'cue', text: 'Thinking…', pending: true }]);
     setDraft('');
+    setBusy(true);
+    const reply = await cueReply(q, content, history);
+    setThread((t) => [...t.filter((m) => !m.pending), { from: 'cue', ...reply }]);
+    setBusy(false);
   };
 
   useEffect(() => {
-    if (pending) clearPending();
+    if (pending) { clearPending(); ask(pending); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -87,8 +96,8 @@ export default function CueScreen({ pending, clearPending }) {
               }}
             />
             <div className="composer-foot">
-              <span className="hint"><I.Spark size={13} style={{ color: 'var(--accent)' }} />From current match data</span>
-              <button type="submit" className="send" aria-label="Send" disabled={!draft.trim()}>
+              <span className="hint"><I.Spark size={13} style={{ color: 'var(--accent)' }} />{busy ? 'Cue is thinking…' : 'Live AI · grounded in current match data'}</span>
+              <button type="submit" className="send" aria-label="Send" disabled={!draft.trim() || busy}>
                 <I.ArrowUp size={18} sw={2.2} />
               </button>
             </div>

@@ -129,9 +129,11 @@ export function parseCricbuzz(html) {
     if (!href || !href.startsWith('/live-cricket-scores/')) continue;
     const pair = /^(.+?) vs (.+?), .+ - (.+?)\s*$/.exec(title);
     if (!pair || !eligible(pair[1], pair[2])) continue;
-    if (/preview|abandon|cancel|postponed|delayed/i.test(pair[3])) continue;
+    const status = pair[3];
+    if (/preview|upcoming|abandon|cancel|postponed|delayed/i.test(status)) continue;
+    const live = !/\b(?:won|complete|completed|drawn|tied|no result)\b/i.test(status);
     const id = key(pair[1], pair[2]);
-    if (!found.has(id)) found.set(id, { key: id, teams: [pair[1], pair[2]], url: new URL(href, ORIGINS.cricbuzz).href });
+    if (!found.has(id)) found.set(id, { key: id, teams: [pair[1], pair[2]], status, live, url: new URL(href, ORIGINS.cricbuzz).href });
   }
   return [...found.values()];
 }
@@ -161,6 +163,12 @@ export function parseCricbuzzDetail(html) {
 
 export const countWisdenCards = (html) =>
   [...anchorTags(html)].filter((anchor) => getAttr(anchor[0], 'href')?.startsWith('/match/')).length;
+
+// A valid Wisden page with no Live badge is an independent idle signal. Requiring
+// the expected title and heading prevents blocked or reshaped pages becoming one.
+export const isWisdenScorePage = (html) =>
+  /<title\b[^>]*>\s*Live Cricket Score\b/i.test(html) &&
+  /<h1\b[^>]*>\s*Live Cricket Scores\s*<\/h1\s*>/i.test(html);
 
 export function parseWisden(html) {
   return [...anchorTags(html)].flatMap((anchor) => {

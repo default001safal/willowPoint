@@ -4,6 +4,7 @@ import {
   countCricbuzzStrips,
   countNdtvCards,
   countWisdenCards,
+  isWisdenScorePage,
   parseCricbuzz,
   parseCricbuzzDetail,
   parseNdtv,
@@ -58,14 +59,23 @@ export async function collectVerifiedLive({
   if (pages.ndtv && countNdtvCards(pages.ndtv) > 0) enabledSources.unshift('ndtv');
   else degradedSources.push('ndtv: unavailable or page shape changed');
 
+  const wisdenPageValid = Boolean(pages.wisden && isWisdenScorePage(pages.wisden));
   if (pages.wisden && countWisdenCards(pages.wisden) > 0) {
     enabledSources.push('wisden');
     const existing = new Set(authorities.map((match) => match.key));
     authorities.push(...wisdenAuthorities(wisden, now).filter((match) => !existing.has(match.key)));
+  } else if (wisdenPageValid) {
+    enabledSources.push('wisden');
   } else if (!authorities.length) {
     degradedSources.push('wisden: unavailable or page shape changed');
   }
-  if (!authorities.length) return degraded(sourceCounts, enabledSources, degradedSources);
+  if (!authorities.length) {
+    const noCoveredLiveMatch = cricbuzz.every((match) => !match.live) && wisden.length === 0;
+    if (wisdenPageValid && noCoveredLiveMatch) {
+      return { state: 'ok', matches: [], sourceCounts, enabledSources, degradedSources };
+    }
+    return degraded(sourceCounts, enabledSources, degradedSources);
+  }
 
   // Fetch only detail pages that can actually corroborate an authority candidate.
   const cbByKey = new Map(cricbuzz.map((match) => [match.key, match]));

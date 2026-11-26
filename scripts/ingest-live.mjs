@@ -12,7 +12,9 @@ const URLS = {
   ...DEFAULT_LIVE_URLS,
   ...(process.env.WILLOWPOINT_SOURCE_URLS ? JSON.parse(process.env.WILLOWPOINT_SOURCE_URLS) : {}),
 };
-const dryRun = process.argv.includes('--dry-run');
+// Legacy scheduled GitHub runs are inspection-only. Only an explicit manual
+// fallback may write; the Cloudflare Worker owns the production heartbeat.
+const dryRun = process.argv.includes('--dry-run') || process.env.GITHUB_EVENT_NAME === 'schedule';
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
 
 async function fetchHtml(url) {

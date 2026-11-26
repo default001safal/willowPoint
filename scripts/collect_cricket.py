@@ -325,20 +325,22 @@ def collect_final(body, source, today):
     }]}
 
 
-def article_date(item, path):
+def article_timing(item, path):
+    """Return the publication date and the most precise timestamp the feed supplies."""
     published_at = item.findtext("pubDate")
     if published_at:
         try:
             timestamp = parsedate_to_datetime(published_at)
             if timestamp.tzinfo is not None:
-                return timestamp.astimezone(NPT).date()
+                localized = timestamp.astimezone(NPT)
+                return localized.date(), localized.isoformat()
         except ValueError:
             pass
     match = re.search(r"/(\d{4})/(\d{1,2})/(\d{1,2})/", path)
     try:
-        return date(*map(int, match.groups())) if match else None
+        return (date(*map(int, match.groups())), None) if match else (None, None)
     except ValueError:
-        return None
+        return None, None
 
 
 def collect_news(body, source, today):
@@ -360,7 +362,7 @@ def collect_news(body, source, today):
         url = urlsplit(link)
         if url.scheme != "https" or url.netloc != host or not url.path.startswith(source["articlePath"]):
             continue
-        published = article_date(item, url.path)
+        published, published_at = article_timing(item, url.path)
         if not published or not today - timedelta(days=7) <= published <= today:
             continue
         canonical = urlunsplit((url.scheme, url.netloc, url.path.rstrip("/"), "", ""))
@@ -369,6 +371,7 @@ def collect_news(body, source, today):
             continue
         candidates.append({
             "id": stable_id("story", canonical), "date": published.isoformat(),
+            "publishedAt": published_at or f"{published.isoformat()}T00:00:00+05:45",
             "title": title, "section": source.get("section", "Nepal"), "reviewRequired": True,
             **provenance(source, canonical),
         })

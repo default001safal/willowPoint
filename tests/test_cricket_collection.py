@@ -82,11 +82,13 @@ class CricketCollectionTests(unittest.TestCase):
     def test_rss_retains_news_leads_and_discards_article_content(self):
         source = {"name": "Example news", "url": "https://example.org/rss", "articlePath": "/cricket/"}
         xml = b'''<rss><channel><item><title>Squad confirmed</title>
+          <pubDate>Sun, 06 Dec 2026 10:15:00 +0545</pubDate>
           <link>https://example.org/cricket/2026/12/6/squad?tracking=1</link>
           <description>Article body</description></item></channel></rss><footer/>'''
         candidate, = collect_news(xml, source, date(2026, 12, 6))["newsCandidates"]
         self.assertTrue(candidate["reviewRequired"])
         self.assertEqual(candidate["sourceUrl"], "https://example.org/cricket/2026/12/6/squad")
+        self.assertEqual(candidate["publishedAt"], "2026-12-06T10:15:00+05:45")
         self.assertNotIn("Article body", str(candidate))
 
 

@@ -27,6 +27,6 @@
     "react-native-svg": "15.12.1"
   },
   "devDependencies": {
-    "babel-preset-expo": "^58.0.27"
+    "babel-preset-expo": "~54.0.12"
   }
 }

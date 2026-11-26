@@ -5,11 +5,11 @@ import { doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db, watchUser } from './firebase.js';
 
 const KEY = 'wp.prefs';
-const DEFAULTS = { saved: [], following: [] };
+const DEFAULTS = { saved: [], following: [], customFollows: [] };
 
 function normalize(value = {}) {
   const list = (items, limit) => [...new Set(Array.isArray(items) ? items.filter((item) => typeof item === 'string' && item.length <= 300) : [])].slice(0, limit);
-  return { saved: list(value.saved, 500), following: list(value.following, 50) };
+  return { saved: list(value.saved, 500), following: list(value.following, 50), customFollows: list(value.customFollows, 20) };
 }
 
 function readLocal() {
@@ -97,5 +97,11 @@ export function useUserPrefs() {
     synced,
     toggleSaved: (id) => update((current) => ({ saved: toggleIn(current.saved, id) })),
     toggleFollow: (id) => update((current) => ({ following: toggleIn(current.following, id) })),
+    addCustomFollow: (text) => update((current) => {
+      const value = String(text || '').trim().slice(0, 40);
+      if (!value || current.customFollows.includes(value)) return {};
+      return { customFollows: [...current.customFollows, value] };
+    }),
+    removeCustomFollow: (text) => update((current) => ({ customFollows: current.customFollows.filter((item) => item !== text) })),
   };
 }

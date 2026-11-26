@@ -1,4 +1,5 @@
 import * as I from './Icons.jsx';
+import CueMark from './CueMark.jsx';
 
 export function SectionHead({ title, children, leading, className = '' }) {
   return (
@@ -28,7 +29,7 @@ export function SaveButton({ label, saved, onToggle }) {
 const TABS = [
   { id: 'home', label: 'Home', Icon: I.Home },
   { id: 'discover', label: 'Discover', Icon: I.Compass },
-  { id: 'cue', label: 'Cue', Icon: I.SparkPlus },
+  { id: 'cue', label: 'Cue', Icon: (props) => <CueMark {...props} size={24} /> },
   { id: 'profile', label: 'You', Icon: I.User },
 ];
 

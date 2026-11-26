@@ -48,26 +48,6 @@ export const Sliders = (p) => (
   </Svg>
 );
 
-export const Spark = (p) => (
-  <Svg sw={2} {...p}>
-    <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
-  </Svg>
-);
-
-export const SparkGlint = (p) => (
-  <Svg {...p}>
-    <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
-    <path d="M19 3v4M17 5h4" />
-  </Svg>
-);
-
-export const SparkPlus = (p) => (
-  <Svg {...p}>
-    <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
-    <path d="M19 16v4M17 18h4" />
-  </Svg>
-);
-
 export const Calendar = (p) => (
   <Svg sw={2} {...p}>
     <rect x="3" y="5" width="18" height="16" rx="2" />

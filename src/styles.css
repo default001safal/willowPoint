@@ -232,11 +232,36 @@ button.event-card { margin: 0; text-align: left; }
 .data-note { display: flex; align-items: flex-start; gap: 7px; margin: 28px 0 0; padding-top: 20px; border-top: 1px solid var(--hairline-soft); color: var(--faint); font-size: 11px; line-height: 1.5; }
 .data-note svg { flex: none; margin-top: 1px; }
 
-/* Search results */
+/* Layered search */
+.search-launcher { width: 100%; text-align: left; }
+.search-launcher:hover { border-color: var(--dim); }
+.search-launcher-label { flex: 1; min-width: 0; overflow: hidden; color: var(--faint); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.search-layer-content { padding: 18px var(--page-gutter) calc(28px + env(safe-area-inset-bottom)); }
+.search-layer-content .search { margin-bottom: 10px; }
+.search-scope-pills { margin-bottom: 14px; }
+.cue-escalation { display: flex; flex-direction: column; gap: 12px; margin: 0 0 14px; padding: 14px; border: 1px solid color-mix(in srgb, var(--crimson-text) 45%, var(--border)); border-radius: 16px; background: color-mix(in srgb, var(--crimson) 9%, var(--surface)); }
+.cue-escalation > div { display: flex; align-items: center; gap: 9px; color: var(--crimson-text); font-size: 13px; line-height: 1.45; }
+.cue-escalation svg { flex: none; }
+.cue-escalation .layer-secondary-action { width: 100%; }
 .search-results .sec { margin-top: 10px; }
+.search-suggestions .sec { margin-top: 16px; }
 .record-list { overflow: hidden; border-top: 1px solid var(--hairline); }
 .search-hit { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 66px; padding: 12px 2px; border-bottom: 1px solid var(--hairline-soft); color: var(--text); text-align: left; }
 .search-hit > svg { flex: none; color: var(--faint); }
+.search-suggestion { min-height: 62px; }
+.search-suggestion .row-text small { display: block; margin-bottom: 3px; color: var(--crimson-text); font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+.search-empty-state { min-height: 220px; padding-right: 0; padding-left: 0; }
+.search-empty-state .layer-primary-link { width: 100%; margin-top: 22px; }
+.search-assist-content { padding: 20px var(--page-gutter) 8px; }
+.assist-section + .assist-section { margin-top: 24px; }
+.assist-section > .label.bright { margin: 0 0 11px; font-size: 14px; }
+.assist-pills { margin-bottom: 0; }
+.assist-options { display: grid; gap: 9px; }
+.assist-option { display: grid; gap: 4px; min-height: 64px; padding: 13px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--text); text-align: left; }
+.assist-option span { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.assist-option.on { border-color: #7A2230; background: rgba(237, 23, 37, .12); }
+.assist-actions { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 10px; padding: 12px var(--page-gutter) calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--divider); }
+.assist-actions .layer-primary-link { margin-top: 0; }
 
 /* Cue */
 .cue-screen { padding-bottom: 240px; }

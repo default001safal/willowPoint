@@ -40,6 +40,14 @@ export const Search = (p) => (
   </Svg>
 );
 
+export const Sliders = (p) => (
+  <Svg {...p}>
+    <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+    <circle cx="16" cy="7" r="2" />
+    <circle cx="10" cy="17" r="2" />
+  </Svg>
+);
+
 export const Spark = (p) => (
   <Svg sw={2} {...p}>
     <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />

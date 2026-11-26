@@ -8,6 +8,7 @@ import { SaveButton, parts, relativeDay } from './ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { signOutUser, watchUser } from '../lib/firebase.js';
 import AuthControls from './AuthControls.jsx';
+import { SearchAssistLayer, SearchLayer } from './Search.jsx';
 import { kickoffUTC } from '../lib/statcard.js';
 import { eventDates, fixturesForEvent, resultTitle } from '../lib/selectors.js';
 
@@ -209,13 +210,15 @@ function SignOutConfirmation({ onClose }) {
   );
 }
 
-export default function RecordLayers({ layers, prefs, onClose, onOpenLayer, askCue, go }) {
+export default function RecordLayers({ layers, prefs, search, onSearch, onOpenSearchAssist, onClose, onOpenLayer, askCue, go }) {
   const content = useContent();
   const visibleLayers = layers.filter((item) => !item.type.startsWith('cue-'));
 
   const renderLayer = (layer) => {
     if (layer.type === 'source') return <SourceSheet source={layer.source} title={layer.title} onClose={onClose} />;
     if (layer.type === 'saved') return <SavedDetail content={content} prefs={prefs} onClose={onClose} onOpenLayer={onOpenLayer} />;
+    if (layer.type === 'search') return <SearchLayer search={search} onSearch={onSearch} onOpenAssist={onOpenSearchAssist} onOpenRecord={onOpenLayer} askCue={askCue} onClose={onClose} />;
+    if (layer.type === 'search-assist') return <SearchAssistLayer search={layer.search || search} onApply={(next) => { onSearch(next); onClose(); }} onClose={onClose} />;
     if (layer.type === 'account') return <AccountDetail onClose={onClose} onConfirmSignOut={() => onOpenLayer({ type: 'confirm-signout' })} />;
     if (layer.type === 'confirm-signout') return <SignOutConfirmation onClose={onClose} />;
     if (content.loadState === 'loading' && !content.fixtures.length && !content.results.length && !content.liveMatches.length && !content.events.length) return <MissingRecord loading onClose={onClose} />;

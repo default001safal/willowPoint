@@ -29,6 +29,8 @@ npm run dev
 
 `src/lib/selectors.js` is the shared content-prioritization contract. It validates dates, excludes expired events from featured/current coverage, links fixtures by event ID or portable event key, derives competition filters and follow topics from available records, and builds Cue prompts from actual live matches, fixtures, results, and stories. A completed competition can still appear through a qualifying result or recap; it receives no permanent featured position. No tournament or team has a bespoke frontend path.
 
+Search is a layered record system, not a hardcoded lookup. The secondary destination indexes current live, upcoming, event, recent-result, and story records; its tertiary assist sheet controls scope, competition, and whether archived records are included; record details and source sheets continue through the existing deeper layer stack. Suggestions are derived from current records. Exact search remains record-only, while question-shaped or unmatched wording offers the same query to Cue for grounded interpretation and fails closed when the records do not support an answer.
+
 The public Firebase web configuration is in `src/lib/firebase.js`. Anonymous authentication supports guest use. Google and email/password authentication can link an anonymous account so its follows and saved records remain attached.
 
 ## Independent ingestion tracks

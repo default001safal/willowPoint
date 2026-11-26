@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import LiveSection from '../components/LiveCard.jsx';
 import NextForNepal from '../components/NextForNepal.jsx';
 import { SaveButton, ScreenMasthead, SectionHead, parts } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { fixturesForEvent, recentResults, resultTitle } from '../lib/selectors.js';
-import { SearchField, SearchFilters, SearchResults } from '../components/Search.jsx';
+import { SearchLauncher } from '../components/Search.jsx';
 
 function greeting() {
   const hour = Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Kathmandu', hour: '2-digit', hour12: false }).format(new Date()));
@@ -91,48 +90,26 @@ function HomeStories({ stories, onOpenRecord, onSeeAll }) {
   );
 }
 
-export default function HomeScreen({ saved, toggleSaved, go, askCue, onOpenSaved, onOpenRecord }) {
+export default function HomeScreen({ saved, toggleSaved, go, askCue, onOpenSaved, onOpenRecord, onOpenSearch }) {
   const { liveMatches, liveState, loadState, stories, featuredEvent } = useContent();
-  const [query, setQuery] = useState('');
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [scope, setScope] = useState('All');
-  const [competition, setCompetition] = useState('Any');
-  const activeFilters = (scope !== 'All' ? 1 : 0) + (competition !== 'Any' ? 1 : 0);
-  const searching = query.trim().length > 0 || activeFilters > 0;
-  const openSearchHit = (hit) => {
-    const types = { Live: 'live', Fixtures: 'fixture', Results: 'result', News: 'story', Events: 'event' };
-    onOpenRecord({ type: types[hit.scope], id: hit.id.replace(/^live-/, '') });
-  };
-  const clearSearch = () => {
-    setQuery('');
-    setScope('All');
-    setCompetition('Any');
-    setFiltersOpen(false);
-  };
 
   return (
     <main className="screen home-screen">
       <ScreenMasthead onProfile={() => go('profile')} />
       <h1 className="greet">{greeting()}</h1>
-      <SearchField query={query} setQuery={setQuery} filtersOpen={filtersOpen} setFiltersOpen={setFiltersOpen} activeFilters={activeFilters} />
-      {filtersOpen ? <SearchFilters scope={scope} setScope={setScope} competition={competition} setCompetition={setCompetition} /> : !searching && (
-        <div className="pills home-pills" aria-label="Quick destinations">
-          <button type="button" className="chip cue-chip" onClick={() => askCue('Give me my quick Nepal cricket briefing')}><I.Spark size={13} />Cue’s bird’s-eye view</button>
-          <button type="button" className="chip" onClick={() => go('discover', 'Nepal')}><I.Calendar size={13} />Nepal’s next match</button>
-          {featuredEvent && <button type="button" className="chip" onClick={() => go('discover', featuredEvent.competition || 'All', featuredEvent.competition ? '' : featuredEvent.title)}><I.Trophy size={13} />{featuredEvent.short || featuredEvent.title}</button>}
-          <button type="button" className="chip" onClick={onOpenSaved}><I.Bookmark size={13} />Saved</button>
-        </div>
-      )}
+      <SearchLauncher onOpen={() => onOpenSearch()} />
+      <div className="pills home-pills" aria-label="Quick destinations">
+        <button type="button" className="chip cue-chip" onClick={() => askCue('Give me my quick Nepal cricket briefing')}><I.Spark size={13} />Cue’s bird’s-eye view</button>
+        <button type="button" className="chip" onClick={() => go('discover', 'Nepal')}><I.Calendar size={13} />Nepal’s next match</button>
+        {featuredEvent && <button type="button" className="chip" onClick={() => onOpenSearch({ query: featuredEvent.title, scope: 'Events' })}><I.Trophy size={13} />{featuredEvent.short || featuredEvent.title}</button>}
+        <button type="button" className="chip" onClick={onOpenSaved}><I.Bookmark size={13} />Saved</button>
+      </div>
 
-      {searching ? <SearchResults query={query} scope={scope} competition={competition} onClear={clearSearch} onSelect={openSearchHit} /> : (
-        <>
-          <LiveSection matches={liveMatches} state={liveState} loading={loadState === 'loading'} onSeeAll={() => go('discover', 'All')} onOpenMatch={(match) => onOpenRecord({ type: 'live', id: match.id })} />
-          <QuickRecap onOpenRecord={onOpenRecord} />
-          <NextForNepal saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} onOpenRecord={onOpenRecord} />
-          {featuredEvent && <EventCard event={featuredEvent} onAsk={(event) => askCue(`Give me a current briefing on ${event.title}.`)} saved={saved} toggleSaved={toggleSaved} onSeeAll={(filter) => go('discover', filter)} onOpenRecord={onOpenRecord} />}
-          <HomeStories stories={stories} onOpenRecord={onOpenRecord} onSeeAll={() => go('discover', 'News')} />
-        </>
-      )}
+      <LiveSection matches={liveMatches} state={liveState} loading={loadState === 'loading'} onSeeAll={() => go('discover', 'All')} onOpenMatch={(match) => onOpenRecord({ type: 'live', id: match.id })} />
+      <QuickRecap onOpenRecord={onOpenRecord} />
+      <NextForNepal saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} onOpenRecord={onOpenRecord} />
+      {featuredEvent && <EventCard event={featuredEvent} onAsk={(event) => askCue(`Give me a current briefing on ${event.title}.`)} saved={saved} toggleSaved={toggleSaved} onSeeAll={(filter) => go('discover', filter)} onOpenRecord={onOpenRecord} />}
+      <HomeStories stories={stories} onOpenRecord={onOpenRecord} onSeeAll={() => go('discover', 'News')} />
     </main>
   );
 }

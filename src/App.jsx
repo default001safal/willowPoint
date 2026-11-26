@@ -3,6 +3,7 @@ import { BottomNav } from './components/ui.jsx';
 import RecordLayers from './components/RecordLayers.jsx';
 import { ContentProvider } from './lib/content.jsx';
 import { useUserPrefs } from './lib/userPrefs.js';
+import { DEFAULT_SEARCH } from './lib/search.js';
 import HomeScreen from './screens/Home.jsx';
 import DiscoverScreen from './screens/Discover.jsx';
 import CueScreen from './screens/Cue.jsx';
@@ -32,18 +33,18 @@ export default function App() {
   const [tab, setTab] = useState(initialTab);
   const [discoverFilter, setDiscoverFilter] = useState('All');
   const [discoverView, setDiscoverView] = useState('browse');
-  const [discoverQuery, setDiscoverQuery] = useState('');
+  const [search, setSearch] = useState(DEFAULT_SEARCH);
   const [layers, setLayers] = useState([]);
   const [pendingQuestion, setPendingQuestion] = useState(null);
   const prefs = useUserPrefs();
   const [welcome, setWelcome] = useState(needsOnboarding);
   const [splash, setSplash] = useState(true);
   const scrollPositions = useRef({ home: 0, discover: 0, cue: 0, profile: 0 });
-  const discover = { filter: discoverFilter, view: discoverView, query: discoverQuery };
+  const discover = { filter: discoverFilter, view: discoverView };
 
   useEffect(() => {
-    const initialDiscover = { filter: 'All', view: 'browse', query: '' };
-    window.history.replaceState({ willowPoint: true, tab, layers: [], discover: initialDiscover }, '', window.location.href);
+    const initialDiscover = { filter: 'All', view: 'browse' };
+    window.history.replaceState({ willowPoint: true, tab, layers: [], discover: initialDiscover, search: DEFAULT_SEARCH }, '', window.location.href);
     const onPopState = (event) => {
       const state = event.state;
       if (!state?.willowPoint) return;
@@ -52,7 +53,6 @@ export default function App() {
       if (state.discover) {
         setDiscoverFilter(state.discover.filter || 'All');
         setDiscoverView(state.discover.view || 'browse');
-        setDiscoverQuery(state.discover.query || '');
       }
     };
     window.addEventListener('popstate', onPopState);
@@ -63,36 +63,64 @@ export default function App() {
     window.scrollTo(0, scrollPositions.current[tab] || 0);
   }, [tab]);
 
-  const go = (next, filter, query = '') => {
+  const go = (next, filter) => {
     if (!TABS.includes(next)) return;
     scrollPositions.current[tab] = window.scrollY;
     const nextDiscover = { ...discover };
-    if (next === 'discover' && (filter !== undefined || query)) {
+    if (next === 'discover' && filter !== undefined) {
       nextDiscover.filter = filter && filter !== 'News' ? filter : 'All';
       nextDiscover.view = filter === 'News' ? 'news' : filter ? 'matches' : 'browse';
-      nextDiscover.query = query;
       setDiscoverFilter(nextDiscover.filter);
       setDiscoverView(nextDiscover.view);
-      setDiscoverQuery(nextDiscover.query);
     }
+    setSearch(DEFAULT_SEARCH);
     setLayers([]);
     setTab(next);
     window.history.pushState(
-      { willowPoint: true, tab: next, layers: [], discover: nextDiscover },
+      { willowPoint: true, tab: next, layers: [], discover: nextDiscover, search: DEFAULT_SEARCH },
       '',
       tabUrl(next),
     );
   };
 
-  const updateDiscover = ({ filter = discoverFilter, view = discoverView, query = discoverQuery }) => {
-    const next = { filter, view, query };
+  const updateDiscover = ({ filter = discoverFilter, view = discoverView }) => {
+    const next = { filter, view };
     setDiscoverFilter(filter);
     setDiscoverView(view);
-    setDiscoverQuery(query);
     if (window.history.state?.willowPoint) {
       window.history.replaceState({ ...window.history.state, tab: 'discover', discover: next }, '', window.location.href);
     }
   };
+
+  const updateSearch = (next) => {
+    setSearch(next);
+    if (window.history.state?.willowPoint) {
+      window.history.replaceState({ ...window.history.state, search: next }, '', window.location.href);
+    }
+  };
+
+  const openSearch = (initial = {}) => {
+    const nextSearch = { ...DEFAULT_SEARCH, ...initial };
+    setSearch(nextSearch);
+    if (layers.some((layer) => layer.type === 'search')) {
+      if (window.history.state?.willowPoint) window.history.replaceState({ ...window.history.state, search: nextSearch }, '', window.location.href);
+      return;
+    }
+    const nextLayers = [...layers, { type: 'search' }];
+    setLayers(nextLayers);
+    window.history.pushState({ willowPoint: true, tab, layers: nextLayers, discover, search: nextSearch }, '', window.location.href);
+  };
+
+  useEffect(() => {
+    const shortcut = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        openSearch();
+      }
+    };
+    window.addEventListener('keydown', shortcut);
+    return () => window.removeEventListener('keydown', shortcut);
+  }, [openSearch]);
 
   const openLayer = (layer) => {
     const nextLayers = [...layers, layer];
@@ -102,6 +130,7 @@ export default function App() {
       tab,
       layers: nextLayers,
       discover,
+      search,
     }, '', window.location.href);
   };
 
@@ -123,7 +152,7 @@ export default function App() {
     const nextLayers = [{ type: 'saved' }];
     setTab('profile');
     setLayers(nextLayers);
-    window.history.pushState({ willowPoint: true, tab: 'profile', layers: nextLayers, discover }, '', tabUrl('profile'));
+    window.history.pushState({ willowPoint: true, tab: 'profile', layers: nextLayers, discover, search }, '', tabUrl('profile'));
   };
 
   const answerOpen = layers.some((layer) => layer.type === 'cue-answer');
@@ -138,10 +167,10 @@ export default function App() {
       <div className="app">
         <div className="app-content" inert={welcome || splash ? '' : undefined} aria-hidden={welcome || splash ? true : undefined}>
         <div hidden={tab !== 'home'} inert={layers.length ? '' : undefined} aria-hidden={layers.length ? true : undefined}>
-          <HomeScreen saved={prefs.saved} toggleSaved={prefs.toggleSaved} go={go} askCue={askCue} onOpenSaved={openSaved} onOpenRecord={openLayer} />
+          <HomeScreen saved={prefs.saved} toggleSaved={prefs.toggleSaved} go={go} askCue={askCue} onOpenSaved={openSaved} onOpenRecord={openLayer} onOpenSearch={openSearch} />
         </div>
         <div hidden={tab !== 'discover'} inert={layers.length ? '' : undefined} aria-hidden={layers.length ? true : undefined}>
-          <DiscoverScreen filter={discoverFilter} view={discoverView} query={discoverQuery} onStateChange={updateDiscover} saved={prefs.saved} toggleSaved={prefs.toggleSaved} prefs={prefs} onOpenRecord={openLayer} go={go} />
+          <DiscoverScreen filter={discoverFilter} view={discoverView} onStateChange={updateDiscover} saved={prefs.saved} toggleSaved={prefs.toggleSaved} prefs={prefs} onOpenRecord={openLayer} go={go} onOpenSearch={openSearch} />
         </div>
         <div hidden={tab !== 'cue'} inert={recordLayerOpen ? '' : undefined} aria-hidden={recordLayerOpen ? true : undefined}>
           <CueScreen
@@ -159,7 +188,17 @@ export default function App() {
           <ProfileScreen prefs={prefs} onOpenSaved={openSaved} onOpenAccount={() => openLayer({ type: 'account' })} onOpenRecord={openLayer} />
         </div>
         {!layers.length && <BottomNav tab={tab} onChange={(next) => go(next)} />}
-        <RecordLayers layers={layers} prefs={prefs} onClose={closeLayer} onOpenLayer={openLayer} askCue={askCue} go={go} />
+        <RecordLayers
+          layers={layers}
+          prefs={prefs}
+          search={search}
+          onSearch={updateSearch}
+          onOpenSearchAssist={() => openLayer({ type: 'search-assist', search })}
+          onClose={closeLayer}
+          onOpenLayer={openLayer}
+          askCue={askCue}
+          go={go}
+        />
         </div>
         {welcome && <Onboarding prefs={prefs} onDone={() => setWelcome(false)} />}
         {splash && <Splash onDone={() => setSplash(false)} />}

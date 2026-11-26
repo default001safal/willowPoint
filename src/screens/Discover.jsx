@@ -8,18 +8,14 @@ import { useContent } from '../lib/content.jsx';
 import { isLiveFixture } from '../lib/fixtures.js';
 import { recentResults } from '../lib/selectors.js';
 import { kickoffUTC } from '../lib/statcard.js';
+import { SearchLauncher } from '../components/Search.jsx';
 
-const hits = (query, ...fields) => !query || fields.some((field) => String(field || '').toLowerCase().includes(query));
-
-function Matches({ filter, query, saved, toggleSaved, onOpenRecord }) {
-  const { today, loadState, liveMatches: allLive, fixtures: allFixtures, results: allResults } = useContent();
-  const q = query.trim().toLowerCase();
+function Matches({ filter, saved, toggleSaved, onOpenRecord }) {
+  const { today, loadState, liveMatches, fixtures, results: allResults } = useContent();
   const pass = (competition) => filter === 'All' || filter === competition;
-  const liveMatches = allLive.filter((match) => hits(q, match.series, match.venue, `${match.batting.name} v ${match.bowling.name}`));
-  const fixtures = allFixtures.filter((fixture) => hits(q, fixture.title, fixture.venue, fixture.competition));
-  const results = recentResults(allResults, today).filter((result) => hits(q, result.label, result.summary, (result.lines || []).map((line) => line.team).join(' v ')));
+  const results = recentResults(allResults, today);
   const live = liveMatches.filter((match) => pass(match.competition));
-  const todayFixtures = fixtures.filter((fixture) => fixture.date === today && pass(fixture.competition) && !isLiveFixture(fixture, allLive, today));
+  const todayFixtures = fixtures.filter((fixture) => fixture.date === today && pass(fixture.competition) && !isLiveFixture(fixture, liveMatches, today));
   const laterToday = todayFixtures.filter((fixture) => (kickoffUTC(fixture.date, fixture.time) ?? Infinity) > Date.now());
   const awaiting = todayFixtures.filter((fixture) => (kickoffUTC(fixture.date, fixture.time) ?? Infinity) <= Date.now());
   const upcoming = fixtures.filter((fixture) => fixture.date > today && pass(fixture.competition));
@@ -29,7 +25,7 @@ function Matches({ filter, query, saved, toggleSaved, onOpenRecord }) {
 
   return (
     <div className="match-browser">
-      {nothing && <p className="empty-state">{loadState === 'loading' ? 'Checking match data…' : loadState === 'error' ? 'Match data could not refresh. Please try again later.' : q ? `No matches for “${query.trim()}”.` : `Nothing current here for ${filter}.`}</p>}
+      {nothing && <p className="empty-state">{loadState === 'loading' ? 'Checking match data…' : loadState === 'error' ? 'Match data could not refresh. Please try again later.' : `Nothing current here for ${filter}.`}</p>}
 
       {(live.length > 0 || laterToday.length > 0 || awaiting.length > 0) && (
         <section>
@@ -62,12 +58,11 @@ function Matches({ filter, query, saved, toggleSaved, onOpenRecord }) {
   );
 }
 
-function News({ query, onOpenRecord }) {
-  const q = query.trim().toLowerCase();
+function News({ onOpenRecord }) {
   const content = useContent();
-  const stories = content.stories.filter((story) => hits(q, story.title, story.source));
-  const worldNews = content.worldNews.filter((story) => hits(q, story.title, story.blurb, story.source));
-  if (!stories.length && !worldNews.length) return <p className="empty-state">{q ? `No current sourced stories for “${query.trim()}”.` : 'No current, sourced stories are available yet.'}</p>;
+  const stories = content.stories;
+  const worldNews = content.worldNews;
+  if (!stories.length && !worldNews.length) return <p className="empty-state">No current, sourced stories are available yet.</p>;
   return <div className="news-list discover-news">{[...stories, ...worldNews].map((story) => <StoryCard key={story.id} story={story} onOpen={() => onOpenRecord({ type: 'story', id: story.id })} />)}</div>;
 }
 
@@ -77,19 +72,18 @@ const VIEWS = [
   { id: 'news', label: 'Stories', Icon: I.ViewList },
 ];
 
-export default function DiscoverScreen({ filter = 'All', view = 'browse', query = '', onStateChange, saved, toggleSaved, prefs, onOpenRecord, go }) {
+export default function DiscoverScreen({ filter = 'All', view = 'browse', onStateChange, saved, toggleSaved, prefs, onOpenRecord, go, onOpenSearch }) {
   const { competitions } = useContent();
   const filters = ['All', ...competitions];
-  const searching = query.trim().length > 0;
   useEffect(() => {
     if (filter !== 'All' && !filters.includes(filter)) onStateChange({ filter: 'All' });
   }, [filter, filters.join('|'), onStateChange]);
   const setView = (nextView) => {
-    onStateChange({ view: nextView, filter: nextView === 'matches' ? filter : 'All', query: '' });
+    onStateChange({ view: nextView, filter: nextView === 'matches' ? filter : 'All' });
     window.scrollTo(0, 0);
   };
-  const openSchedule = ({ filter: nextFilter = 'All', query: nextQuery = '' }) => {
-    onStateChange({ filter: nextFilter, query: nextQuery, view: 'matches' });
+  const openSchedule = ({ filter: nextFilter = 'All' }) => {
+    onStateChange({ filter: nextFilter, view: 'matches' });
     window.scrollTo(0, 0);
   };
 
@@ -98,15 +92,14 @@ export default function DiscoverScreen({ filter = 'All', view = 'browse', query 
       <ScreenMasthead onProfile={() => go('profile')} />
       <h1 className="disc-h">Discover</h1>
       <p className="disc-sub">Every current match and recent result, in Nepal time.</p>
-      <div className="search discover-search"><div className="search-box"><I.Search size={16} /><label className="sr-only" htmlFor="discover-search">Search Discover</label><input id="discover-search" type="search" placeholder="Teams, matches, stories…" value={query} onChange={(event) => onStateChange({ query: event.target.value })} /></div></div>
+      <SearchLauncher onOpen={() => onOpenSearch()} label="Search teams, matches, stories…" />
       <div className="seg" role="tablist" aria-label="Discover sections">
         {VIEWS.map(({ id, label, Icon }) => <button key={id} type="button" role="tab" aria-selected={view === id} className={view === id ? 'on' : ''} onClick={() => setView(id)}><Icon size={13} />{label}</button>)}
       </div>
 
-      {view === 'browse' && !searching && <DiscoverBrowse saved={saved} toggleSaved={toggleSaved} following={prefs.following} toggleFollow={prefs.toggleFollow} onOpenSchedule={openSchedule} onOpenRecord={onOpenRecord} />}
-      {view === 'matches' && <><div className="pills match-filters" aria-label="Match competition">{filters.map((item) => <button key={item} type="button" className={`chip${filter === item ? ' on' : ''}`} aria-pressed={filter === item} onClick={() => onStateChange({ filter: item })}>{item}</button>)}</div><Matches filter={filter} query={query} saved={saved} toggleSaved={toggleSaved} onOpenRecord={onOpenRecord} /></>}
-      {view === 'browse' && searching && <><Matches filter="All" query={query} saved={saved} toggleSaved={toggleSaved} onOpenRecord={onOpenRecord} /><News query={query} onOpenRecord={onOpenRecord} /></>}
-      {view === 'news' && <News query={query} onOpenRecord={onOpenRecord} />}
+      {view === 'browse' && <DiscoverBrowse saved={saved} toggleSaved={toggleSaved} following={prefs.following} toggleFollow={prefs.toggleFollow} onOpenSchedule={openSchedule} onOpenRecord={onOpenRecord} />}
+      {view === 'matches' && <><div className="pills match-filters" aria-label="Match competition">{filters.map((item) => <button key={item} type="button" className={`chip${filter === item ? ' on' : ''}`} aria-pressed={filter === item} onClick={() => onStateChange({ filter: item })}>{item}</button>)}</div><Matches filter={filter} saved={saved} toggleSaved={toggleSaved} onOpenRecord={onOpenRecord} /></>}
+      {view === 'news' && <News onOpenRecord={onOpenRecord} />}
     </main>
   );
 }

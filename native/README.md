@@ -25,7 +25,7 @@ derived artifacts live only as outputs of `assets/regen.sh`:
 | ------------------------------- | ----------------------------------------- |
 | `assets/flags/*.png`            | `public/flags/*.svg` (rendered 96x96)     |
 | `assets/logo-light.png`         | `public/logo-light.png` (copied verbatim) |
-| `package-lock.json`             | `package.json` — regenerate with `npx npm@10.8.2 install --package-lock-only` (must match the EAS builder's npm major or `npm ci` fails on optional-peer resolution) |
+| `package-lock.json`             | `package.json` (pinned: `npx npm@10.8.2 install --package-lock-only` — must match the EAS builder's npm or `npm ci` fails on optional peers) |
 
 Rebuild them after a fresh clone:
 

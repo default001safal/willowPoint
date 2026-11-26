@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Manual/legacy live-score fallback. Production cadence belongs to the Cloudflare
+// Operator-run disaster recovery. Production cadence belongs to the Cloudflare
 // Worker. Independent public observations or an approved provider are required.
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -12,8 +12,8 @@ const URLS = {
   ...DEFAULT_LIVE_URLS,
   ...(process.env.WILLOWPOINT_SOURCE_URLS ? JSON.parse(process.env.WILLOWPOINT_SOURCE_URLS) : {}),
 };
-// Legacy scheduled GitHub runs are inspection-only. Only an explicit manual
-// fallback may write; the Cloudflare Worker owns the production heartbeat.
+// Scheduled GitHub invocations are inspection-only. Only an explicit operator-run
+// recovery may write; the Cloudflare Worker owns the production heartbeat.
 const dryRun = process.argv.includes('--dry-run') || process.env.GITHUB_EVENT_NAME === 'schedule';
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
 

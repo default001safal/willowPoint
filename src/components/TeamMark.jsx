@@ -1,8 +1,6 @@
-// Team marks: national flags (public/flags, unframed, natural shape; Uganda, Jersey, Canada,
-// Namibia and Kuwait come from the MIT-licensed flag-icons set) and team logos.
-// Official franchise logos can be set without a code change: add the image URL to
-// Firestore config/teamLogos as { "<Team name>": "https://…" }. Until then NPL teams show a
-// neutral monogram crest (public/crests).
+// Team marks: bundled national flags and data-driven logos from Firestore.
+// Add or change a logo without a release through config/teamLogos as
+// { "<Team name>": "https://…" }. Unknown teams simply render without a mark.
 import { useContent } from '../lib/content.jsx';
 
 const FLAGS = {
@@ -24,13 +22,6 @@ const FLAGS = {
   kuwait: 'kuwait',
 };
 
-// Official logos where we have them (PNG), placeholder monograms (SVG) otherwise.
-const CRESTS = {
-  'lumbini lions': 'lumbini-lions.svg',
-  'sudurpaschim royals': 'sudurpaschim-royals.png',
-  'chitwan rhinos': 'chitwan-rhinos.svg',
-};
-
 const key = (name = '') => name.trim().toLowerCase();
 
 export function useMark(name) {
@@ -39,11 +30,10 @@ export function useMark(name) {
   const logo = Object.entries(teamLogos).find(([n]) => key(n) === k)?.[1];
   if (logo) return { src: logo, kind: 'logo' };
   if (FLAGS[k]) return { src: `/flags/${FLAGS[k]}.svg`, kind: 'flag' };
-  if (CRESTS[k]) return { src: `/crests/${CRESTS[k]}`, kind: 'crest' };
   return null;
 }
 
-// `size` is the height; flags keep their own shape, logos and crests are square.
+// `size` is the height; flags keep their own shape and logos are square.
 // Decorative: the team name is always shown next to it.
 // `slot` reserves a flag-wide box so team names in a list line up, whatever the mark's shape.
 export function TeamMark({ name, size = 24, fallback, className = '', slot = false }) {

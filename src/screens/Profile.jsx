@@ -1,75 +1,59 @@
 import { useEffect, useState } from 'react';
 import * as I from '../components/Icons.jsx';
-import { followables } from '../data.js';
-import { Divider } from '../components/ui.jsx';
 import { getSavedItems } from '../components/RecordLayers.jsx';
+import { ScreenMasthead, SectionHead } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
 import { watchUser } from '../lib/firebase.js';
 
-// Account summary opens a focused account flow; sign-out is confirmed separately.
-function AccountCard({ onOpen }) {
+export default function ProfileScreen({ prefs, onOpenSaved, onOpenAccount, onOpenRecord }) {
+  const { saved, following, toggleFollow, synced } = prefs;
+  const content = useContent();
+  const savedItems = getSavedItems(content, saved);
+  const followTopics = content.followTopics;
+  const followedTopics = following.filter((id) => followTopics.some((topic) => topic.id === id)).length;
   const [user, setUser] = useState(undefined);
   useEffect(() => watchUser(setUser), []);
   const authed = user && !user.isAnonymous;
-  return (
-    <div className="card" style={{ padding: 16 }}>
-      <div className="row-text" style={{ marginBottom: 10 }}>
-        <strong style={{ fontSize: 15 }}>{authed ? 'Signed in' : 'Your account'}</strong>
-        <span style={{ fontSize: 13 }}>{authed ? user.email || 'Google account' : 'Playing as a local fan — follows and saves sync to this device.'}</span>
-      </div>
-      <button type="button" className="setting" onClick={onOpen}>{authed ? 'Manage account' : 'Continue with Google'}<I.Chevron size={15} /></button>
-    </div>
-  );
-}
-
-export default function ProfileScreen({ prefs, onOpenSaved, onOpenAccount }) {
-  const { saved, following, toggleFollow: toggle, synced } = prefs;
-  const content = useContent();
-  const savedItems = getSavedItems(content, saved);
 
   return (
-    <main>
-      <header className="screen-head"><h1 className="screen-title">Profile</h1><p className="subhead">Your teams, saved matches and settings.</p></header>
-      <section className="section"><AccountCard onOpen={onOpenAccount} /></section>
+    <main className="screen profile-screen">
+      <ScreenMasthead label="you" />
+      <section className="idcard">
+        <span className="profile-avatar"><I.User size={24} /></span>
+        <div><h1>Cricket fan</h1><p>{authed ? user.email || 'Signed-in account' : `Following ${followedTopics} current ${followedTopics === 1 ? 'topic' : 'topics'} · this device`}</p></div>
+        <button type="button" className="auth-btn" onClick={onOpenAccount}>{authed ? 'Manage' : 'Continue'}</button>
+      </section>
 
-      <section className="section">
-        <div className="card">
-          <div className="profile-top">
-            <span className="avatar">C</span>
-            <div className="row-text"><strong style={{ fontSize: 17, fontWeight: 700 }}>Cricket fan</strong><span style={{ fontSize: 13 }}>Following {following.length}</span></div>
-            <span className="muted" style={{ fontSize: 12 }}>{synced ? 'Synced here' : 'Saved here'}</span>
+      <section>
+        <SectionHead title="Saved records">
+          <button type="button" className="seclink" onClick={onOpenSaved}>{savedItems.length ? `${savedItems.length} saved →` : 'Open →'}</button>
+        </SectionHead>
+        {savedItems.length ? <div className="saved-list">{savedItems.slice(0, 3).map((item) => (
+          <div className="saved-row" key={item.id}>
+            {item.missing ? <span className="saved-main"><span className="sm"><b>{item.title}</b><span>{item.meta}</span></span></span> : <button type="button" className="saved-main" onClick={() => onOpenRecord(item.layer)}><span className="sm"><b>{item.title}</b><span>{item.meta}</span></span></button>}
+            <button type="button" className="rm" aria-label={`Remove ${item.title}`} onClick={() => prefs.toggleSaved(item.id)}>Remove</button>
           </div>
-          <button type="button" className="setting row-top" onClick={onOpenSaved}>
-            <I.Bookmark size={20} style={{ color: 'var(--muted)' }} /><span style={{ flex: 1, fontWeight: 500 }}>Saved matches</span><span className="muted" style={{ fontSize: 14 }}>{savedItems.length}</span><I.Chevron size={16} style={{ color: 'var(--muted)' }} />
-          </button>
-        </div>
+        ))}</div> : <button type="button" className="empty-saved" onClick={onOpenSaved}><I.Bookmark size={18} /><span><b>No saved records yet</b><small>Save a fixture, result, or event to find it here.</small></span><I.Chevron size={15} /></button>}
       </section>
 
-      <Divider />
-      <section className="section">
-        <h2 className="group-label">Your cricket</h2>
-        <div className="card">{followables.map((item) => {
+      <section>
+        <SectionHead title="Your teams" className="between" />
+        {followTopics.length ? <div className="teams">{followTopics.map((item) => {
           const on = following.includes(item.id);
-          return <div key={item.id} className="list-row" style={{ paddingRight: 12 }}><div className="row-text"><strong>{item.name}</strong><span>{item.kind}</span></div><button type="button" className="follow" aria-pressed={on} onClick={() => toggle(item.id)}>{on ? 'Following' : 'Follow'}</button></div>;
-        })}</div>
+          return <button key={item.id} type="button" className={`team-pill${on ? ' on' : ''}`} aria-pressed={on} onClick={() => toggleFollow(item.id)}><span className="ind" />{item.name}</button>;
+        })}</div> : <p className="empty-state compact">{content.loadState === 'loading' ? 'Finding current cricket topics…' : 'No current topics are available to follow yet.'}</p>}
+        {followTopics.length > 0 && <p className="followcount">{followedTopics} of {followTopics.length} followed</p>}
       </section>
 
-      <Divider />
-      <section className="section">
-        <h2 className="group-label">Preferences</h2>
-        <div className="card">
-          <div className="setting"><span style={{ flex: 1 }}>Time zone</span><span className="muted" style={{ fontSize: 14 }}>Nepal (NPT)</span></div>
-          <div className="setting"><span style={{ flex: 1 }}>Language</span><span className="muted" style={{ fontSize: 14 }}>English</span></div>
-          <div className="setting" style={{ paddingTop: 12, paddingBottom: 12 }}><div className="row-text"><strong style={{ fontWeight: 400 }}>Match alerts</strong><span>Coming later</span></div></div>
-          <div className="setting"><span style={{ flex: 1 }}>Sources</span><span className="muted" style={{ fontSize: 13 }}>Shown with available records</span></div>
-        </div>
+      <section>
+        <SectionHead title="Settings" className="between" />
+        <div className="setrow"><span className="sl">Time zone</span><span className="sr">Nepal (NPT)</span></div>
+        <div className="setrow"><span className="sl">Language</span><span className="sr">English</span></div>
+        <div className="setrow"><span className="sl">Preferences</span><span className="sr">{synced ? 'Synced' : 'Saved on this device'}</span></div>
+        <a className="setrow setlink" href="/about.html" target="_blank" rel="noreferrer"><span className="sl">About willowPoint</span><I.Chevron size={14} /></a>
       </section>
 
-      <Divider />
-      <section className="section">
-        <div className="card about"><img src="/logo-light.png" alt="willowPoint logo" /><span className="muted" style={{ fontSize: 14 }}>Our game. In focus.</span><div style={{ display: 'flex', gap: 18 }}><a href="/photo-credits.html" target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>Photo credits</a><a href="/about.html" target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>About</a></div></div>
-        <p className="footnote" style={{ textAlign: 'center' }}>{synced ? 'Your preferences are synced to this browser session.' : 'Your preferences are saved on this device.'}</p>
-      </section>
+      <footer className="prof-foot"><img src="/logo-light.png" alt="willowPoint" /><span>Your cricket, closer.</span><small>made for nepali fans</small></footer>
     </main>
   );
 }

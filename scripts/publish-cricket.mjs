@@ -32,14 +32,9 @@ if (verified.liveMatches?.length) {
   throw new Error('Live matches must be published by the live ingestion path, not the editorial publisher.');
 }
 
-const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu' }).format(new Date(now));
-const event = [...(verified.events || [])]
-  .filter((item) => item.endDate >= today)
-  .sort((a, b) => a.date.localeCompare(b.date))[0];
 const counts = Object.fromEntries(collections.map((name) => [name, verified[name]?.length || 0]));
 const summary = {
-  mode: dryRun ? 'dry-run' : 'publish', verifiedAt: verified.verifiedAt,
-  counts, event: event?.id || null,
+  mode: dryRun ? 'dry-run' : 'publish', verifiedAt: verified.verifiedAt, counts,
 };
 console.log(JSON.stringify(summary, null, 2));
 if (dryRun) process.exit(0);
@@ -57,16 +52,6 @@ const writes = records.map(({ collection, record }) => {
   const { id, ...fields } = record;
   return { collection, id, fields };
 });
-if (event) {
-  writes.push({
-    collection: 'config', id: 'event',
-    fields: {
-      id: event.id, title: event.title, short: event.short || event.title,
-      start: event.date, end: event.endDate, venue: event.venue,
-      ...(event.note ? { note: event.note } : {}),
-    },
-  });
-}
 writes.push({
   collection: 'config', id: 'editorial',
   fields: {

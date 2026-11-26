@@ -160,7 +160,7 @@ def briefs(results, now):
         destination.append({
             "id": stable_id("brief", result["id"]), "title": result["summary"], "blurb": lines,
             "date": result["date"], "publishedAt": f"{result['date']}T00:00:00+05:45",
-            "source": "Match report", "sourceUrl": result["sourceUrl"],
+            "competition": result.get("competition"), "source": "Match report", "sourceUrl": result["sourceUrl"],
             "verification": result["verification"], "order": len(destination),
         })
     return stories, world
@@ -184,6 +184,7 @@ def attributed_headlines(candidates, now):
             "publishedAt": published.isoformat(),
             "source": candidate["source"],
             "sourceUrl": candidate["sourceUrl"],
+            "competition": candidate.get("competition", candidate.get("section")),
             "kind": "source-headline",
             "blurb": "Source headline — open the original report for the full story.",
         })

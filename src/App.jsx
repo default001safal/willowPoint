@@ -41,14 +41,6 @@ export default function App() {
   const scrollPositions = useRef({ home: 0, discover: 0, cue: 0, profile: 0 });
   const discover = { filter: discoverFilter, view: discoverView, query: discoverQuery };
 
-  // ?bg=ink|moss|stone swaps the background palette; no value keeps the black one.
-  useEffect(() => {
-    try {
-      const bg = new URLSearchParams(window.location.search).get('bg');
-      if (/^(black|ink|moss|stone-warm|g-(aurora|dawn|floodlight|edge|mesh))$/.test(bg || '')) document.documentElement.dataset.bg = bg;
-    } catch { /* no query string available */ }
-  }, []);
-
   useEffect(() => {
     const initialDiscover = { filter: 'All', view: 'browse', query: '' };
     window.history.replaceState({ willowPoint: true, tab, layers: [], discover: initialDiscover }, '', window.location.href);
@@ -144,11 +136,12 @@ export default function App() {
   return (
     <ContentProvider>
       <div className="app">
+        <div className="app-content" inert={welcome || splash ? '' : undefined} aria-hidden={welcome || splash ? true : undefined}>
         <div hidden={tab !== 'home'} inert={layers.length ? '' : undefined} aria-hidden={layers.length ? true : undefined}>
           <HomeScreen saved={prefs.saved} toggleSaved={prefs.toggleSaved} go={go} askCue={askCue} onOpenSaved={openSaved} onOpenRecord={openLayer} />
         </div>
         <div hidden={tab !== 'discover'} inert={layers.length ? '' : undefined} aria-hidden={layers.length ? true : undefined}>
-          <DiscoverScreen filter={discoverFilter} view={discoverView} query={discoverQuery} onStateChange={updateDiscover} saved={prefs.saved} toggleSaved={prefs.toggleSaved} prefs={prefs} onOpenRecord={openLayer} />
+          <DiscoverScreen filter={discoverFilter} view={discoverView} query={discoverQuery} onStateChange={updateDiscover} saved={prefs.saved} toggleSaved={prefs.toggleSaved} prefs={prefs} onOpenRecord={openLayer} go={go} />
         </div>
         <div hidden={tab !== 'cue'} inert={recordLayerOpen ? '' : undefined} aria-hidden={recordLayerOpen ? true : undefined}>
           <CueScreen
@@ -163,10 +156,11 @@ export default function App() {
           />
         </div>
         <div hidden={tab !== 'profile'} inert={layers.length ? '' : undefined} aria-hidden={layers.length ? true : undefined}>
-          <ProfileScreen prefs={prefs} onOpenSaved={openSaved} onOpenAccount={() => openLayer({ type: 'account' })} />
+          <ProfileScreen prefs={prefs} onOpenSaved={openSaved} onOpenAccount={() => openLayer({ type: 'account' })} onOpenRecord={openLayer} />
         </div>
         {!layers.length && <BottomNav tab={tab} onChange={(next) => go(next)} />}
         <RecordLayers layers={layers} prefs={prefs} onClose={closeLayer} onOpenLayer={openLayer} askCue={askCue} go={go} />
+        </div>
         {welcome && <Onboarding prefs={prefs} onDone={() => setWelcome(false)} />}
         {splash && <Splash onDone={() => setSplash(false)} />}
       </div>

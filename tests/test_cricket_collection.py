@@ -1,7 +1,10 @@
+import io
+import json
 import unittest
 from datetime import date, datetime, timedelta, timezone
+from zipfile import ZipFile
 
-from scripts.collect_cricket import collect, collect_calendar, collect_live, collect_news, innings_total
+from scripts.collect_cricket import collect, collect_archive, collect_calendar, collect_live, collect_news, innings_total
 
 
 NOW = datetime(2026, 12, 6, 8, tzinfo=timezone.utc)
@@ -78,9 +81,34 @@ class CricketCollectionTests(unittest.TestCase):
         self.assertEqual(moved["fixtures"][0]["date"], "2027-01-08")
         self.assertEqual(original["fixtures"][0]["id"], moved["fixtures"][0]["id"])
         self.assertEqual(moved["events"][0]["endDate"], "2027-01-08")
+        self.assertEqual(moved["fixtures"][0]["event"], moved["events"][0]["id"])
+
+    def test_archive_uses_source_metadata_and_a_universal_recent_result_window(self):
+        match = {
+            "info": {
+                "dates": ["2026-11-20"], "event": {"name": "Example Championship"},
+                "teams": ["Alpha", "Beta"], "gender": "male", "balls_per_over": 6,
+                "outcome": {"winner": "Alpha", "by": {"runs": 5}},
+            },
+            "innings": [],
+        }
+        archive = io.BytesIO()
+        with ZipFile(archive, "w") as output:
+            output.writestr("1001.json", json.dumps(match))
+            output.writestr("1002.json", json.dumps({
+                **match, "info": {**match["info"], "dates": ["2026-10-01"]},
+            }))
+        source = {
+            "name": "Example archive", "url": "https://example.org/archive.zip",
+            "competition": "Example League",
+        }
+        records = collect_archive(archive.getvalue(), source, NOW.date())["results"]
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["competition"], "Example League")
 
     def test_rss_retains_news_leads_and_discards_article_content(self):
-        source = {"name": "Example news", "url": "https://example.org/rss", "articlePath": "/cricket/"}
+        source = {"name": "Example news", "url": "https://example.org/rss", "articlePath": "/cricket/",
+                  "section": "World", "competition": "Example Cup"}
         xml = b'''<rss><channel><item><title>Squad confirmed</title>
           <pubDate>Sun, 06 Dec 2026 10:15:00 +0545</pubDate>
           <link>https://example.org/cricket/2026/12/6/squad?tracking=1</link>
@@ -89,6 +117,7 @@ class CricketCollectionTests(unittest.TestCase):
         self.assertTrue(candidate["reviewRequired"])
         self.assertEqual(candidate["sourceUrl"], "https://example.org/cricket/2026/12/6/squad")
         self.assertEqual(candidate["publishedAt"], "2026-12-06T10:15:00+05:45")
+        self.assertEqual(candidate["competition"], "Example Cup")
         self.assertNotIn("Article body", str(candidate))
 
 

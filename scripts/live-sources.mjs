@@ -14,24 +14,15 @@ const ORIGINS = {
   ...(process.env.WILLOWPOINT_SOURCE_ORIGINS ? JSON.parse(process.env.WILLOWPOINT_SOURCE_ORIGINS) : {}),
 };
 
-const COUNTRIES = new Set([
-  'nepal', 'india', 'pakistan', 'bangladesh', 'sri lanka', 'afghanistan', 'australia',
-  'england', 'new zealand', 'south africa', 'west indies', 'ireland', 'zimbabwe',
-  'uae', 'oman', 'namibia', 'netherlands', 'scotland', 'canada', 'usa', 'italy',
-  'uganda', 'jersey', 'kuwait',
-]);
-const NPL_TEAMS = new Set(['lumbini lions', 'sudurpaschim royals', 'chitwan rhinos', 'pokhara avengers', 'janakpur bolts', 'karnali yaks', 'biratnagar kings', 'kathmandu gurkhas']);
-
 export function canonical(name = '') {
   const value = name.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
   return ({ 'united arab emirates': 'uae', 'united states of america': 'usa', 'pakistan shaheens': 'pakistan a' })[value] || value;
 }
 
 const key = (a, b) => [canonical(a), canonical(b)].sort().join('|');
-const eligible = (a, b) => {
-  const x = canonical(a); const y = canonical(b);
-  return x.includes('nepal') || y.includes('nepal') || (COUNTRIES.has(x) && COUNTRIES.has(y)) || (NPL_TEAMS.has(x) && NPL_TEAMS.has(y));
-};
+// Coverage is not a team allowlist: any named cricket match can enter the same
+// corroboration pipeline, while presentation remains Nepal-first.
+const eligible = (a, b) => Boolean(canonical(a) && canonical(b));
 
 function score(raw = '') {
   const match = /(\d+)(?:[\/-](\d+))?(?:\s*\((\d+(?:\.\d+)?)\))?/.exec(raw);

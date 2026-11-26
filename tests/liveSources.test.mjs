@@ -49,6 +49,11 @@ test('the current cricbuzz strip shape is listed, minus previews', () => {
   assert.ok(!listed.includes('sri lanka women|ireland women'));
 });
 
+test('new clubs and leagues need no hardcoded team allowlist', () => {
+  const html = '<a title="Harbor Kings vs Northern Stars, Example League - Live " href="/live-cricket-scores/5/hk-vs-ns">x</a>';
+  assert.deepEqual(parseCricbuzz(html).map((match) => match.key), ['harbor kings|northern stars']);
+});
+
 test('completed scores can corroborate but never create a live record', () => {
   // Cricbuzz and Wisden both show finished games; no liveness authority claims play.
   const b = parseCricbuzz('<a title="Nepal vs United Arab Emirates, 1st T20I - UAE won " href="/live-cricket-scores/9/nep-vs-uae">x</a>');

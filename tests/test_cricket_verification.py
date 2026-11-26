@@ -91,6 +91,7 @@ class CricketVerificationTests(unittest.TestCase):
         self.assertEqual(len(review["newsCandidates"]), 1)
         self.assertEqual(len(delivery["stories"]), 1)
         self.assertEqual(delivery["stories"][0]["kind"], "source-headline")
+        self.assertEqual(delivery["stories"][0]["competition"], "Nepal")
         self.assertNotIn("Article body", str(delivery["stories"][0]))
 
 

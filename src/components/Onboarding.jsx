@@ -1,18 +1,14 @@
-// First-run welcome: three short steps, shown once per device.
-// Everything chosen here goes through the same prefs as Profile, so it syncs and can be changed later.
 import { useState } from 'react';
 import * as I from './Icons.jsx';
-import { TeamMark } from './TeamMark.jsx';
-import { followables } from '../data.js';
+import AuthControls from './AuthControls.jsx';
+import { useContent } from '../lib/content.jsx';
 
 const DONE_KEY = 'wp.onboarded';
 
-// Show on a fresh device, or on demand with ?welcome (handy for reviews).
 export function needsOnboarding() {
   try {
     if (new URLSearchParams(window.location.search).has('welcome')) return true;
     if (window.localStorage.getItem(DONE_KEY)) return false;
-    // Fans who already used the app have prefs on the device; don't interrupt them.
     return !window.localStorage.getItem('wp.prefs');
   } catch {
     return false;
@@ -23,52 +19,46 @@ function markDone() {
   try {
     window.localStorage.setItem(DONE_KEY, '1');
   } catch {
-    /* storage unavailable — it just shows again next time */
+    // The flow remains available on the next visit if storage is unavailable.
   }
 }
 
-const TILE_ICONS = {
-  nepal: <TeamMark name="Nepal" size={22} />,
-  npl: <I.Trophy size={20} />,
-  women: <span className="ob-pair"><TeamMark name="Nepal" size={18} /><I.Female size={15} /></span>,
-  u19: <I.CricketBat size={20} />,
-  world: <I.Globe size={20} />,
-};
-
 const FEATURES = [
   { icon: <span className="ob-live-dot" />, text: 'Verified live scores when available' },
-  { icon: <I.Calendar size={19} style={{ color: 'var(--muted)' }} />, text: 'Nepal fixtures, at a glance' },
-  { icon: <I.Spark size={19} style={{ color: 'var(--accent)' }} />, text: 'Ask Cue about matches and results' },
+  { icon: <I.Calendar size={18} />, text: 'Nepal fixtures, at a glance' },
+  { icon: <I.Spark size={18} />, text: 'Ask Cue about matches and results' },
 ];
 
 export default function Onboarding({ prefs, onDone }) {
   const [step, setStep] = useState(0);
+  const { followTopics, loadState } = useContent();
+  const followedTopics = prefs.following.filter((id) => followTopics.some((topic) => topic.id === id)).length;
   const finish = () => {
     markDone();
     onDone();
   };
-  const next = () => (step < 2 ? setStep(step + 1) : finish());
+  const next = () => step < 3 ? setStep(step + 1) : finish();
 
   return (
     <div className="onboarding" role="dialog" aria-modal="true" aria-label="Welcome to willowPoint">
       <div className="ob-top">
         {step > 0 ? (
-          <button type="button" className="ob-icon-btn" aria-label="Back" onClick={() => setStep(step - 1)}>
-            <I.Chevron size={20} style={{ transform: 'rotate(180deg)' }} />
+          <button type="button" className="ob-back" aria-label="Back" onClick={() => setStep(step - 1)}>
+            <I.Chevron size={17} style={{ transform: 'rotate(180deg)' }} />
           </button>
-        ) : <span />}
-        <button type="button" className="ob-skip" onClick={finish}>Skip</button>
+        ) : <img className="ob-logo" src="/logo-light.png" alt="willowPoint" />}
+        <span className="ob-step-label">{String(step + 1).padStart(2, '0')} / 04</span>
       </div>
 
-      <div className="ob-body" key={step}>
+      <div className={`ob-body ob-step-${step}`} key={step}>
         {step === 0 && (
           <>
-            <img className="ob-mark" src="/logo-light.png" alt="willowPoint" />
-            <h1 className="ob-title">Namaskar, <span>hajur!</span></h1>
-            <p className="ob-sub">Nepal's cricket in one place, in Nepal time.</p>
+            <img className="ob-mark" src="/logo-light.png" alt="" />
+            <h1 className="ob-title">Namaskar, <span>hajur.</span></h1>
+            <p className="ob-sub">Nepal’s cricket in one place, in Nepal time.</p>
             <ul className="ob-features">
-              {FEATURES.map((f) => (
-                <li key={f.text}><span className="ob-glyph" aria-hidden="true">{f.icon}</span>{f.text}</li>
+              {FEATURES.map((feature) => (
+                <li key={feature.text}><span className="ob-glyph" aria-hidden="true">{feature.icon}</span>{feature.text}</li>
               ))}
             </ul>
           </>
@@ -76,43 +66,39 @@ export default function Onboarding({ prefs, onDone }) {
 
         {step === 1 && (
           <>
-            <h1 className="ob-title">Pick your <span>cricket</span></h1>
-            <p className="ob-sub">Follow the cricket you care about. Change your picks any time in Profile.</p>
-            <div className="ob-tiles">
-              {followables.map((f) => {
-                const on = prefs.following.includes(f.id);
+            <h1 className="ob-title">Pick your <span>cricket.</span></h1>
+            <p className="ob-sub">Follow the cricket you care about. Change your picks any time in You.</p>
+            {followTopics.length ? <div className="ob-tiles">
+              {followTopics.map((item) => {
+                const on = prefs.following.includes(item.id);
                 return (
-                  <button key={f.id} type="button" className="ob-tile" aria-pressed={on} onClick={() => prefs.toggleFollow(f.id)}>
-                    <span className="ob-tile-icon" aria-hidden="true">{TILE_ICONS[f.id]}</span>
-                    <span className="ob-tile-text"><strong>{f.name}</strong><small>{f.kind}</small></span>
+                  <button key={item.id} type="button" className={`ob-tile${on ? ' on' : ''}`} aria-pressed={on} onClick={() => prefs.toggleFollow(item.id)}>
+                    <span className="ob-tile-icon" aria-hidden="true" />
+                    <span className="ob-tile-text"><strong>{item.name}</strong><small>{item.kind}</small></span>
                     <span className="ob-check" aria-hidden="true">{on && <I.Check size={14} sw={2.6} />}</span>
                   </button>
                 );
               })}
-            </div>
+            </div> : <p className="empty-state">{loadState === 'loading' ? 'Finding current cricket topics…' : 'No current topics are available. You can continue and follow them after the next verified refresh.'}</p>}
           </>
         )}
 
         {step === 2 && (
           <>
-            <h1 className="ob-title">You're <span>all set</span></h1>
-            <p className="ob-sub">Your picks shape what you follow. Change them any time in Profile.</p>
-            <div className="card ob-settings">
-              <div className="setting">
-                <I.Check size={19} style={{ color: 'var(--accent)' }} />
-                <span className="row-text" style={{ flex: 1 }}>
-                  <strong style={{ fontWeight: 500 }}>Following {prefs.following.length} topics</strong>
-                  <span>See them in Discover and Profile</span>
-                </span>
-              </div>
-              <div className="setting">
-                <I.Globe size={19} style={{ color: 'var(--muted)' }} />
-                <span className="row-text" style={{ flex: 1 }}>
-                  <strong style={{ fontWeight: 500 }}>Time zone</strong>
-                  <span>All match times shown in</span>
-                </span>
-                <span className="muted" style={{ fontSize: 14 }}>Nepal (NPT)</span>
-              </div>
+            <h1 className="ob-title">Keep it <span>with you.</span></h1>
+            <p className="ob-sub">Sign in to link your follows and saved records to your account.</p>
+            <AuthControls onSuccess={next} compact />
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <span className="ob-ready" aria-hidden="true"><I.Check size={28} sw={1.8} /></span>
+            <h1 className="ob-title">You’re <span>all set.</span></h1>
+            <p className="ob-sub">Your cricket, current and close. Scores appear only after independent verification.</p>
+            <div className="ob-card">
+              <div className="ob-row"><I.Check size={18} /><span className="ob-row-tx"><b>Following {followedTopics} current {followedTopics === 1 ? 'topic' : 'topics'}</b><span>Manage them any time in You</span></span></div>
+              <div className="ob-row"><I.Globe size={18} /><span className="ob-row-tx"><b>Nepal time</b><span>Every listed fixture uses NPT</span></span></div>
             </div>
           </>
         )}
@@ -120,13 +106,17 @@ export default function Onboarding({ prefs, onDone }) {
 
       <div className="ob-foot">
         <div className="ob-dots" aria-hidden="true">
-          {[0, 1, 2].map((i) => <span key={i} className={i === step ? 'on' : undefined} />)}
+          {[0, 1, 2, 3].map((index) => <span key={index} className={index === step ? 'on' : undefined} />)}
         </div>
-        <button type="button" className="ob-cta" onClick={next} disabled={step === 1 && prefs.following.length === 0}>
-          {step === 0 ? 'Get started' : step === 1 ? 'Continue' : "Let's go"}
-          <I.ArrowUp size={18} sw={2.2} style={{ transform: 'rotate(90deg)' }} />
-        </button>
-        <span className="sr-only" aria-live="polite">Step {step + 1} of 3</span>
+        {step === 2 ? (
+          <button type="button" className="ob-guest" onClick={finish}>Continue as guest</button>
+        ) : (
+          <button type="button" className="ob-cta" onClick={next} disabled={step === 1 && (loadState === 'loading' || (followTopics.length > 0 && followedTopics === 0))}>
+            {step === 0 ? 'Get started' : step === 1 ? 'Continue' : 'Let’s go'}
+            <I.ArrowUp size={17} sw={2.2} style={{ transform: 'rotate(90deg)' }} />
+          </button>
+        )}
+        <span className="sr-only" aria-live="polite">Step {step + 1} of 4</span>
       </div>
     </div>
   );

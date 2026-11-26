@@ -1,9 +1,8 @@
-// Live Cue engine for production.
-// Grounding = the app's real content (Firestore when configured, snapshot otherwise),
-// sent per request to our Cloudflare Worker, which holds the Moonshot key server-side.
-// If the proxy is unreachable, Cue falls back to the on-device rule engine, which
-// answers from the same real data — never from hardcoded demo copy.
+// Ground every answer in the app's current Firestore records. The Cloudflare
+// proxy keeps the provider credential server-side; the on-device engine uses
+// the same records when the proxy is unreachable.
 import { cueAnswer } from './cueAnswers.js';
+import { currentEvents, upcomingFixtures } from './selectors.js';
 
 const PROXY_URL = (import.meta.env && import.meta.env.VITE_CUE_PROXY_URL)
   || 'https://cue-proxy.safalk309.workers.dev';
@@ -24,18 +23,23 @@ function realContext(content) {
   } else {
     lines.push('LIVE MATCHES: none verified right now — do not claim any match is live.');
   }
-  const upcoming = (content.fixtures || []).filter((f) => f.date >= content.today).slice(0, 14);
+  const upcoming = upcomingFixtures(content.fixtures || [], content.today).slice(0, 20);
   lines.push('UPCOMING FIXTURES:');
-  upcoming.forEach((f) => lines.push(`- ${f.date} ${f.time || 'time TBC'}: ${f.title} at ${f.venue || 'venue TBC'}`));
+  upcoming.forEach((fixture) => lines.push(JSON.stringify(fixture)));
   if (!upcoming.length) lines.push('- none listed');
-  if (content.results?.length) {
-    lines.push('RECENT RESULTS:');
-    content.results.slice(0, 6).forEach((r) => lines.push(JSON.stringify(r)));
-  }
-  if (content.stories?.length) {
-    lines.push('STORIES:');
-    content.stories.slice(0, 6).forEach((s) => lines.push(`- ${s.title} (${s.source})`));
-  }
+  const events = currentEvents(content.events || [], content.today).slice(0, 12);
+  lines.push('CURRENT OR UPCOMING EVENTS:');
+  events.forEach((event) => lines.push(JSON.stringify(event)));
+  if (!events.length) lines.push('- none listed');
+  const results = (content.results || []).filter((result) => result.date <= content.today)
+    .sort((a, b) => b.date.localeCompare(a.date)).slice(0, 20);
+  lines.push('RESULTS:');
+  results.forEach((result) => lines.push(JSON.stringify(result)));
+  if (!results.length) lines.push('- none listed');
+  const stories = [...(content.stories || []), ...(content.worldNews || [])].slice(0, 20);
+  lines.push('CURRENT SOURCED HEADLINES:');
+  stories.forEach((story) => lines.push(JSON.stringify(story)));
+  if (!stories.length) lines.push('- none listed');
   return lines.join('\n');
 }
 
@@ -58,7 +62,7 @@ export async function cueReply(question, content, history = []) {
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content?.trim();
     if (!text) throw new Error('empty answer');
-    return { text, sources: [{ label: 'AI · kimi k3', url: null }], engine: 'ai' };
+    return { text, sources: [{ label: 'Cue · current app records', url: null }], engine: 'ai' };
   } catch {
     // Offline / proxy down: same real data, on-device rules.
     return { ...cueAnswer(question, content), engine: 'local' };

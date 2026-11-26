@@ -7,13 +7,6 @@
     "license": "https://cricsheet.org/licensing/"
   },
   {
-    "id": "cricsheet-npl",
-    "kind": "archive",
-    "name": "Cricsheet",
-    "url": "https://cricsheet.org/downloads/npl_json.zip",
-    "license": "https://cricsheet.org/licensing/"
-  },
-  {
     "id": "international-2026-27",
     "kind": "calendar",
     "name": "Wikipedia contributors",
@@ -22,19 +15,15 @@
     "seasonStartYear": 2026,
     "seasonStartMonth": 10,
     "series": {
-      "2026_Asia_Cup_Rising_Stars": { "title": "Asia Cup Rising Stars", "venue": "Doha" },
-      "2026_Cricket_World_Cup_Qualifier_Play-off": { "title": "Cricket World Cup Qualifier Play-off", "venue": "Nepal" }
+      "2026_Asia_Cup_Rising_Stars": {
+        "title": "Asia Cup Rising Stars",
+        "venue": "Doha"
+      },
+      "2026_Cricket_World_Cup_Qualifier_Play-off": {
+        "title": "Cricket World Cup Qualifier Play-off",
+        "venue": "Nepal"
+      }
     }
-  },
-  {
-    "id": "npl-final-2026",
-    "kind": "final",
-    "name": "Wikipedia contributors",
-    "url": "https://en.wikipedia.org/wiki/2026_Nepal_Premier_League_final",
-    "license": "https://creativecommons.org/licenses/by-sa/4.0/",
-    "matchId": "1558613",
-    "title": "Nepal Premier League final",
-    "competition": "NPL"
   },
   {
     "id": "kathmandu-post-cricket",
@@ -44,27 +33,12 @@
     "articlePath": "/cricket/"
   },
   {
-    "id": "nepal-samaj-npl-final",
-    "kind": "match-report",
-    "name": "Nepal Samaj",
-    "url": "https://nepalsamaj.com/en/sudurpaschim-royals-crown-first-ever-npl-title-with-munseys-explosive-century/",
-    "matchId": "1558613",
-    "title": "Nepal Premier League final",
-    "competition": "NPL",
-    "datePattern": "Kathmandu, ([A-Z][a-z]{2} \\d{1,2}):",
-    "outcomePattern": "(?P<winner>Sudurpaschim Royals) have been crowned champions[^.]+Lumbini Lions by (?P<margin>\\d+) (?P<unit>wickets?)",
-    "innings": [
-      { "team": "Lumbini Lions", "pattern": "Lumbini Lions posted (?P<runs>\\d+)/(?P<wickets>\\d+) in their allotted (?P<overs>\\d+(?:\\.\\d+)?) overs" },
-      { "team": "Sudurpaschim Royals", "pattern": "Sudurpaschim cruised to (?P<runs>\\d+) without losing a wicket in just (?P<overs>\\d+(?:\\.\\d+)?) overs", "wickets": "0" }
-    ]
-  },
-  {
     "id": "nepal-samaj-sports",
     "kind": "rss",
     "name": "Nepal Samaj",
     "url": "https://nepalsamaj.com/en/category/sports/feed/",
     "articlePath": "/en/",
-    "headlinePattern": "cricket|\\bNPL\\b|Rising Stars|T20|ODI|wickets?"
+    "headlinePattern": "cricket|Rising Stars|T20|ODI|wickets?"
   },
   {
     "id": "bbc-cricket",

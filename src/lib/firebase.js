@@ -1,13 +1,21 @@
-// Firebase web config for project willowpoint-ff851.
-// These values are public by design (they ship to every browser); access is controlled by
-// firestore.rules. Override any of them with VITE_FIREBASE_* in .env.local, or set
-// VITE_FIREBASE_DISABLED=true to run on the local snapshot in src/data.js.
+// Firebase's web configuration identifies the project; Firestore rules control access.
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, linkWithPopup, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
+import {
+  EmailAuthProvider,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  getAuth,
+  linkWithCredential,
+  linkWithPopup,
+  onAuthStateChanged,
+  signInAnonymously,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const env = import.meta.env || {};
-
 const config = {
   apiKey: env.VITE_FIREBASE_API_KEY || 'AIzaSyDbWwOYpV56bVUmofjyWJ8iQXGmscdziOo',
   authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || 'willowpoint-ff851.firebaseapp.com',
@@ -17,44 +25,68 @@ const config = {
   appId: env.VITE_FIREBASE_APP_ID || '1:1075101771205:web:6402bb0da9dbf409abd7ac',
 };
 
-export const firebaseEnabled = env.VITE_FIREBASE_DISABLED !== 'true';
+export const app = initializeApp(config);
+export const db = getFirestore(app);
+export const auth = getAuth(app);
 
-export const app = firebaseEnabled ? initializeApp(config) : null;
-export const db = app ? getFirestore(app) : null;
-export const auth = app ? getAuth(app) : null;
-
-// Every visitor gets an anonymous account so saves and follows can sync to Firestore.
-// It can be upgraded to Google / phone sign-in later without losing their data.
 export function watchUser(callback) {
-  if (!auth) {
-    callback(null);
-    return () => {};
-  }
-  const stop = onAuthStateChanged(auth, (user) => {
-    if (user) callback(user);
-    else signInAnonymously(auth).catch((err) => {
-      console.warn('[willowPoint] anonymous sign-in failed:', err.code || err.message);
+  return onAuthStateChanged(auth, (user) => {
+    if (user) {
+      callback(user);
+      return;
+    }
+    signInAnonymously(auth).catch((error) => {
+      console.warn('[willowPoint] anonymous sign-in failed:', error.code || error.message);
       callback(null);
     });
   });
-  return stop;
 }
 
-// Upgrade the anonymous account to Google sign-in. linkWithPopup keeps the same
-// uid, so follows and saved matches in users/{uid} carry over untouched.
 export async function signInWithGoogle() {
-  if (!auth) throw new Error('Firebase is disabled');
   const provider = new GoogleAuthProvider();
   const current = auth.currentUser;
-  if (current && current.isAnonymous) {
-    const cred = await linkWithPopup(current, provider);
-    return cred.user;
+  if (current?.isAnonymous) {
+    const credential = await linkWithPopup(current, provider);
+    return credential.user;
   }
-  const cred = await signInWithPopup(auth, provider);
-  return cred.user;
+  const credential = await signInWithPopup(auth, provider);
+  return credential.user;
 }
 
-// watchUser() signs a fresh anonymous account straight back in, so local saves keep working.
+export async function signInWithEmail(email, password) {
+  const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+  return credential.user;
+}
+
+export async function createAccountWithEmail(email, password) {
+  const current = auth.currentUser;
+  if (current?.isAnonymous) {
+    const identity = EmailAuthProvider.credential(email.trim(), password);
+    const credential = await linkWithCredential(current, identity);
+    return credential.user;
+  }
+  const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+  return credential.user;
+}
+
 export function signOutUser() {
-  return auth ? firebaseSignOut(auth) : Promise.resolve();
+  return firebaseSignOut(auth);
+}
+
+export function authErrorMessage(error) {
+  const messages = {
+    'auth/operation-not-allowed': 'This sign-in method is not enabled for the project yet.',
+    'auth/popup-closed-by-user': '',
+    'auth/cancelled-popup-request': '',
+    'auth/invalid-email': 'Enter a valid email address.',
+    'auth/invalid-credential': 'The email or password is incorrect.',
+    'auth/wrong-password': 'The email or password is incorrect.',
+    'auth/user-not-found': 'No account uses that email. Choose Create account instead.',
+    'auth/email-already-in-use': 'An account already uses that email. Choose Sign in instead.',
+    'auth/credential-already-in-use': 'An account already uses that email. Sign in to that account instead.',
+    'auth/weak-password': 'Use a password with at least six characters.',
+    'auth/too-many-requests': 'Too many attempts. Wait a moment and try again.',
+    'auth/network-request-failed': 'Check your connection and try again.',
+  };
+  return messages[error?.code] ?? error?.message ?? 'Authentication failed. Check your connection and try again.';
 }

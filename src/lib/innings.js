@@ -1,5 +1,5 @@
 // Optional team.overRuns contains runs per over, starting with over 1.
-// Missing totals stay unknown, including in legacy Firestore match records.
+// Missing totals stay unknown when a match record does not supply them.
 export function overMarkers(team, limit = 20, active = false) {
   const total = Number.isInteger(limit) && limit > 0 && limit <= 50 ? limit : 20;
   const [whole, balls] = String(team.overs ?? '0').split('.').map(Number);

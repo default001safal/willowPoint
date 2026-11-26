@@ -145,15 +145,15 @@ def collect_archive(body, source, today):
             match = json.loads(archive.read(item))
             info = match["info"]
             start = date.fromisoformat(info["dates"][0])
-            if start > today:
+            if not today - timedelta(days=30) <= start <= today:
                 continue
             title = info.get("event", {}).get("name") or " v ".join(info["teams"])
             status, summary = archive_outcome(info["outcome"])
-            competition = "World"
-            if "Nepal" in info["teams"]:
-                competition = "Nepal Women" if info["gender"] == "female" else "Nepal"
-            if title == "Nepal Premier League":
-                competition = "NPL"
+            competition = source.get("competition")
+            if not competition:
+                competition = "World"
+                if "Nepal" in info["teams"]:
+                    competition = "Nepal Women" if info["gender"] == "female" else "Nepal"
             results.append({
                 "id": "cricsheet-" + item.filename.removesuffix(".json"),
                 "date": start.isoformat(),
@@ -268,61 +268,13 @@ def collect_calendar(body, source, today):
                 continue
             fixtures.append({
                 "id": stable_id("fixture", section + ":" + row["no."]),
-                "eventKey": section, "teams": [home, away],
+                "event": series["id"], "eventKey": section, "teams": [home, away],
                 "date": day, "title": f"{home} v {away}", "time": "Time TBC",
                 "venue": row["venue"], "competition": "Nepal", "nepal": True, **info,
             })
     if set(sessions) != events.keys():
         raise ValueError("Expected tournament tables could not be read")
     return {"fixtures": fixtures, "events": [event for event in events.values() if event["endDate"] >= today.isoformat()]}
-
-
-class FinalInfobox(HTMLParser):
-    def __init__(self, body):
-        super().__init__(convert_charrefs=True)
-        self.matches = []
-        self.feed(body.decode("utf-8-sig"))
-        self.close()
-
-    def handle_starttag(self, tag, attrs):
-        metadata = dict(attrs).get("data-mw", "")
-        if "Infobox_limited_overs_final" not in metadata:
-            return
-        for part in json.loads(metadata).get("parts", []):
-            template = part.get("template", {}) if isinstance(part, dict) else {}
-            target = template.get("target", {}).get("href")
-            if target == "./Template:Infobox_limited_overs_final":
-                self.matches.append(template["params"])
-
-
-def collect_final(body, source, today):
-    boxes = FinalInfobox(body).matches
-    if len(boxes) != 1:
-        raise ValueError("Expected one limited overs final scorecard")
-    fields = {name: entry["wt"] for name, entry in boxes[0].items() if "wt" in entry}
-    stamp = re.match(r"\d{1,2} [A-Za-z]+ \d{4}", fields["date"])
-    if not stamp:
-        raise ValueError("Final scorecard has no confirmed date")
-    played = datetime.strptime(stamp[0], "%d %B %Y").date()
-    if played > today:
-        return {"results": []}
-
-    lines = []
-    for prefix in ("team1", "team2"):
-        team = re.sub(r"\[\[(?:[^\]|]+\|)?([^\]]+)\]\]", r"\1", fields[prefix]).strip()
-        score = fields[prefix + "score"].strip()
-        overs = re.fullmatch(r"(\d+(?:\.[0-5])?)\s+overs?", fields[prefix + "overs"].strip())
-        if not team or not re.fullmatch(r"\d+/(?:10|[0-9])", score) or not overs:
-            raise ValueError("The final does not have two valid innings totals")
-        lines.append({"team": team, "score": score, "overs": overs[1]})
-    summary = clean(fields["details"])
-    if not any(summary.startswith(line["team"] + " won") for line in lines):
-        raise ValueError("Final result could not be confirmed")
-    return {"results": [{
-        "id": "cricsheet-" + source["matchId"], "date": played.isoformat(),
-        "label": f"{source['title']} · {played.day} {played:%b %Y}", "competition": source["competition"],
-        "lines": lines, "status": "Final", "summary": summary, **provenance(source),
-    }]}
 
 
 def article_timing(item, path):
@@ -372,7 +324,8 @@ def collect_news(body, source, today):
         candidates.append({
             "id": stable_id("story", canonical), "date": published.isoformat(),
             "publishedAt": published_at or f"{published.isoformat()}T00:00:00+05:45",
-            "title": title, "section": source.get("section", "Nepal"), "reviewRequired": True,
+            "title": title, "section": source.get("section", "Nepal"),
+            "competition": source.get("competition", source.get("section", "Nepal")), "reviewRequired": True,
             **provenance(source, canonical),
         })
     return {"newsCandidates": candidates}
@@ -401,38 +354,6 @@ class PageText(HTMLParser):
     def handle_data(self, text):
         if not self.hidden:
             self.parts.append(text)
-
-
-def collect_match_report(body, source, today):
-    # The patterns in the source list capture score facts, not prose for republication.
-    page = PageText(body)
-    text = clean(" ".join(page.parts))
-    played = re.search(source["datePattern"], text)
-    if not played:
-        raise ValueError("Match date could not be read from the report")
-    published = instant(page.metadata["article:published_time"]).astimezone(NPT).date()
-    stamp = datetime.strptime(f"{played[1]} {published.year}", "%b %d %Y").date()
-    if not published - timedelta(days=2) <= stamp <= published:
-        raise ValueError("Report date does not agree with the match dateline")
-    if stamp > today:
-        return {"results": []}
-    lines = []
-    for innings in source["innings"]:
-        score = re.search(innings["pattern"], text, re.I)
-        if not score:
-            raise ValueError("An innings total is missing from the report")
-        values = score.groupdict()
-        wickets = values.get("wickets") or innings.get("wickets")
-        lines.append({"team": innings["team"], "score": f"{values['runs']}/{wickets}", "overs": values["overs"]})
-    outcome = re.search(source["outcomePattern"], text, re.I)
-    if not outcome:
-        raise ValueError("Match outcome is missing from the report")
-    return {"results": [{
-        "id": "cricsheet-" + source["matchId"], "date": stamp.isoformat(),
-        "label": f"{source['title']} · {stamp.day} {stamp:%b %Y}", "competition": source["competition"],
-        "lines": lines, "status": "Final", "summary": f"{outcome['winner']} won by {outcome['margin']} {outcome['unit']}",
-        **provenance(source),
-    }]}
 
 
 def collect_event_page(body, source, today):
@@ -468,7 +389,7 @@ def collect_reference(source, today):
     records = json.loads((ROOT / "scripts/cricket_references.json").read_text(encoding="utf-8"))[source["id"]]
     return {
         name: [dict(item, recordedReference=True, **provenance(source)) for item in items
-               if (name == "results" and item["date"] <= today.isoformat())
+               if (name == "results" and today - timedelta(days=30) <= date.fromisoformat(item["date"]) <= today)
                or (name != "results" and item.get("endDate", item["date"]) >= today.isoformat())]
         for name, items in records.items()
     }
@@ -554,8 +475,7 @@ def collect(sources, lane, now, fetch, include_reports=False):
                 "results": [], "newsCandidates": [], "liveMatches": []}
     today = now.astimezone(NPT).date()
     adapters = {"archive": collect_archive, "calendar": collect_calendar,
-                "final": collect_final, "rss": collect_news,
-                "event": collect_event_page, "match-report": collect_match_report}
+                "rss": collect_news, "event": collect_event_page}
     selected = live_sources(sources, now) if lane == "live" else [
         source for source in sources if source.get("enabled", True) and source["kind"] != "live"
     ]

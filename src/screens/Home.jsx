@@ -10,7 +10,7 @@ import { useWeather, weatherSentence } from '../lib/weather.js';
 import { TeamMark } from '../components/TeamMark.jsx';
 
 // The next big event: one card, the event on top, Nepal's next games under it.
-function EventCard({ event, saved, toggleSaved, onSeeAll }) {
+function EventCard({ event, saved, toggleSaved, onSeeAll, onOpenRecord }) {
   const { today, fixtures } = useContent();
   const games = fixtures
     .filter((f) => f.event === event.id && f.date >= today)
@@ -28,21 +28,21 @@ function EventCard({ event, saved, toggleSaved, onSeeAll }) {
       </SectionHead>
       <div className="card champ-rows">
         <div className="list-row">
-          <div className="date-block champ-crest"><I.Trophy size={22} /></div>
-          <div className="row-text">
-            <strong>{event.title}</strong>
-            <span>{range} · {event.venue}{event.note ? ` · ${event.note}` : ''}</span>
-          </div>
+          <button type="button" className="record-row-main" onClick={() => onOpenRecord({ type: 'event', id: event.id })}>
+            <span className="date-block champ-crest"><I.Trophy size={22} /></span>
+            <span className="row-text"><strong>{event.title}</strong><span>{range} · {event.venue}{event.note ? ` · ${event.note}` : ''}</span></span>
+            <I.Chevron size={14} />
+          </button>
         </div>
         {games.map((f) => {
           const p = parts(f.date);
           return (
             <div className="list-row row-top" key={f.id}>
-              <div className="date-block"><b>{p.date}</b><small>{p.month}</small></div>
-              <div className="row-text">
-                <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
-                <span>{relativeDay(f.date, today)} · {f.time} · {f.venue}</span>
-              </div>
+              <button type="button" className="record-row-main" onClick={() => onOpenRecord({ type: 'fixture', id: f.id })}>
+                <span className="date-block"><b>{p.date}</b><small>{p.month}</small></span>
+                <span className="row-text"><strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong><span>{relativeDay(f.date, today)} · {f.time} · {f.venue}</span></span>
+                <I.Chevron size={14} />
+              </button>
               <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
             </div>
           );
@@ -53,17 +53,17 @@ function EventCard({ event, saved, toggleSaved, onSeeAll }) {
 }
 
 // Home's featured slot: NPL champions for a week after the final, then the next big event.
-function Featured({ onPreview, saved, toggleSaved, onSeeAll }) {
+function Featured({ onPreview, saved, toggleSaved, onSeeAll, onOpenRecord }) {
   const { today, nplFinal, featuredEvent: event } = useContent();
   const champsUntil = nplFinal?.result ? addDays(nplFinal.date, 7) : null;
-  if (nplFinal && (!nplFinal.result || today <= champsUntil)) return <NplFinal onPreview={onPreview} />;
+  if (nplFinal && (!nplFinal.result || today <= champsUntil)) return <NplFinal onPreview={onPreview} onOpenRecord={onOpenRecord} />;
   if (event && today >= (event.showFrom || event.start) && today <= event.end) {
-    return <EventCard event={event} saved={saved} toggleSaved={toggleSaved} onSeeAll={onSeeAll} />;
+    return <EventCard event={event} saved={saved} toggleSaved={toggleSaved} onSeeAll={onSeeAll} onOpenRecord={onOpenRecord} />;
   }
   return null;
 }
 
-function NplFinal({ onPreview }) {
+function NplFinal({ onPreview, onOpenRecord }) {
   const { today: TODAY, nplFinal } = useContent();
   if (!nplFinal) return null;
   const r = nplFinal.result;
@@ -80,26 +80,18 @@ function NplFinal({ onPreview }) {
           </button>
         </SectionHead>
         {/* Same rows as Next for Nepal: a block on the left, the story, a mark on the right. */}
-        <div className="card champ-rows">
-          <div className="list-row">
-            <div className="date-block champ-crest"><TeamMark name={r.winner} size={42} /></div>
-            <div className="row-text">
-              <strong>{r.winner}</strong>
-              <span>Beat {r.winner === nplFinal.home ? nplFinal.away : nplFinal.home} by {margin ? `${margin[1]} ${margin[2].toLowerCase().startsWith('w') ? 'wickets' : 'runs'}` : r.summary}</span>
-            </div>
+        <button type="button" className="card champ-rows record-open-card" onClick={() => onOpenRecord({ type: 'result', id: 'npl-final-result' })} aria-label="Open NPL final result">
+          <span className="list-row">
+            <span className="date-block champ-crest"><TeamMark name={r.winner} size={42} /></span>
+            <span className="row-text"><strong>{r.winner}</strong><span>Beat {r.winner === nplFinal.home ? nplFinal.away : nplFinal.home} by {margin ? `${margin[1]} ${margin[2].toLowerCase().startsWith('w') ? 'wickets' : 'runs'}` : r.summary}</span></span>
             <span className="champ-badge" title={r.honour || 'Champions'}><I.Trophy size={16} /></span>
-          </div>
-          {star && (
-            <div className="list-row row-top">
-              <div className="date-block"><b>{star[2]}</b><small>{star[3] ? 'N.O.' : 'Runs'}</small></div>
-              <div className="row-text">
-                <strong>{r.starName || star[1]}</strong>
-                <span>{r.starBalls ? `Off ${r.starBalls} balls in the final` : 'Top score in the final'}</span>
-              </div>
-              <span className="champ-badge quiet"><I.CricketBat size={16} /></span>
-            </div>
-          )}
-        </div>
+          </span>
+          {star && <span className="list-row row-top">
+            <span className="date-block"><b>{star[2]}</b><small>{star[3] ? 'N.O.' : 'Runs'}</small></span>
+            <span className="row-text"><strong>{r.starName || star[1]}</strong><span>{r.starBalls ? `Off ${r.starBalls} balls in the final` : 'Top score in the final'}</span></span>
+            <span className="champ-badge quiet"><I.CricketBat size={16} /></span>
+          </span>}
+        </button>
       </section>
     );
   }
@@ -113,7 +105,7 @@ function NplFinal({ onPreview }) {
           </button>
         </div>
       </SectionHead>
-      <article className="card final-card">
+      <button type="button" className="card final-card record-open-card" onClick={() => onOpenRecord({ type: 'fixture', id: 'npl-final' })}>
         <div className="versus">
           <span className="name"><TeamMark name={nplFinal.home} size={30} />{nplFinal.home}</span>
           <span className="vs">VS</span>
@@ -124,12 +116,12 @@ function NplFinal({ onPreview }) {
           <span className="chip"><I.Pin size={13} />{nplFinal.venue}</span>
           {nplFinal.note && <span className="chip accent"><I.Swap size={13} />{nplFinal.note}</span>}
         </div>
-      </article>
+      </button>
     </section>
   );
 }
 
-export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
+export default function HomeScreen({ saved, toggleSaved, go, askCue, onOpenSaved, onOpenRecord }) {
   const { liveMatches, liveState, loadState, nplFinal, stories } = useContent();
   const weather = useWeather();
   const [query, setQuery] = useState('');
@@ -138,6 +130,10 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
   const [competition, setCompetition] = useState('Any');
   const activeFilters = (scope !== 'All' ? 1 : 0) + (competition !== 'Any' ? 1 : 0);
   const searching = query.trim().length > 0 || activeFilters > 0;
+  const openSearchHit = (hit) => {
+    const type = hit.scope === 'Live' ? 'live' : hit.scope === 'Fixtures' ? 'fixture' : hit.scope === 'Results' ? 'result' : 'story';
+    onOpenRecord({ type, id: hit.id.replace(/^live-/, '') });
+  };
   const clearSearch = () => {
     setQuery('');
     setScope('All');
@@ -179,7 +175,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
               <button type="button" className="pill" onClick={() => go('discover', 'NPL')}>
                 <I.Trophy size={14} style={{ color: 'var(--muted)' }} />NPL
               </button>
-              <button type="button" className="pill" onClick={() => go('profile')}>
+              <button type="button" className="pill" onClick={onOpenSaved}>
                 <I.Bookmark size={14} style={{ color: 'var(--muted)' }} />Saved
               </button>
             </div>
@@ -188,27 +184,27 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue }) {
       </section>
 
       {searching ? (
-        <SearchResults query={query} scope={scope} competition={competition} onClear={clearSearch} onSelect={(hit) => go('discover', hit.scope === 'News' ? 'News' : 'All', hit.title)} />
+        <SearchResults query={query} scope={scope} competition={competition} onClear={clearSearch} onSelect={openSearchHit} />
       ) : (
         <>
         <Divider />
-        <LiveSection matches={liveMatches} state={liveState} loading={loadState === 'loading'} onSeeAll={() => go('discover', 'All')} />
+        <LiveSection matches={liveMatches} state={liveState} loading={loadState === 'loading'} onSeeAll={() => go('discover', 'All')} onOpenMatch={(match) => onOpenRecord({ type: 'live', id: match.id })} />
 
         <Divider />
-        <NextForNepal saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
+        <NextForNepal saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} onOpenRecord={onOpenRecord} />
 
         {nplFinal && <Divider />}
-        <Featured onPreview={() => askCue(nplFinal?.result ? 'Recap the NPL final' : 'Set the scene for the NPL final')} saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} />
+        <Featured onPreview={() => askCue(nplFinal?.result ? 'Recap the NPL final' : 'Set the scene for the NPL final')} saved={saved} toggleSaved={toggleSaved} onSeeAll={() => go('discover', 'Nepal')} onOpenRecord={onOpenRecord} />
 
         {stories.length > 0 && <Divider />}
         {stories.length > 0 && <section className="section home-stories">
           <SectionHead title="Stories">
             <button type="button" className="section-link" onClick={() => go('discover', 'News')}>Explore <I.ArrowUp size={11} style={{ transform: 'rotate(45deg)' }} /></button>
           </SectionHead>
-          <div className="card home-story">
+          <button type="button" className="card home-story record-open-card" onClick={() => onOpenRecord({ type: 'story', id: stories[0].id })}>
             <strong>{stories[0].title}</strong>
-            <span>{stories[0].source}</span>
-          </div>
+            <span>{stories[0].source}</span><I.Chevron size={15} />
+          </button>
         </section>}
         </>
       )}

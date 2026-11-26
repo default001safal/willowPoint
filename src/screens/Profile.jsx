@@ -1,167 +1,74 @@
 import { useEffect, useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { followables } from '../data.js';
-import { Divider, SaveButton, parts, relativeDay } from '../components/ui.jsx';
+import { Divider } from '../components/ui.jsx';
+import { getSavedItems } from '../components/RecordLayers.jsx';
 import { useContent } from '../lib/content.jsx';
-import { MarkPair } from '../components/TeamMark.jsx';
-import { watchUser, signInWithGoogle, signOutUser } from '../lib/firebase.js';
+import { watchUser } from '../lib/firebase.js';
 
-// Account card: anonymous by default, upgradeable to Google without losing data.
-function AccountCard() {
+// Account summary opens a focused account flow; sign-out is confirmed separately.
+function AccountCard({ onOpen }) {
   const [user, setUser] = useState(undefined);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
   useEffect(() => watchUser(setUser), []);
   const authed = user && !user.isAnonymous;
-
-  const google = async () => {
-    setBusy(true); setError('');
-    try { await signInWithGoogle(); }
-    catch (e) {
-      setError(e.code === 'auth/operation-not-allowed'
-        ? 'Google sign-in is not enabled yet — enable it in Firebase Console → Authentication → Sign-in method.'
-        : (e.code === 'auth/popup-closed-by-user' ? '' : (e.message || 'Sign-in failed')));
-    } finally { setBusy(false); }
-  };
-
   return (
     <div className="card" style={{ padding: 16 }}>
       <div className="row-text" style={{ marginBottom: 10 }}>
         <strong style={{ fontSize: 15 }}>{authed ? 'Signed in' : 'Your account'}</strong>
-        <span style={{ fontSize: 13 }}>
-          {authed ? (user.email || 'Google account') : 'Playing as a local fan — follows and saves sync to this device.'}
-        </span>
+        <span style={{ fontSize: 13 }}>{authed ? user.email || 'Google account' : 'Playing as a local fan — follows and saves sync to this device.'}</span>
       </div>
-      {authed ? (
-        <button type="button" className="setting" onClick={() => signOutUser()}>Sign out</button>
-      ) : (
-        <button type="button" className="setting" disabled={busy} onClick={google}>
-          {busy ? 'Opening Google…' : 'Continue with Google'}
-        </button>
-      )}
-      {error && <p style={{ color: 'var(--accent)', fontSize: 12, marginTop: 8 }}>{error}</p>}
+      <button type="button" className="setting" onClick={onOpen}>{authed ? 'Manage account' : 'Continue with Google'}<I.Chevron size={15} /></button>
     </div>
   );
 }
 
-// Resolve saved fixtures, the NPL final and the featured competition into rows.
-function useSavedItems(saved) {
-  const { today, fixtures, nplFinal, featuredEvent } = useContent();
-  return saved.map((id) => {
-    if (id === featuredEvent?.id) {
-      const start = parts(featuredEvent.start);
-      const end = parts(featuredEvent.end);
-      return { id, title: featuredEvent.title, meta: `${start.date} ${start.month} – ${end.date} ${end.month} · ${featuredEvent.venue}` };
-    }
-    if (id === 'npl-final' && nplFinal) {
-      return { id, title: `${nplFinal.home} v ${nplFinal.away}`, meta: `NPL final · ${relativeDay(nplFinal.date, today)} · ${nplFinal.venue}` };
-    }
-    const f = fixtures.find((x) => x.id === id);
-    if (!f) return null;
-    const p = parts(f.date);
-    return { id, title: f.title, meta: `${p.date} ${p.month} · ${f.time} · ${f.venue}` };
-  }).filter(Boolean);
-}
-
-export default function ProfileScreen({ prefs }) {
-  const { saved, following, toggleFollow: toggle, toggleSaved, synced } = prefs;
-  const [showSaved, setShowSaved] = useState(false);
-  const savedItems = useSavedItems(saved);
+export default function ProfileScreen({ prefs, onOpenSaved, onOpenAccount }) {
+  const { saved, following, toggleFollow: toggle, synced } = prefs;
+  const content = useContent();
+  const savedItems = getSavedItems(content, saved);
 
   return (
     <main>
-      <header className="screen-head">
-        <h1 className="screen-title">Profile</h1>
-        <p className="subhead">Your teams, saved matches and settings.</p>
-      </header>
-
-      <section className="section">
-        <AccountCard />
-      </section>
+      <header className="screen-head"><h1 className="screen-title">Profile</h1><p className="subhead">Your teams, saved matches and settings.</p></header>
+      <section className="section"><AccountCard onOpen={onOpenAccount} /></section>
 
       <section className="section">
         <div className="card">
           <div className="profile-top">
             <span className="avatar">C</span>
-            <div className="row-text">
-              <strong style={{ fontSize: 17, fontWeight: 700 }}>Cricket fan</strong>
-              <span style={{ fontSize: 13 }}>Following {following.length}</span>
-            </div>
+            <div className="row-text"><strong style={{ fontSize: 17, fontWeight: 700 }}>Cricket fan</strong><span style={{ fontSize: 13 }}>Following {following.length}</span></div>
             <span className="muted" style={{ fontSize: 12 }}>{synced ? 'Synced here' : 'Saved here'}</span>
           </div>
-          <button type="button" className="setting row-top" aria-expanded={showSaved} onClick={() => setShowSaved((s) => !s)}>
-            <I.Bookmark size={20} style={{ color: 'var(--muted)' }} />
-            <span style={{ flex: 1, fontWeight: 500 }}>Saved matches</span>
-            <span className="muted" style={{ fontSize: 14 }}>{savedItems.length}</span>
-            <I.Chevron size={16} style={{ color: 'var(--muted)', transform: showSaved ? 'rotate(90deg)' : 'none', transition: 'transform .2s' }} />
+          <button type="button" className="setting row-top" onClick={onOpenSaved}>
+            <I.Bookmark size={20} style={{ color: 'var(--muted)' }} /><span style={{ flex: 1, fontWeight: 500 }}>Saved matches</span><span className="muted" style={{ fontSize: 14 }}>{savedItems.length}</span><I.Chevron size={16} style={{ color: 'var(--muted)' }} />
           </button>
-          {showSaved && (savedItems.length ? savedItems.map((s) => (
-            <div key={s.id} className="list-row row-top saved-row">
-              <div className="row-text">
-                <strong className="with-marks"><MarkPair title={s.title} size={13} />{s.title}</strong>
-                <span>{s.meta}</span>
-              </div>
-              <SaveButton label={s.title} saved onToggle={() => toggleSaved(s.id)} />
-            </div>
-          )) : (
-            <p className="saved-empty row-top">Tap <I.Bookmark size={13} /> on any match to keep it here.</p>
-          ))}
         </div>
       </section>
 
       <Divider />
       <section className="section">
         <h2 className="group-label">Your cricket</h2>
-        <div className="card">
-          {followables.map((f, i) => {
-            const on = following.includes(f.id);
-            return (
-              <div key={f.id} className={`list-row${i ? '' : ''}`} style={{ paddingRight: 12 }}>
-                <div className="row-text"><strong>{f.name}</strong><span>{f.kind}</span></div>
-                <button type="button" className="follow" aria-pressed={on} onClick={() => toggle(f.id)}>
-                  {on ? 'Following' : 'Follow'}
-                </button>
-              </div>
-            );
-          })}
-        </div>
+        <div className="card">{followables.map((item) => {
+          const on = following.includes(item.id);
+          return <div key={item.id} className="list-row" style={{ paddingRight: 12 }}><div className="row-text"><strong>{item.name}</strong><span>{item.kind}</span></div><button type="button" className="follow" aria-pressed={on} onClick={() => toggle(item.id)}>{on ? 'Following' : 'Follow'}</button></div>;
+        })}</div>
       </section>
 
       <Divider />
       <section className="section">
         <h2 className="group-label">Preferences</h2>
         <div className="card">
-          <div className="setting">
-            <span style={{ flex: 1 }}>Time zone</span>
-            <span className="muted" style={{ fontSize: 14 }}>Nepal (NPT)</span>
-          </div>
-          <div className="setting">
-            <span style={{ flex: 1 }}>Language</span>
-            <span className="muted" style={{ fontSize: 14 }}>English</span>
-          </div>
-          <div className="setting" style={{ paddingTop: 12, paddingBottom: 12 }}>
-            <div className="row-text">
-              <strong style={{ fontWeight: 400 }}>Match alerts</strong>
-              <span>Coming later</span>
-            </div>
-          </div>
+          <div className="setting"><span style={{ flex: 1 }}>Time zone</span><span className="muted" style={{ fontSize: 14 }}>Nepal (NPT)</span></div>
+          <div className="setting"><span style={{ flex: 1 }}>Language</span><span className="muted" style={{ fontSize: 14 }}>English</span></div>
+          <div className="setting" style={{ paddingTop: 12, paddingBottom: 12 }}><div className="row-text"><strong style={{ fontWeight: 400 }}>Match alerts</strong><span>Coming later</span></div></div>
           <div className="setting"><span style={{ flex: 1 }}>Sources</span><span className="muted" style={{ fontSize: 13 }}>Shown with available records</span></div>
         </div>
       </section>
 
       <Divider />
       <section className="section">
-        <div className="card about">
-          <img src="/logo-light.png" alt="willowPoint logo" />
-          <span className="muted" style={{ fontSize: 14 }}>Our game. In focus.</span>
-          <div style={{ display: 'flex', gap: 18 }}>
-            <a href="/photo-credits.html" target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>Photo credits</a>
-            <a href="/about.html" target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>About</a>
-          </div>
-        </div>
-        <p className="footnote" style={{ textAlign: 'center' }}>
-          {synced ? 'Your preferences are synced to this browser session.' : 'Your preferences are saved on this device.'}
-        </p>
+        <div className="card about"><img src="/logo-light.png" alt="willowPoint logo" /><span className="muted" style={{ fontSize: 14 }}>Our game. In focus.</span><div style={{ display: 'flex', gap: 18 }}><a href="/photo-credits.html" target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>Photo credits</a><a href="/about.html" target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, padding: '10px 0' }}>About</a></div></div>
+        <p className="footnote" style={{ textAlign: 'center' }}>{synced ? 'Your preferences are synced to this browser session.' : 'Your preferences are saved on this device.'}</p>
       </section>
     </main>
   );

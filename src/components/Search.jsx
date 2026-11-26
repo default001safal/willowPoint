@@ -204,43 +204,43 @@ export function SearchAssistLayer({ search, onApply, onClose }) {
       )}
     >
       <div className="search-assist-content">
-        <div className="assist-section">
-          <h2 className="label bright">Result type</h2>
-          <div className="pills assist-pills" role="group" aria-label="Result type">
-            {SEARCH_SCOPES.map((scope) => <button key={scope} type="button" className={`chip${draft.scope === scope ? ' on' : ''}`} aria-pressed={draft.scope === scope} onClick={() => setDraftPatch({ scope })}>{scope}</button>)}
-          </div>
+      <div className="assist-section">
+        <h2 className="label bright">Result type</h2>
+        <div className="pills assist-pills" role="group" aria-label="Result type">
+          {SEARCH_SCOPES.map((scope) => <button key={scope} type="button" className={`chip${draft.scope === scope ? ' on' : ''}`} aria-pressed={draft.scope === scope} onClick={() => setDraftPatch({ scope })}>{scope}</button>)}
         </div>
+      </div>
 
-        <div className="assist-section">
-          <h2 className="label bright">Competition</h2>
-          <div className="pills assist-pills" role="group" aria-label="Competition">
-            {['Any', ...content.competitions].map((competition) => <button key={competition} type="button" className={`chip${draft.competition === competition ? ' on' : ''}`} aria-pressed={draft.competition === competition} onClick={() => setDraftPatch({ competition })}>{competition === 'Any' ? 'Any competition' : competition}</button>)}
-          </div>
+      <div className="assist-section">
+        <h2 className="label bright">Competition</h2>
+        <div className="pills assist-pills" role="group" aria-label="Competition">
+          {['Any', ...content.competitions].map((competition) => <button key={competition} type="button" className={`chip${draft.competition === competition ? ' on' : ''}`} aria-pressed={draft.competition === competition} onClick={() => setDraftPatch({ competition })}>{competition === 'Any' ? 'Any competition' : competition}</button>)}
         </div>
+      </div>
 
-        <div className="assist-section">
-          <h2 className="label bright">Record window</h2>
-          <div className="assist-options" role="group" aria-label="Record window">
-            {WINDOWS.map((option) => (
-              <button key={option.id} type="button" className={`assist-option${draft.window === option.id ? ' on' : ''}`} aria-pressed={draft.window === option.id} onClick={() => setDraftPatch({ window: option.id })}>
-                <strong>{option.label}</strong>
-                <span>{option.hint}</span>
-              </button>
-            ))}
-          </div>
+      <div className="assist-section">
+        <h2 className="label bright">Record window</h2>
+        <div className="assist-options" role="group" aria-label="Record window">
+          {WINDOWS.map((option) => (
+            <button key={option.id} type="button" className={`assist-option${draft.window === option.id ? ' on' : ''}`} aria-pressed={draft.window === option.id} onClick={() => setDraftPatch({ window: option.id })}>
+              <strong>{option.label}</strong>
+              <span>{option.hint}</span>
+            </button>
+          ))}
         </div>
+      </div>
 
-        <div className="assist-section">
-          <h2 className="label bright">Try a current record</h2>
-          <div className="record-list suggestion-list">
-            {suggestions.map((suggestion) => (
-              <button key={suggestion.id} type="button" className="search-hit search-suggestion" onClick={() => setDraftPatch({ query: suggestion.query, scope: 'All', competition: 'Any' })}>
-                <span className="row-text"><small>{suggestion.reason}</small><strong>{suggestion.label}</strong></span>
-                <I.Chevron size={14} />
-              </button>
-            ))}
-          </div>
+      <div className="assist-section">
+        <h2 className="label bright">Try a current record</h2>
+        <div className="record-list suggestion-list">
+          {suggestions.map((suggestion) => (
+            <button key={suggestion.id} type="button" className="search-hit search-suggestion" onClick={() => setDraftPatch({ query: suggestion.query, scope: 'All', competition: 'Any' })}>
+              <span className="row-text"><small>{suggestion.reason}</small><strong>{suggestion.label}</strong></span>
+              <I.Chevron size={14} />
+            </button>
+          ))}
         </div>
+      </div>
       </div>
     </SheetLayer>
   );

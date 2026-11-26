@@ -1,57 +1,65 @@
-# willowPoint — native app
+# willowPoint — React Native app
 
-Real React Native port of the willowPoint web app (Expo SDK 54, React Native 0.81,
-Firebase JS SDK v11). Android first; the iOS build needs Apple Developer
-credentials that only the account owner can provide.
+Native port of willowPoint (Android first, iOS next). Same Firebase backend and
+Cue proxy as the web app; no mock data, everything dynamic.
 
 ## Layout
 
-- `App.js` — providers (SafeArea, Content, CueChat, Prefs) + navigation: four
-  tabs (Home, Discover, Cue, You), per-tab native stacks, modal presentations for
-  sheets (`SearchAssist`, `Source`) and a transparent modal for sign-out.
-- `src/lib/` — data layer. `content.js` (live Firestore listeners),
-  `cueChat.js` / `cueEngine.js` (Cue answer path through the Cloudflare proxy
-  with an on-device fallback), `userPrefs.js` (AsyncStorage + Firestore
-  sync), `navigationRef.js` (imperative openRecord/openSearch/askCue), and the
-  pure logic modules shared verbatim with the web app (`search`, `selectors`,
-  `statcard`, `innings`, `liveState`, `storyState`, `fixtures`, `cueAnswers`).
-- `src/components/`, `src/screens/` — the approved UI, ported token-for-token
-  (ebony/crimson/serif, two-stump Cue mascot, approved onboarding flow).
-- `assets/` — binary app assets. They are **generated**, not edited by hand:
+- `index.js` / `App.js` — entry point, navigation container, auth gate, onboarding gate.
+- `src/theme.js` — ebony/crimson/serif design tokens.
+- `src/lib/` — data + logic layer: firebase client, content listeners, Cue chat
+  engine + proxy, search/selectors/stat cards/innings/live/story/fixtures/cue answers.
+- `src/components/` — CueMark mascot, TeamMark flags, live cards, onboarding, auth.
+- `src/screens/` — Home, Discover, Cue chat + Cue answer, Search + Search assist,
+  Record detail, Saved, Profile, Account, Source.
+- `assets/` — generated binary artifacts (see below). `assets/regen.sh` rebuilds them.
+- `app.json` / `eas.json` / `package.json` — Expo SDK 54 config; `preview` profile
+  produces an APK, `production` produces an AAB for Play.
 
-## Generated artifacts (run `bash native/assets/regen.sh`)
+## Generated artifacts (not committed as binaries)
 
-Metro requires PNG flags and the app logo at bundle time, and EAS Build wants
-a lockfile. None of these can be pushed through text-only channels, so they are
-reproduced from sources already in this repository:
+Binary blobs don't round-trip through the git tooling used for this repo, so the
+derived artifacts live only as outputs of `assets/regen.sh`:
 
-| Generated file                        | Source                              |
-| ------------------------------------- | ----------------------------------- |
-| `assets/flags/*.png` (13 flags, 96px) | `public/flags/*.svg` via ImageMagick (rsvg delegate) |
-| `assets/logo-light.png`             | `public/logo-light.png` (copied)    |
-| `package-lock.json`                 | `npm install --package-lock-only` in `native/` |
+| Artifact                        | Source                                    |
+| ------------------------------- | ----------------------------------------- |
+| `assets/flags/*.png`            | `public/flags/*.svg` (rendered 96x96)     |
+| `assets/logo-light.png`         | `public/logo-light.png` (copied verbatim) |
+| `package-lock.json`             | `package.json` (`npm install --package-lock-only`) |
 
-Requirements: ImageMagick with the rsvg delegate (`imagemagick` +
-`librsvg2-bin` on Debian/Ubuntu), Node.js + npm.
+Rebuild them after a fresh clone:
 
-## Configure
+```bash
+bash native/assets/regen.sh
+```
 
-Copy `.env.example` to `.env` (or set `EXPO_PUBLIC_*` vars) as needed. The
-Firebase client config ships with safe public fallbacks identical to the web
-app; the Cue proxy URL defaults to the production worker.
+## Configuration
 
-Google sign-in activates when a native Google client ID is provided via
-`app.json` → `extra.googleClientId` (or `EXPO_PUBLIC_GOOGLE_CLIENT_ID`).
-Until then the Google button stays hidden and email/password + anonymous auth
-work as on the web.
+Environment variables (all optional; Firestore `config/teamLogos` and
+`config/feed` are the dynamic source of truth):
 
-## Build
+- `EXPO_PUBLIC_FIREBASE_*` — override the built-in Firebase client config.
+- `EXPO_PUBLIC_CUE_PROXY_URL` — Cue proxy (defaults to the Cloudflare Worker).
+- `EXPO_PUBLIC_GOOGLE_CLIENT_ID` — native Google sign-in client ID.
 
-```sh
-npm install          # in native/
+Google sign-in additionally requires `extra.googleClientId` in `app.json` (or the
+env var above). Until it is set, the Google button stays hidden by design; email /
+password and anonymous auth work out of the box.
+
+## Running
+
+```bash
+cd native
+npm install
 npm start            # Expo dev server
 ```
 
-Cloud builds (EAS): `preview` profile builds an installable APK;
-`production` builds an Android App Bundle. iOS requires Apple Developer
-credentials on the Expo account.
+EAS builds (project `@willowpoint/willowpoint`):
+
+```bash
+eas build --profile preview    # APK, installable directly on Android
+eas build --profile production # AAB for Google Play
+```
+
+iOS builds require Apple Developer credentials (Apple ID with App Store Connect
+access, or an App Store Connect API key) that only the account owner can provide.

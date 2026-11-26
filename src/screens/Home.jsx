@@ -5,6 +5,7 @@ import { SaveButton, ScreenMasthead, SectionHead, parts } from '../components/ui
 import { useContent } from '../lib/content.jsx';
 import { fixturesForEvent, recentResults, resultTitle } from '../lib/selectors.js';
 import { SearchLauncher } from '../components/Search.jsx';
+import CueMark from '../components/CueMark.jsx';
 
 function greeting() {
   const hour = Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Kathmandu', hour: '2-digit', hour12: false }).format(new Date()));
@@ -99,7 +100,7 @@ export default function HomeScreen({ saved, toggleSaved, go, askCue, onOpenSaved
       <h1 className="greet">{greeting()}</h1>
       <SearchLauncher onOpen={() => onOpenSearch()} />
       <div className="pills home-pills" aria-label="Quick destinations">
-        <button type="button" className="chip cue-chip" onClick={() => askCue('Give me my quick Nepal cricket briefing')}><I.Spark size={13} />Cue’s bird’s-eye view</button>
+        <button type="button" className="chip cue-chip" onClick={() => askCue('Give me my quick Nepal cricket briefing')}><CueMark size={14} />Cue’s bird’s-eye view</button>
         <button type="button" className="chip" onClick={() => go('discover', 'Nepal')}><I.Calendar size={13} />Nepal’s next match</button>
         {featuredEvent && <button type="button" className="chip" onClick={() => onOpenSearch({ query: featuredEvent.title, scope: 'Events' })}><I.Trophy size={13} />{featuredEvent.short || featuredEvent.title}</button>}
         <button type="button" className="chip" onClick={onOpenSaved}><I.Bookmark size={13} />Saved</button>

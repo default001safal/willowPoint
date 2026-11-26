@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { PushLayer } from '../components/InteractionLayer.jsx';
 import SourceSheet from '../components/SourceSheet.jsx';
+import CueMark from '../components/CueMark.jsx';
 import { useContent } from '../lib/content.jsx';
 import { cueReply } from '../lib/cueEngine.js';
 import { buildCuePrompts } from '../lib/selectors.js';
@@ -9,17 +10,6 @@ import { buildCuePrompts } from '../lib/selectors.js';
 const toHistory = (thread) => thread
   .filter((message) => !message.pending && !message.error)
   .map((message) => ({ role: message.from === 'me' ? 'user' : 'assistant', content: message.text }));
-
-function CueMark({ size = 86 }) {
-  return (
-    <svg className="cue-symbol" width={size} height={size} viewBox="0 0 210 210" role="img" aria-label="Cue">
-      <circle cx="105" cy="124" r="67.75" fill="none" stroke="currentColor" strokeWidth="9" />
-      <circle cx="89" cy="112" r="10" fill="currentColor" /><circle cx="121" cy="112" r="10" fill="currentColor" />
-      <rect x="99" y="39" width="12" height="24" rx="6" fill="currentColor" />
-      <path d="M76 151c16 13 42 13 58 0" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 function CueComposer({ draft, setDraft, busy, onAsk, inLayer = false }) {
   const inputId = useId();
@@ -133,10 +123,10 @@ export default function CueScreen({ pending, clearPending, answerOpen, sourceLay
   return (
     <>
       <main className="screen cue-screen" inert={answerOpen ? '' : undefined} aria-hidden={answerOpen || undefined}>
-        <section className="cue-hero"><CueMark /><h1 className="cue-h">Ask <em>Cue</em></h1></section>
+        <section className="cue-hero"><CueMark size={34} state={busy ? 'thinking' : 'idle'} animated /><h1 className="cue-h">Ask <em>Cue</em></h1></section>
         <p className="cue-sub">Fixtures, results, stories — answered with sources.</p>
         <div className="cue-sugg" aria-label="Suggested questions">{prompts.map((prompt) => (
-          <button key={prompt.id} type="button" className="chip" title={prompt.hint} onClick={() => ask(prompt.title, { restart: true })}><I.Spark size={12} />{prompt.title}</button>
+          <button key={prompt.id} type="button" className="chip" title={prompt.hint} onClick={() => ask(prompt.title, { restart: true })}><CueMark size={14} />{prompt.title}</button>
         ))}</div>
         <div className="cue-principles"><span><I.Check size={13} />Current records</span><span><I.Check size={13} />Visible sources</span><span><I.Check size={13} />Honest when unavailable</span></div>
         {!answerOpen && composer}

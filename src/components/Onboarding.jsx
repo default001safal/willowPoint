@@ -1,9 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as I from './Icons.jsx';
 import AuthControls from './AuthControls.jsx';
+import CueMark from './CueMark.jsx';
 import { useContent } from '../lib/content.jsx';
+import { watchUser } from '../lib/firebase.js';
 
 const DONE_KEY = 'wp.onboarded';
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+const roman = (index) => ROMAN[index] || String(index + 1);
+
+const FEATURES = [
+  'Live scores, double-verified',
+  'Every fixture, in Nepal time',
+  'Ask Cue — matches and fixtures',
+];
 
 export function needsOnboarding() {
   try {
@@ -23,42 +33,60 @@ function markDone() {
   }
 }
 
-const FEATURES = [
-  { icon: <span className="ob-live-dot" />, text: 'Verified live scores when available' },
-  { icon: <I.Calendar size={18} />, text: 'Nepal fixtures, at a glance' },
-  { icon: <I.Spark size={18} />, text: 'Ask Cue about matches and results' },
-];
+function todayStamp() {
+  const d = new Date();
+  return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+}
 
 export default function Onboarding({ prefs, onDone }) {
   const [step, setStep] = useState(0);
+  const [otherOpen, setOtherOpen] = useState(false);
+  const [otherText, setOtherText] = useState('');
+  const [user, setUser] = useState(null);
   const { followTopics, loadState } = useContent();
+  const customFollows = prefs.customFollows || [];
   const followedTopics = prefs.following.filter((id) => followTopics.some((topic) => topic.id === id)).length;
+  const followCount = followedTopics + customFollows.length;
+
+  useEffect(() => watchUser(setUser), []);
+
   const finish = () => {
     markDone();
     onDone();
   };
-  const next = () => step < 3 ? setStep(step + 1) : finish();
+  const commitOther = () => {
+    const value = otherText.trim().slice(0, 40);
+    if (!value) return;
+    prefs.addCustomFollow(value);
+    setOtherText('');
+  };
+  const next = () => {
+    if (step === 1) commitOther();
+    if (step < 3) setStep(step + 1);
+    else finish();
+  };
+  const tileCount = followTopics.length + customFollows.length;
 
   return (
     <div className="onboarding" role="dialog" aria-modal="true" aria-label="Welcome to willowPoint">
       <div className="ob-top">
-        {step > 0 ? (
-          <button type="button" className="ob-back" aria-label="Back" onClick={() => setStep(step - 1)}>
-            <I.Chevron size={17} style={{ transform: 'rotate(180deg)' }} />
-          </button>
-        ) : <img className="ob-logo" src="/logo-light.png" alt="willowPoint" />}
-        <span className="ob-step-label">{String(step + 1).padStart(2, '0')} / 04</span>
+        <span className="ob-topleft">
+          {step === 0 ? <span className="ob-date">{todayStamp()}</span> : <img className="ob-logo" src="/logo-light.png" alt="willowPoint" />}
+        </span>
+        {step > 0 && (
+          <button type="button" className="ob-back" aria-label="Back" onClick={() => setStep(step - 1)}>←</button>
+        )}
       </div>
 
       <div className={`ob-body ob-step-${step}`} key={step}>
         {step === 0 && (
           <>
-            <img className="ob-mark" src="/logo-light.png" alt="" />
-            <h1 className="ob-title">Namaskar, <span>hajur.</span></h1>
-            <p className="ob-sub">Nepal’s cricket in one place, in Nepal time.</p>
+            <img className="ob-mark" src="/logo-light.png" alt="willowPoint" />
+            <h1 className="ob-title">Namaskar<span className="ob-dot">.</span></h1>
+            <p className="ob-sub">Welcome to willowPoint</p>
             <ul className="ob-features">
-              {FEATURES.map((feature) => (
-                <li key={feature.text}><span className="ob-glyph" aria-hidden="true">{feature.icon}</span>{feature.text}</li>
+              {FEATURES.map((text, index) => (
+                <li key={text}><span className="ob-num">{roman(index)}</span>{text}</li>
               ))}
             </ul>
           </>
@@ -66,39 +94,76 @@ export default function Onboarding({ prefs, onDone }) {
 
         {step === 1 && (
           <>
-            <h1 className="ob-title">Pick your <span>cricket.</span></h1>
-            <p className="ob-sub">Follow the cricket you care about. Change your picks any time in You.</p>
-            {followTopics.length ? <div className="ob-tiles">
-              {followTopics.map((item) => {
-                const on = prefs.following.includes(item.id);
-                return (
-                  <button key={item.id} type="button" className={`ob-tile${on ? ' on' : ''}`} aria-pressed={on} onClick={() => prefs.toggleFollow(item.id)}>
-                    <span className="ob-tile-icon" aria-hidden="true" />
-                    <span className="ob-tile-text"><strong>{item.name}</strong><small>{item.kind}</small></span>
-                    <span className="ob-check" aria-hidden="true">{on && <I.Check size={14} sw={2.6} />}</span>
+            <h1 className="ob-title">Pick your <span>cricket</span></h1>
+            <p className="ob-sub">Follow the cricket you care about.</p>
+            {followTopics.length || customFollows.length ? (
+              <div className="ob-tiles">
+                {followTopics.map((item, index) => {
+                  const on = prefs.following.includes(item.id);
+                  return (
+                    <button key={item.id} type="button" className={`ob-tile${on ? ' on' : ''}`} aria-pressed={on} onClick={() => prefs.toggleFollow(item.id)}>
+                      <span className="ob-numl">{roman(index)}</span>
+                      <span className="ob-tile-text"><strong>{item.name}</strong>{item.kind ? <small>{item.kind}</small> : null}</span>
+                      <span className="ob-check" aria-hidden="true">{on && <I.Check size={13} sw={2.4} />}</span>
+                    </button>
+                  );
+                })}
+                {customFollows.map((name, index) => (
+                  <button key={name} type="button" className="ob-tile on" aria-pressed="true" title="Tap to remove" onClick={() => prefs.removeCustomFollow(name)}>
+                    <span className="ob-numl">{roman(followTopics.length + index)}</span>
+                    <span className="ob-tile-text"><strong>{name}</strong><small>your pick</small></span>
+                    <span className="ob-check" aria-hidden="true"><I.Check size={13} sw={2.4} /></span>
                   </button>
-                );
-              })}
-            </div> : <p className="empty-state">{loadState === 'loading' ? 'Finding current cricket topics…' : 'No current topics are available. You can continue and follow them after the next verified refresh.'}</p>}
+                ))}
+                <button
+                  type="button"
+                  className={`ob-tile ob-other${otherText.trim() ? ' on' : ''}`}
+                  aria-pressed={!!otherText.trim()}
+                  onClick={() => setOtherOpen(!otherOpen)}
+                >
+                  <span className="ob-numl">{roman(tileCount)}</span>
+                  <span className="ob-tile-text"><strong>Other</strong><small>anything else — cue sorts it</small></span>
+                  <span className="ob-check" aria-hidden="true">{otherText.trim() ? <I.Check size={13} sw={2.4} /> : null}</span>
+                </button>
+                {otherOpen && (
+                  <input
+                    className="ob-other-input"
+                    type="text"
+                    value={otherText}
+                    maxLength={40}
+                    autoComplete="off"
+                    placeholder="e.g. India · The Hundred · BPL"
+                    onChange={(event) => setOtherText(event.target.value)}
+                  />
+                )}
+              </div>
+            ) : (
+              <p className="empty-state">{loadState === 'loading' ? 'Finding current cricket topics…' : 'No current topics are available. You can continue and follow them after the next verified refresh.'}</p>
+            )}
           </>
         )}
 
         {step === 2 && (
           <>
-            <h1 className="ob-title">Keep it <span>with you.</span></h1>
-            <p className="ob-sub">Sign in to link your follows and saved records to your account.</p>
-            <AuthControls onSuccess={next} compact />
+            <h1 className="ob-title">Sign <span>in</span></h1>
+            <p className="ob-sub">Sync your follows, saved matches and Cue chats across devices.</p>
+            <AuthControls onSuccess={() => setStep(3)} compact />
           </>
         )}
 
         {step === 3 && (
           <>
-            <span className="ob-ready" aria-hidden="true"><I.Check size={28} sw={1.8} /></span>
-            <h1 className="ob-title">You’re <span>all set.</span></h1>
-            <p className="ob-sub">Your cricket, current and close. Scores appear only after independent verification.</p>
+            <h1 className="ob-title">You’re <span>all set</span></h1>
+            <p className="ob-sub">Your picks shape what you follow. Change them any time in Profile.</p>
             <div className="ob-card">
-              <div className="ob-row"><I.Check size={18} /><span className="ob-row-tx"><b>Following {followedTopics} current {followedTopics === 1 ? 'topic' : 'topics'}</b><span>Manage them any time in You</span></span></div>
-              <div className="ob-row"><I.Globe size={18} /><span className="ob-row-tx"><b>Nepal time</b><span>Every listed fixture uses NPT</span></span></div>
+              {user && !user.isAnonymous && (
+                <div className="ob-row"><I.User size={17} /><span className="ob-row-tx"><b>{user.email || 'Signed in'}</b><span>follows sync across devices</span></span></div>
+              )}
+              <div className="ob-row"><I.Check size={17} /><span className="ob-row-tx"><b>Following {followCount} {followCount === 1 ? 'topic' : 'topics'}</b><span>See them in Discover and Profile</span></span></div>
+              <div className="ob-row"><I.Globe size={17} /><span className="ob-row-tx"><b>Time zone</b><span>All match times shown in</span></span><span className="ob-val">Nepal (NPT)</span></div>
+              {customFollows.map((name) => (
+                <div className="ob-row" key={name}><CueMark size={17} /><span className="ob-row-tx"><b>Cue logged “{name}” as a follow</b><span>parsed from your input</span></span></div>
+              ))}
             </div>
           </>
         )}
@@ -109,11 +174,11 @@ export default function Onboarding({ prefs, onDone }) {
           {[0, 1, 2, 3].map((index) => <span key={index} className={index === step ? 'on' : undefined} />)}
         </div>
         {step === 2 ? (
-          <button type="button" className="ob-guest" onClick={finish}>Continue as guest</button>
+          <button type="button" className="ob-guest" onClick={() => setStep(3)}>Continue as guest</button>
         ) : (
-          <button type="button" className="ob-cta" onClick={next} disabled={step === 1 && (loadState === 'loading' || (followTopics.length > 0 && followedTopics === 0))}>
+          <button type="button" className="ob-cta" onClick={next} disabled={step === 1 && (loadState === 'loading' || (followTopics.length > 0 && followCount === 0))}>
             {step === 0 ? 'Get started' : step === 1 ? 'Continue' : 'Let’s go'}
-            <I.ArrowUp size={17} sw={2.2} style={{ transform: 'rotate(90deg)' }} />
+            <I.ArrowUp size={15} sw={2} style={{ transform: 'rotate(90deg)' }} />
           </button>
         )}
         <span className="sr-only" aria-live="polite">Step {step + 1} of 4</span>

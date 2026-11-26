@@ -7,6 +7,7 @@ import { watchUser } from '../lib/firebase.js';
 
 export default function ProfileScreen({ prefs, onOpenSaved, onOpenAccount, onOpenRecord }) {
   const { saved, following, toggleFollow, synced } = prefs;
+  const customFollows = prefs.customFollows || [];
   const content = useContent();
   const savedItems = getSavedItems(content, saved);
   const followTopics = content.followTopics;
@@ -38,11 +39,11 @@ export default function ProfileScreen({ prefs, onOpenSaved, onOpenAccount, onOpe
 
       <section>
         <SectionHead title="Your teams" className="between" />
-        {followTopics.length ? <div className="teams">{followTopics.map((item) => {
+        {followTopics.length || customFollows.length ? <div className="teams">{followTopics.map((item) => {
           const on = following.includes(item.id);
           return <button key={item.id} type="button" className={`team-pill${on ? ' on' : ''}`} aria-pressed={on} onClick={() => toggleFollow(item.id)}><span className="ind" />{item.name}</button>;
-        })}</div> : <p className="empty-state compact">{content.loadState === 'loading' ? 'Finding current cricket topics…' : 'No current topics are available to follow yet.'}</p>}
-        {followTopics.length > 0 && <p className="followcount">{followedTopics} of {followTopics.length} followed</p>}
+        })}{customFollows.map((name) => <button key={name} type="button" className="team-pill on" title="Tap to remove" onClick={() => prefs.removeCustomFollow(name)}><span className="ind" />{name}</button>)}</div> : <p className="empty-state compact">{content.loadState === 'loading' ? 'Finding current cricket topics…' : 'No current topics are available to follow yet.'}</p>}
+        {followTopics.length > 0 && <p className="followcount">{followedTopics} of {followTopics.length} followed{customFollows.length ? ` · ${customFollows.length} custom` : ''}</p>}
       </section>
 
       <section>

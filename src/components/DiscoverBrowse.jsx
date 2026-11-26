@@ -65,12 +65,12 @@ function BrowseRow({ title, children }) {
   );
 }
 
-export default function DiscoverBrowse({ saved, toggleSaved, following, toggleFollow, onOpenSchedule }) {
+export default function DiscoverBrowse({ saved, toggleSaved, following, toggleFollow, onOpenSchedule, onOpenRecord }) {
   const { today, stories, fixtures, results, liveMatches, nplFinal, featuredEvent } = useContent();
   const now = Date.now();
   const upcoming = fixtures.filter((f) => f.date >= today && (kickoffUTC(f.date, f.time) ?? Infinity) > now).sort((a, b) => a.date.localeCompare(b.date) || String(a.time).localeCompare(String(b.time)));
   const next = upcoming[0];
-  const finalResult = nplFinal?.result && nplFinal.date <= today ? { date: nplFinal.date, lines: nplFinal.result.lines, summary: nplFinal.result.summary } : null;
+  const finalResult = nplFinal?.result && nplFinal.date <= today ? { id: 'npl-final-result', date: nplFinal.date, lines: nplFinal.result.lines, summary: nplFinal.result.summary } : null;
   const recent = [...results, ...(finalResult ? [finalResult] : [])].filter((r) => r.date && r.date <= today).sort((a, b) => b.date.localeCompare(a.date))[0];
   const event = featuredEvent && today <= featuredEvent.end ? featuredEvent : null;
   const eventId = featuredEvent?.id || 'cwc-qp-2026';
@@ -91,7 +91,7 @@ export default function DiscoverBrowse({ saved, toggleSaved, following, toggleFo
               <h2>{event ? event.short || event.title : next ? 'The next match awaits' : 'Explore the game'}</h2>
               <p>{event ? [event.venue, event.note].filter(Boolean).join(' · ') : next ? `${next.title} · ${next.date} · ${next.venue}` : 'Fixtures, results, grounds and stories in one place.'}</p>
               <span className="hero-actions">
-                <button type="button" className="hero-btn" onClick={() => onOpenSchedule({ filter: event ? 'Nepal' : 'All' })}>Explore</button>
+                <button type="button" className="hero-btn" onClick={() => event ? onOpenRecord({ type: 'event', id: event.id }) : onOpenSchedule({ filter: 'All' })}>Explore</button>
                 {event && <button type="button" className="hero-save" aria-pressed={eventSaved} aria-label={eventSaved ? `Remove ${event.short || event.title} from saved` : `Save ${event.short || event.title}`} onClick={() => toggleSaved(eventId)}>
                   <I.Bookmark size={15} filled={eventSaved} />
                 </button>}
@@ -107,11 +107,11 @@ export default function DiscoverBrowse({ saved, toggleSaved, following, toggleFo
           <button type="button" className="section-link" onClick={() => onOpenSchedule({})}>All matches <I.Chevron size={13} /></button>
         </SectionHead>
         <div className="card desk-card">
-          {next ? <button type="button" className="desk-row" onClick={() => onOpenSchedule({ query: next.title })}>
+          {next ? <button type="button" className="desk-row" onClick={() => onOpenRecord({ type: 'fixture', id: next.id })}>
             <span className="desk-kicker">Next fixture · {parts(next.date).date} {parts(next.date).month}</span>
             <strong>{next.title}</strong><span className="desk-meta">{next.time} · {next.venue}</span>
           </button> : <div className="desk-row"><span className="desk-kicker">Next fixture</span><strong>No confirmed fixture listed</strong></div>}
-          {recent && <button type="button" className="desk-row" onClick={() => onOpenSchedule({ query: recent.lines.map((l) => l.team).join(' v ') })}>
+          {recent && <button type="button" className="desk-row" onClick={() => onOpenRecord({ type: 'result', id: recent.id })}>
             <span className="desk-kicker">Recent result · {parts(recent.date).date} {parts(recent.date).month}</span>
             <strong>{recent.lines.map((l) => l.team).join(' v ')}</strong><span className="desk-meta">{recent.summary}</span>
           </button>}
@@ -145,13 +145,10 @@ export default function DiscoverBrowse({ saved, toggleSaved, following, toggleFo
       </BrowseRow>
 
       {stories.length > 0 && <BrowseRow title="Stories">
-        {stories.map((story) => {
-          const Tag = story.sourceUrl ? 'a' : 'article';
-          return <Tag key={story.id} href={story.sourceUrl || undefined} target={story.sourceUrl ? '_blank' : undefined} rel={story.sourceUrl ? 'noopener noreferrer' : undefined} className="card story">
-            <Frame src={story.image || story.imageUrl || (story.art ? `/art/${story.art}.svg` : undefined)} className="story-frame" />
-            <span className="body"><strong>{story.title}</strong><span>{story.source}</span></span>
-          </Tag>;
-        })}
+        {stories.map((story) => <button type="button" key={story.id} className="card story" onClick={() => onOpenRecord({ type: 'story', id: story.id })}>
+          <Frame src={story.image || story.imageUrl || (story.art ? `/art/${story.art}.svg` : undefined)} className="story-frame" />
+          <span className="body"><strong>{story.title}</strong><span>{story.source}</span></span>
+        </button>)}
       </BrowseRow>}
 
       <Divider />

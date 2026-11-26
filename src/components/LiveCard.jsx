@@ -36,7 +36,7 @@ function formatCheckedAgo(verifiedAt) {
   return seconds < 90 ? `${seconds}s ago` : `${Math.floor(seconds / 60)}m ago`;
 }
 
-export default function LiveSection({ matches, state, loading, onSeeAll }) {
+export default function LiveSection({ matches, state, loading, onSeeAll, onOpenMatch }) {
   const [selectedId, setSelectedId] = useState(null);
   const match = matches.find((item) => item.id === selectedId) ?? matches[0];
   if (!match) {
@@ -74,7 +74,9 @@ export default function LiveSection({ matches, state, loading, onSeeAll }) {
           </button>
         </div>
       </SectionHead>
-      <LiveTiles key={match.id} match={match} />
+      <button type="button" className="live-record-link" onClick={() => onOpenMatch(match)} aria-label={`Open live match: ${match.batting.name} v ${match.bowling.name}`}>
+        <LiveTiles key={match.id} match={match} />
+      </button>
       {match.verifiedAt && <p className="live-source">Checked {formatCheckedAgo(match.verifiedAt)} · <a href={match.sourceUrl} target="_blank" rel="noopener noreferrer">{match.source || 'Scorecard'}</a></p>}
     </section>
   );

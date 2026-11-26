@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import * as I from '../components/Icons.jsx';
 import { Divider, SaveButton, addDays, parts, relativeDay } from '../components/ui.jsx';
 import { useContent } from '../lib/content.jsx';
@@ -22,7 +21,24 @@ const FILTERS = [
 // Search matches any of the given strings, case-insensitively; an empty query matches everything.
 const hits = (q, ...fields) => !q || fields.some((f) => String(f || '').toLowerCase().includes(q));
 
-function Matches({ filter, query, saved, toggleSaved }) {
+function FixtureRow({ fixture, today, saved, toggleSaved, onOpenRecord, todayRow = false, awaiting = false }) {
+  const date = parts(fixture.date);
+  return (
+    <div className="list-row row-top">
+      <button type="button" className="record-row-main" onClick={() => onOpenRecord({ type: 'fixture', id: fixture.id })}>
+        <span className="date-block"><b>{date.date}</b><small>{date.month}</small></span>
+        <span className="row-text">
+          <strong className="with-marks"><MarkPair title={fixture.title} size={14} />{fixture.title}</strong>
+          <span>{awaiting ? `Status awaiting confirmation · ${fixture.venue}` : `${todayRow ? 'Today' : relativeDay(fixture.date, today)} · ${fixture.time} · ${fixture.venue}`}</span>
+        </span>
+        <I.Chevron size={14} />
+      </button>
+      <SaveButton label={fixture.title} saved={saved.includes(fixture.id)} onToggle={() => toggleSaved(fixture.id)} />
+    </div>
+  );
+}
+
+function Matches({ filter, query, saved, toggleSaved, onOpenRecord }) {
   const { today: TODAY, loadState, liveMatches: allLive, nplFinal: rawFinal, fixtures: allFixtures, results: allResults } = useContent();
   const q = query.trim().toLowerCase();
   const pass = (comp) => filter === 'All' || filter === comp;
@@ -37,12 +53,10 @@ function Matches({ filter, query, saved, toggleSaved }) {
   const laterToday = todayFixtures.filter((f) => (kickoffUTC(f.date, f.time) ?? Infinity) > Date.now());
   const awaiting = todayFixtures.filter((f) => (kickoffUTC(f.date, f.time) ?? Infinity) <= Date.now());
   const upcoming = fixtures.filter((f) => f.date > TODAY && pass(f.competition));
-  // A played final joins the results, newest first.
   const finalResult = finalDone && pass('NPL') ? [{
     id: 'npl-final-result',
     competition: 'NPL',
     label: `NPL Final · ${nplFinal.venue} · ${parts(nplFinal.date).date} ${parts(nplFinal.date).month}`,
-    // Overs move to the summary so a long team name and "Chased 156" share one line.
     lines: nplFinal.result.lines.map(({ overs, ...l }) => (l.score.startsWith('Chased') ? l : { ...l, overs })),
     summary: nplFinal.result.detail ? `${nplFinal.result.summary} · ${nplFinal.result.detail}` : nplFinal.result.summary,
   }] : [];
@@ -56,147 +70,68 @@ function Matches({ filter, query, saved, toggleSaved }) {
 
       {(live.length > 0 || showFinal || laterToday.length > 0 || awaiting.length > 0) && (
         <>
-        <Divider />
-        <section className="section">
-          <h2 className="group-label">Today · {today.day} {today.date} {today.month}</h2>
-          {live.map((m) => (
-            <div key={m.id} className="discover-live">
-              <p className="discover-live-meta">{m.series}, {m.venue}</p>
-              <LiveTiles match={m} />
-            </div>
-          ))}
-          {(showFinal || laterToday.length > 0 || awaiting.length > 0) && <div className="card">
-
-            {laterToday.map((f, i) => (
-              <div className={`list-row${i ? ' row-top' : ''}`} key={f.id}>
-                <div className="date-block"><b>{parts(f.date).date}</b><small>{parts(f.date).month}</small></div>
-                <div className="row-text">
-                  <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
-                  <span>Today · {f.time} · {f.venue}</span>
-                </div>
-                <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
+          <Divider />
+          <section className="section">
+            <h2 className="group-label">Today · {today.day} {today.date} {today.month}</h2>
+            {live.map((m) => (
+              <div key={m.id} className="discover-live">
+                <p className="discover-live-meta">{m.series}, {m.venue}</p>
+                <button type="button" className="live-record-link" onClick={() => onOpenRecord({ type: 'live', id: m.id })} aria-label={`Open live match: ${m.batting.name} v ${m.bowling.name}`}><LiveTiles match={m} /></button>
               </div>
             ))}
-            {awaiting.map((f) => (
-              <div className="list-row" key={f.id}>
-                <div className="date-block"><b>{parts(f.date).date}</b><small>{parts(f.date).month}</small></div>
-                <div className="row-text"><strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong><span>Status awaiting confirmation · {f.venue}</span></div>
-                <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
-              </div>
-            ))}
-            {showFinal && (
-              <div className={`list-row${laterToday.length || awaiting.length ? ' row-top' : ''}`}>
-                <div className="row-text">
-                  <span>Nepal Premier League · Final</span>
-                  <strong className="with-marks"><MarkPair title={`${nplFinal.home} v ${nplFinal.away}`} size={14} />{nplFinal.home} v {nplFinal.away}</strong>
-                  <span>{nplFinal.time} NPT · {nplFinal.venue}</span>
+            {(showFinal || laterToday.length > 0 || awaiting.length > 0) && <div className="card">
+              {laterToday.map((f) => <FixtureRow key={f.id} fixture={f} today={TODAY} saved={saved} toggleSaved={toggleSaved} onOpenRecord={onOpenRecord} todayRow />)}
+              {awaiting.map((f) => <FixtureRow key={f.id} fixture={f} today={TODAY} saved={saved} toggleSaved={toggleSaved} onOpenRecord={onOpenRecord} awaiting />)}
+              {showFinal && (
+                <div className="list-row row-top">
+                  <button type="button" className="record-row-main" onClick={() => onOpenRecord({ type: 'fixture', id: 'npl-final' })}>
+                    <span className="row-text"><span>Nepal Premier League · Final</span><strong className="with-marks"><MarkPair title={`${nplFinal.home} v ${nplFinal.away}`} size={14} />{nplFinal.home} v {nplFinal.away}</strong><span>{nplFinal.time} NPT · {nplFinal.venue}</span></span><I.Chevron size={14} />
+                  </button>
+                  <SaveButton label="NPL final" saved={saved.includes('npl-final')} onToggle={() => toggleSaved('npl-final')} />
                 </div>
-                <SaveButton label="NPL final" saved={saved.includes('npl-final')} onToggle={() => toggleSaved('npl-final')} />
-              </div>
-            )}
-          </div>}
-        </section>
+              )}
+            </div>}
+          </section>
         </>
       )}
 
-      {upcoming.length > 0 && (
-        <>
-        <Divider />
-        <section className="section">
-          <h2 className="group-label">Upcoming</h2>
-          <div className="card">
-            {upcoming.map((f) => {
-              const p = parts(f.date);
-              return (
-                <div className="list-row" key={f.id}>
-                  <div className="date-block"><b>{p.date}</b><small>{p.month}</small></div>
-                  <div className="row-text">
-                    <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
-                    <span>{relativeDay(f.date, TODAY)} · {f.time} · {f.venue}</span>
-                  </div>
-                  <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
-                </div>
-              );
-            })}
-          </div>
-        </section>
-        </>
-      )}
+      {upcoming.length > 0 && <><Divider /><section className="section"><h2 className="group-label">Upcoming</h2><div className="card">{upcoming.map((fixture) => <FixtureRow key={fixture.id} fixture={fixture} today={TODAY} saved={saved} toggleSaved={toggleSaved} onOpenRecord={onOpenRecord} />)}</div></section></>}
 
       {done.length > 0 && (
-        <>
-        <Divider />
-        <section className="section">
-          <h2 className="group-label">Recent results</h2>
-          {done.map((r) => (
-            <article key={r.id} className="card result">
-              <div className="row-between">
-                <span className="meta-inline">{r.label}</span>
-                {r.status && <span className="status">{r.status.toUpperCase()}</span>}
-              </div>
-              {r.lines.map((l, i) => (
-                <div key={l.team} className={`line${i ? ' lose' : ''}`}>
-                  <span className="with-marks"><TeamMark name={l.team} size={14} slot />{l.team}</span>
-                  <b>{l.score}{l.overs && <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}> ({l.overs})</span>}</b>
-                </div>
-              ))}
-              <span className="summary">{r.summary}</span>
-            </article>
-          ))}
-          <p className="footnote">All times NPT</p>
-        </section>
-        </>
+        <><Divider /><section className="section"><h2 className="group-label">Recent results</h2>{done.map((result) => (
+          <button type="button" key={result.id} className="card result record-open-card" onClick={() => onOpenRecord({ type: 'result', id: result.id })}>
+            <span className="row-between"><span className="meta-inline">{result.label}</span>{result.status && <span className="status">{result.status.toUpperCase()}</span>}</span>
+            {result.lines.map((line, index) => <span key={line.team} className={`line${index ? ' lose' : ''}`}><span className="with-marks"><TeamMark name={line.team} size={14} slot />{line.team}</span><b>{line.score}{line.overs && <span className="muted" style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}> ({line.overs})</span>}</b></span>)}
+            <span className="summary">{result.summary}</span>
+          </button>
+        ))}<p className="footnote">All times NPT</p></section></>
       )}
     </>
   );
 }
 
-function News({ query }) {
+function News({ query, onOpenRecord }) {
   const q = query.trim().toLowerCase();
   const content = useContent();
   const stories = content.stories.filter((s) => hits(q, s.title, s.source));
   const worldNews = content.worldNews.filter((n) => hits(q, n.title, n.blurb, n.source));
-  if (!stories.length && !worldNews.length) {
-    return <p className="empty" style={{ padding: '24px 20px' }}>{q ? `No verified stories for “${query.trim()}”.` : 'No current, sourced stories are available yet.'}</p>;
-  }
+  if (!stories.length && !worldNews.length) return <p className="empty" style={{ padding: '24px 20px' }}>{q ? `No verified stories for “${query.trim()}”.` : 'No current, sourced stories are available yet.'}</p>;
   return (
     <section className="section">
-      {stories.map((s) => {
-        const Tag = s.sourceUrl ? 'a' : 'article';
-        return <Tag key={s.id} href={s.sourceUrl || undefined} target={s.sourceUrl ? '_blank' : undefined} rel={s.sourceUrl ? 'noopener noreferrer' : undefined} className="card story" style={{ flex: 'none' }}>
-          <div className="photo">{s.art ? <img src={`/art/${s.art}.svg`} alt="" /> : null}</div>
-          <div className="body"><strong>{s.title}</strong><span>{s.source}</span></div>
-        </Tag>;
-      })}
-      {worldNews.length > 0 && <div className="card">
-        {worldNews.map((n) => {
-          const Tag = n.sourceUrl ? 'a' : 'article';
-          return <Tag key={n.id} href={n.sourceUrl || undefined} target={n.sourceUrl ? '_blank' : undefined} rel={n.sourceUrl ? 'noopener noreferrer' : undefined} className="news-item">
-            <strong>{n.title}</strong>
-            <p>{n.blurb}</p>
-            <small>{n.source} · {n.date}</small>
-          </Tag>;
-        })}
-      </div>}
+      {stories.map((story) => <button type="button" key={story.id} className="card story record-open-card" style={{ flex: 'none' }} onClick={() => onOpenRecord({ type: 'story', id: story.id })}><span className="photo">{story.art ? <img src={`/art/${story.art}.svg`} alt="" /> : null}</span><span className="body"><strong>{story.title}</strong><span>{story.source}</span></span></button>)}
+      {worldNews.length > 0 && <div className="card">{worldNews.map((news) => <button type="button" key={news.id} className="news-item record-open-card" onClick={() => onOpenRecord({ type: 'story', id: news.id })}><strong>{news.title}</strong><p>{news.blurb}</p><small>{news.source} · {news.date}</small></button>)}</div>}
     </section>
   );
 }
 
-export default function DiscoverScreen({ initialFilter = 'All', initialView = 'browse', initialQuery = '', saved, toggleSaved, prefs }) {
-  const [view, setView] = useState(initialView);
-  const [filter, setFilter] = useState(initialFilter);
-  const [query, setQuery] = useState(initialQuery);
+export default function DiscoverScreen({ filter = 'All', view = 'browse', query = '', onStateChange, saved, toggleSaved, prefs, onOpenRecord }) {
   const searching = query.trim().length > 0;
   const openSchedule = ({ filter: nextFilter = 'All', query: nextQuery = '' }) => {
-    setFilter(nextFilter);
-    setQuery(nextQuery);
-    setView('matches');
+    onStateChange({ filter: nextFilter, query: nextQuery, view: 'matches' });
     window.scrollTo(0, 0);
   };
   const browse = () => {
-    setView('browse');
-    setFilter('All');
-    setQuery('');
+    onStateChange({ view: 'browse', filter: 'All', query: '' });
     window.scrollTo(0, 0);
   };
 
@@ -205,38 +140,13 @@ export default function DiscoverScreen({ initialFilter = 'All', initialView = 'b
       <header className="screen-head">
         <h1 className="screen-title">Discover</h1>
         <p className="subhead">{view === 'browse' ? 'Competitions, grounds and the teams to follow.' : view === 'matches' ? 'Every match, in Nepal time.' : 'Stories from Nepal and beyond.'}</p>
-        <label className="search" style={{ marginTop: 0 }}>
-          <I.Search size={14} />
-          <span className="sr-only">Search</span>
-          <input type="search" placeholder="Teams, matches, stories" value={query} onChange={(e) => setQuery(e.target.value)} />
-        </label>
+        <label className="search" style={{ marginTop: 0 }}><I.Search size={14} /><span className="sr-only">Search</span><input type="search" placeholder="Teams, matches, stories" value={query} onChange={(event) => onStateChange({ query: event.target.value })} /></label>
       </header>
 
-      {view === 'browse' && !searching && <DiscoverBrowse saved={saved} toggleSaved={toggleSaved} following={prefs.following} toggleFollow={prefs.toggleFollow} onOpenSchedule={openSchedule} />}
-
-      {view === 'matches' && (
-        <>
-          <div className="pill-row" style={{ margin: '14px 0 0', padding: '0 16px 4px' }}>
-            <button type="button" className="pill" onClick={browse}><I.Chevron size={13} style={{ transform: 'rotate(180deg)' }} />Browse</button>
-            {FILTERS.map((f) => (
-              <button key={f.id} type="button" className="pill" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
-                {f.icon}
-                {f.id}
-              </button>
-            ))}
-          </div>
-          <Matches filter={filter} query={query} saved={saved} toggleSaved={toggleSaved} />
-        </>
-      )}
-      {view === 'browse' && searching && <>
-        <div className="pill-row" style={{ margin: '14px 0 0', padding: '0 16px 4px' }}><button type="button" className="pill" onClick={browse}><I.Chevron size={13} style={{ transform: 'rotate(180deg)' }} />Browse</button></div>
-        <Matches filter="All" query={query} saved={saved} toggleSaved={toggleSaved} />
-        <News query={query} />
-      </>}
-      {view === 'news' && <>
-        <div className="pill-row" style={{ margin: '14px 0 0', padding: '0 16px 4px' }}><button type="button" className="pill" onClick={browse}><I.Chevron size={13} style={{ transform: 'rotate(180deg)' }} />Browse</button></div>
-        <News query={query} />
-      </>}
+      {view === 'browse' && !searching && <DiscoverBrowse saved={saved} toggleSaved={toggleSaved} following={prefs.following} toggleFollow={prefs.toggleFollow} onOpenSchedule={openSchedule} onOpenRecord={onOpenRecord} />}
+      {view === 'matches' && <><div className="pill-row" style={{ margin: '14px 0 0', padding: '0 16px 4px' }}><button type="button" className="pill" onClick={browse}><I.Chevron size={13} style={{ transform: 'rotate(180deg)' }} />Browse</button>{FILTERS.map((item) => <button key={item.id} type="button" className="pill" aria-pressed={filter === item.id} onClick={() => onStateChange({ filter: item.id })}>{item.icon}{item.id}</button>)}</div><Matches filter={filter} query={query} saved={saved} toggleSaved={toggleSaved} onOpenRecord={onOpenRecord} /></>}
+      {view === 'browse' && searching && <><div className="pill-row" style={{ margin: '14px 0 0', padding: '0 16px 4px' }}><button type="button" className="pill" onClick={browse}><I.Chevron size={13} style={{ transform: 'rotate(180deg)' }} />Browse</button></div><Matches filter="All" query={query} saved={saved} toggleSaved={toggleSaved} onOpenRecord={onOpenRecord} /><News query={query} onOpenRecord={onOpenRecord} /></>}
+      {view === 'news' && <><div className="pill-row" style={{ margin: '14px 0 0', padding: '0 16px 4px' }}><button type="button" className="pill" onClick={browse}><I.Chevron size={13} style={{ transform: 'rotate(180deg)' }} />Browse</button></div><News query={query} onOpenRecord={onOpenRecord} /></>}
     </main>
   );
 }

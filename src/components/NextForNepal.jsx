@@ -21,7 +21,7 @@ const opponentOf = (title) => title.replace(/\s+v\s+Nepal$|^Nepal\s+v\s+/i, '');
 
 // The picked day's game as two tiles: who (flags + opponent + venue) and when
 // (countdown, kick-off, and a dot per day from today to match day).
-function MatchTiles({ fixture: f, today, now, saved, onSave }) {
+function MatchTiles({ fixture: f, today, now, saved, onSave, onOpen }) {
   const opp = opponentOf(f.title);
   const p = parts(f.date);
   const clock = clockTime(f.time);
@@ -30,7 +30,7 @@ function MatchTiles({ fixture: f, today, now, saved, onSave }) {
   const steps = Math.min(days, 6);
   return (
     <div className="match-tiles">
-      <div className="mt-who">
+      <button type="button" className="mt-who" onClick={onOpen} aria-label={`Open match details: ${f.title}`}>
         <span className="mt-flags" aria-hidden="true">
           <span><TeamMark name={opp} size={22} /></span>
           <i>VS</i>
@@ -38,13 +38,13 @@ function MatchTiles({ fixture: f, today, now, saved, onSave }) {
         </span>
         <strong>{opp}</strong>
         <span className="mt-sub"><I.Pin size={12} />{f.venue}</span>
-      </div>
+      </button>
       <div className="mt-when">
         <div className="mt-when-top">
-          <div>
+          <button type="button" className="mt-when-open" onClick={onOpen}>
             <strong>{countdown ? `In ${countdown}` : `${p.day} ${p.date} ${p.month}`}</strong>
             <span>{p.day} {p.date} {p.month}{clock ? `, ${clock} NPT` : ', time TBC'}</span>
-          </div>
+          </button>
           <SaveButton label={f.title} saved={saved} onToggle={onSave} />
         </div>
         <span className="mt-steps" aria-hidden="true">
@@ -56,7 +56,7 @@ function MatchTiles({ fixture: f, today, now, saved, onSave }) {
   );
 }
 
-export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () => {} }) {
+export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () => {}, onOpenRecord }) {
   const { today, loadState, fixtures: all, liveMatches } = useContent();
   const now = useNow();
   // Today's live game has its own section above; a game whose start has passed isn't "next".
@@ -106,7 +106,7 @@ export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () =>
       <div aria-live="polite" className="fixture-list">
         {shown.length === 0 && <p className="fixture-empty">{loadState === 'loading' ? 'Checking fixtures…' : fixtures.length ? 'No match on this date. Choose All to see what is next.' : 'No confirmed Nepal fixtures are listed yet.'}</p>}
         {selected !== 'all' && shown.length > 0 && (
-          <MatchTiles fixture={shown[0]} today={today} now={now} saved={saved.includes(shown[0].id)} onSave={() => toggleSaved(shown[0].id)} />
+          <MatchTiles fixture={shown[0]} today={today} now={now} saved={saved.includes(shown[0].id)} onSave={() => toggleSaved(shown[0].id)} onOpen={() => onOpenRecord({ type: 'fixture', id: shown[0].id })} />
         )}
         {selected === 'all' && shown.length > 0 && (
           <div className="card">
@@ -114,11 +114,11 @@ export default function NextForNepal({ onSeeAll, saved = [], toggleSaved = () =>
               const p = parts(f.date);
               return (
                 <div className={`list-row${i ? ' row-top' : ''}`} key={f.id}>
-                  <div className="date-block"><b>{p.date}</b><small>{p.month}</small></div>
-                  <div className="row-text">
-                    <strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong>
-                    <span>{relativeDay(f.date, today)} · {f.time} · {f.venue}</span>
-                  </div>
+                  <button type="button" className="record-row-main" onClick={() => onOpenRecord({ type: 'fixture', id: f.id })}>
+                    <span className="date-block"><b>{p.date}</b><small>{p.month}</small></span>
+                    <span className="row-text"><strong className="with-marks"><MarkPair title={f.title} size={14} />{f.title}</strong><span>{relativeDay(f.date, today)} · {f.time} · {f.venue}</span></span>
+                    <I.Chevron size={14} />
+                  </button>
                   <SaveButton label={f.title} saved={saved.includes(f.id)} onToggle={() => toggleSaved(f.id)} />
                 </div>
               );

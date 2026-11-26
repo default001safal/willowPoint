@@ -100,81 +100,81 @@ export function SearchLayer({ search, onSearch, onOpenAssist, onOpenRecord, askC
   return (
     <PushLayer title="Search" eyebrow="Universal record search" onClose={onClose}>
       <div className="search-layer-content">
-        <div className="search search-layer">
-          <div className="search-box">
-            <I.Search size={17} />
-            <label className="sr-only" htmlFor={inputId}>Search current and archived records</label>
-            <input
-              ref={inputRef}
-              id={inputId}
-              type="search"
-              placeholder="Teams, players, venues, competitions…"
-              value={search.query}
-              autoComplete="off"
-              onChange={(event) => setSearch({ query: event.target.value })}
-            />
-            <button
-              type="button"
-              className="search-filter"
-              aria-label="Open search refinement"
-              aria-haspopup="dialog"
-              onClick={() => onOpenAssist(search)}
-            >
-              <I.Sliders size={17} />{activeFilters(search) > 0 && <span className="filter-count">{activeFilters(search)}</span>}
-            </button>
-          </div>
+      <div className="search search-layer">
+        <div className="search-box">
+          <I.Search size={17} />
+          <label className="sr-only" htmlFor={inputId}>Search current and archived records</label>
+          <input
+            ref={inputRef}
+            id={inputId}
+            type="search"
+            placeholder="Teams, players, venues, competitions…"
+            value={search.query}
+            autoComplete="off"
+            onChange={(event) => setSearch({ query: event.target.value })}
+          />
+          <button
+            type="button"
+            className="search-filter"
+            aria-label="Open search refinement"
+            aria-haspopup="dialog"
+            onClick={() => onOpenAssist(search)}
+          >
+            <I.Sliders size={17} />{activeFilters(search) > 0 && <span className="filter-count">{activeFilters(search)}</span>}
+          </button>
         </div>
+      </div>
 
-        <div className="pills search-scope-pills" role="group" aria-label="Result type">
-          {SEARCH_SCOPES.map((scope) => (
-            <button key={scope} type="button" className={`chip${search.scope === scope ? ' on' : ''}`} aria-pressed={search.scope === scope} onClick={() => setSearch({ scope })}>{scope}</button>
-          ))}
+      <div className="pills search-scope-pills" role="group" aria-label="Result type">
+        {SEARCH_SCOPES.map((scope) => (
+          <button key={scope} type="button" className={`chip${search.scope === scope ? ' on' : ''}`} aria-pressed={search.scope === scope} onClick={() => setSearch({ scope })}>{scope}</button>
+        ))}
+      </div>
+
+      {reason && (
+        <div className="cue-escalation">
+          <div><CueMark size={16} /><span>{reason}</span></div>
+          <button type="button" className="layer-secondary-action" onClick={() => askCue(trimmedQuery)}>Ask Cue instead</button>
         </div>
+      )}
 
-        {reason && (
-          <div className="cue-escalation">
-            <div><CueMark size={16} /><span>{reason}</span></div>
-            <button type="button" className="layer-secondary-action" onClick={() => askCue(trimmedQuery)}>Ask Cue instead</button>
+      {!trimmedQuery && !filtered ? (
+        <SuggestionList suggestions={suggestions} onOpenRecord={onOpenRecord} onQuery={(query) => setSearch({ query })} />
+      ) : (
+        <section className="search-results" aria-live="polite">
+          <div className="sec">
+            <span className="meta-inline">{hits.length} {hits.length === 1 ? 'record' : 'records'}{trimmedQuery && <> for “{trimmedQuery}”</>}</span>
+            {searchIsFiltered(search) && <button type="button" className="seclink" onClick={() => onSearch(DEFAULT_SEARCH)}>Reset</button>}
           </div>
-        )}
-
-        {!trimmedQuery && !filtered ? (
-          <SuggestionList suggestions={suggestions} onOpenRecord={onOpenRecord} onQuery={(query) => setSearch({ query })} />
-        ) : (
-          <section className="search-results" aria-live="polite">
-            <div className="sec">
-              <span className="meta-inline">{hits.length} {hits.length === 1 ? 'record' : 'records'}{trimmedQuery && <> for “{trimmedQuery}”</>}</span>
-              {searchIsFiltered(search) && <button type="button" className="seclink" onClick={() => onSearch(DEFAULT_SEARCH)}>Reset</button>}
+          {hits.length === 0 ? (
+            <div className="layer-state search-empty-state">
+              <h2>No record matched that search</h2>
+              <p>{trimmedQuery ? 'Current records stay exact. Ask Cue when the question needs interpretation, context, or an unusual cross-record answer.' : 'No current records match those refinements.'}</p>
+              {trimmedQuery ? (
+                <button type="button" className="layer-primary-link" onClick={() => askCue(trimmedQuery)}><CueMark size={16} />Ask Cue about “{trimmedQuery}”</button>
+              ) : (
+                <button
+                  type="button"
+                  className="layer-secondary-action"
+                  onClick={() => setSearch(search.window === 'current' ? { window: 'all' } : DEFAULT_SEARCH)}
+                >
+                  {search.window === 'current' ? 'Include archive' : 'Reset search'}
+                </button>
+              )}
             </div>
-            {hits.length === 0 ? (
-              <div className="layer-state search-empty-state">
-                <h2>No record matched that search</h2>
-                <p>{trimmedQuery ? 'Current records stay exact. Ask Cue when the question needs interpretation, context, or an unusual cross-record answer.' : 'No current records match those refinements.'}</p>
-                {trimmedQuery ? (
-                  <button type="button" className="layer-primary-link" onClick={() => askCue(trimmedQuery)}><CueMark size={16} />Ask Cue about “{trimmedQuery}”</button>
-                ) : (
-                  <button
-                    type="button"
-                    className="layer-secondary-action"
-                    onClick={() => setSearch(search.window === 'current' ? { window: 'all' } : DEFAULT_SEARCH)}
-                  >
-                    {search.window === 'current' ? 'Include archive' : 'Reset search'}
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="record-list">
-                {hits.map((hit) => (
-                  <button key={hit.key} type="button" onClick={() => onOpenRecord(hit.record)} className="search-hit">
-                    <span className="row-text"><strong>{hit.title}</strong><span>{hitMeta(hit, content)}</span></span>
-                    <span className={`mini-chip${hit.scope === 'Live' ? ' is-live' : ''}`}>{hit.scope}</span>
-                    <I.Chevron size={14} />
-                  </button>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
+          ) : (
+            <div className="record-list">
+              {hits.map((hit) => (
+                <button key={hit.key} type="button" onClick={() => onOpenRecord(hit.record)} className="search-hit">
+                  <span className="row-text"><strong>{hit.title}</strong><span>{hitMeta(hit, content)}</span></span>
+                  <span className={`mini-chip${hit.scope === 'Live' ? ' is-live' : ''}`}>{hit.scope}</span>
+                  <I.Chevron size={14} />
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
       </div>
     </PushLayer>
   );

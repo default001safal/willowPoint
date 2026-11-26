@@ -1,3 +1,4 @@
+import { DurableObject } from 'cloudflare:workers';
 import { collectVerifiedLive, DEFAULT_LIVE_URLS } from '../../../scripts/live-core.mjs';
 import { commitOperations, listLiveMatchIds } from './firestore.js';
 import { emptyLiveCache, planFeedError, planLiveWrites } from './planner.js';

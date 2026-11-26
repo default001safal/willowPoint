@@ -9,6 +9,7 @@ import { useContent } from '../lib/content.jsx';
 import { signOutUser, watchUser } from '../lib/firebase.js';
 import AuthControls from './AuthControls.jsx';
 import { SearchAssistLayer, SearchLayer } from './Search.jsx';
+import CueMark from './CueMark.jsx';
 import { kickoffUTC } from '../lib/statcard.js';
 import { eventDates, fixturesForEvent, resultTitle } from '../lib/selectors.js';
 
@@ -58,7 +59,7 @@ function RecordActions({ saved, onSave, saveLabel, onAsk }) {
         <I.Bookmark size={17} filled={saved} />{saved ? 'Saved' : saveLabel || 'Save match'}
       </button>
       <button type="button" className="layer-secondary-action" onClick={onAsk}>
-        <I.Spark size={16} />Ask Cue
+        <CueMark size={16} />Ask Cue
       </button>
     </div>
   );
@@ -122,7 +123,7 @@ function LiveDetail({ match, onClose, onAsk, onOpenLayer }) {
         <p className="record-lede">{match.venue}</p>
         <LiveScoreboard match={match} />
         <LiveScoreboard match={match} detail />
-        <button type="button" className="layer-secondary-action record-cue-action" onClick={onAsk}><I.Spark size={16} />Ask Cue about this match</button>
+        <button type="button" className="layer-secondary-action record-cue-action" onClick={onAsk}><CueMark size={16} />Ask Cue about this match</button>
         <div className="record-source"><span>{match.verifiedAt ? checkedLabel(match.verifiedAt) : 'Current verified score'}</span>{match.sourceUrl && <button type="button" onClick={() => onOpenLayer({ type: 'source', title: 'Score source', source: { label: match.source || 'Scorecard', url: match.sourceUrl } })}>{match.source || 'Scorecard'}<I.Chevron size={14} /></button>}</div>
         <p className="record-footnote">Scores are published only after independent source agreement. Brief delays are possible during verification.</p>
       </article>

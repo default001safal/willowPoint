@@ -19,7 +19,9 @@ done
 # App logo is copied verbatim from the web app's light logo.
 cp public/logo-light.png native/assets/logo-light.png
 
-# Lockfile is derived from native/package.json (no node_modules install needed).
-(cd native && npm install --package-lock-only --no-audit --no-fund)
+# Lockfile is derived from native/package.json. Pin npm to the version EAS
+# builders run (10.8.x) so the lockfile stays ci-compatible with cloud builds;
+# newer npm resolves optional peers differently and breaks `npm ci` on EAS.
+(cd native && npx npm@10.8.2 install --package-lock-only --no-audit --no-fund)
 
 echo "Regenerated: native/assets/flags/*.png, native/assets/logo-light.png, native/package-lock.json"

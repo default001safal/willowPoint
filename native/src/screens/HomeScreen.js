@@ -87,7 +87,7 @@ function HomeStories({ stories }) {
           </Pressable>
         ))}
       </ScrollView>
-    </Version>
+    </View>
   );
 }
 

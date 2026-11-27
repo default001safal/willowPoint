@@ -1,5 +1,6 @@
 import React from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Text from '../components/T.js';
 import Screen from '../components/Screen.js';
 import { colors } from '../theme.js';
 

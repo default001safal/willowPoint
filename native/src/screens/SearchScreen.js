@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import Text, { TextInput } from '../components/T.js';
 import Screen from '../components/Screen.js';
 import CueMark from '../components/CueMark.js';
 import { colors, radius } from '../theme.js';

@@ -25,6 +25,7 @@ import AccountScreen, { ConfirmSignOutScreen } from './src/screens/AccountScreen
 import SourceScreen from './src/screens/SourceScreen.js';
 import Onboarding, { useNeedsOnboarding } from './src/components/Onboarding.js';
 import Splash from './src/components/Splash.js';
+import CrashBoundary from './src/components/CrashBoundary.js';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -139,12 +140,14 @@ function Shell() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <ContentProvider>
-        <CueChatProvider>
-          <Shell />
-        </CueChatProvider>
-      </ContentProvider>
-    </SafeAreaProvider>
+    <CrashBoundary>
+      <SafeAreaProvider>
+        <ContentProvider>
+          <CueChatProvider>
+            <Shell />
+          </CueChatProvider>
+        </ContentProvider>
+      </SafeAreaProvider>
+    </CrashBoundary>
   );
 }

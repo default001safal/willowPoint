@@ -1,7 +1,8 @@
 // Launch splash: logo, tagline and a thin loading bar.
 // Stays until the first content arrives (at least 900ms so it doesn't flash, at most 2.5s).
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Image, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, StyleSheet, View } from 'react-native';
+import Text from './T.js';
 import { colors } from '../theme.js';
 import { useContent } from '../lib/content.js';
 

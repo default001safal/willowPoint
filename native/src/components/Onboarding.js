@@ -1,7 +1,8 @@
 // Four-step onboarding — identical flow and copy to the web app.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
+import Text, { TextInput } from './T.js';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, type } from '../theme.js';
 import * as I from './Icons.js';
@@ -10,7 +11,10 @@ import AuthControls from './AuthControls.js';
 import { useContent } from '../lib/content.js';
 import { watchUser } from '../lib/firebase.js';
 
-const DONE_KEY = 'wp.onboarded';
+// Versioned key: v1's gate also checked `wp.prefs`, which the remote-sync
+// write can create before the gate reads it — onboarding was silently
+// skipped on first launch. Gate on this key alone.
+const DONE_KEY = 'wp.onboarded.v2';
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
 const roman = (index) => ROMAN[index] || String(index + 1);
 
@@ -22,10 +26,9 @@ const FEATURES = [
 
 async function readOnboarded() {
   try {
-    if (await AsyncStorage.getItem(DONE_KEY)) return false;
-    return !(await AsyncStorage.getItem('wp.prefs'));
+    return !(await AsyncStorage.getItem(DONE_KEY));
   } catch {
-    return false;
+    return true;
   }
 }
 

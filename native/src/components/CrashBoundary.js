@@ -2,7 +2,8 @@
 // report "app keeps stopping" with no detail. Render errors are caught by the
 // boundary; global/async errors come through ErrorUtils and land here too.
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import Text from './T.js';
 import { colors } from '../theme.js';
 
 export default class CrashBoundary extends React.Component {

@@ -1,6 +1,7 @@
 // Shared UI atoms — same structure and labels as the web app.
 import React from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
+import Text from './T.js';
 import { colors, radius } from '../theme.js';
 import * as I from './Icons.js';
 

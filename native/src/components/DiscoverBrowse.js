@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Text from './T.js';
 import { colors, radius } from '../theme.js';
 import * as I from './Icons.js';
 import FixtureRow from './FixtureRow.js';

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Text from './T.js';
 import { colors, radius } from '../theme.js';
 import * as I from './Icons.js';
 import { SaveButton, parts, relativeDay } from './ui.js';

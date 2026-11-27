@@ -1,6 +1,7 @@
 // Layer-screen scaffold: title, eyebrow, and close — the native PushLayer.
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Text from './T.js';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme.js';
 import * as I from './Icons.js';

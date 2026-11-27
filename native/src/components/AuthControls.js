@@ -1,7 +1,8 @@
 // Sign-in controls: Google (via expo-auth-session, shown only when a native
 // Google client ID is configured in app.json extra) and email/password.
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Text, { TextInput } from './T.js';
 import Constants from 'expo-constants';
 import { makeRedirectUri, useAuthRequest, useDiscovery, ResponseType } from 'expo-auth-session';
 import { colors, radius } from '../theme.js';

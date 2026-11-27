@@ -26,6 +26,7 @@ import SourceScreen from './src/screens/SourceScreen.js';
 import Onboarding, { useNeedsOnboarding } from './src/components/Onboarding.js';
 import Splash from './src/components/Splash.js';
 import CrashBoundary from './src/components/CrashBoundary.js';
+import { useAppFonts, applyLoadedFamilies } from './src/lib/fonts.js';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -139,12 +140,14 @@ function Shell() {
 }
 
 export default function App() {
+  const [fontsReady] = useAppFonts();
+  if (fontsReady) applyLoadedFamilies();
   return (
     <CrashBoundary>
       <SafeAreaProvider>
         <ContentProvider>
           <CueChatProvider>
-            <Shell />
+            {fontsReady ? <Shell /> : <View style={{ flex: 1, backgroundColor: colors.canvas }} />}
           </CueChatProvider>
         </ContentProvider>
       </SafeAreaProvider>

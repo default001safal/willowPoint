@@ -1,4 +1,6 @@
 // willowPoint native theme — same tokens as the web stylesheet.
+import { Platform } from 'react-native';
+
 export const colors = {
   canvas: '#0C0C0C',
   bg: '#121212',
@@ -22,9 +24,19 @@ export const colors = {
 
 export const radius = 16;
 
+// Font families. These start as the closest platform serifs and are swapped for
+// the loaded PT Serif families once expo-font finishes (see lib/fonts.js) —
+// mirrors the web stack (Iowan Old Style / Palatino / Georgia).
+export const fonts = {
+  serif: Platform.select({ ios: 'Palatino', android: 'serif', default: 'serif' }),
+  serifBold: Platform.select({ ios: 'Palatino-Bold', android: 'serif', default: 'serif' }),
+  serifItalic: Platform.select({ ios: 'Palatino-Italic', android: 'serif', default: 'serif' }),
+  mono: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }),
+};
+
 export const type = {
-  serif: 'serif',
-  mono: 'monospace',
+  serif: fonts.serif,
+  mono: fonts.mono,
 };
 
 export const space = (n) => n * 4;

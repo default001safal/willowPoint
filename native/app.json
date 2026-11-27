@@ -22,6 +22,15 @@
       "package": "com.willowpoint.app",
       "edgeToEdgeEnabled": true
     },
+    "updates": {
+      "url": "https://u.expo.dev/9e09bc0c-df15-4a7d-8c61-811025dbb8b3",
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "plugins": [
       "expo-web-browser"
     ],

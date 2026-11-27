@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Text from '../components/T.js';
 import Screen from '../components/Screen.js';
 import AuthControls from '../components/AuthControls.js';
 import { colors, radius } from '../theme.js';

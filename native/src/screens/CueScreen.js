@@ -1,5 +1,6 @@
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Text, { TextInput } from '../components/T.js';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius } from '../theme.js';
 import * as I from '../components/Icons.js';
@@ -101,7 +102,7 @@ export default function CueScreen({ navigation }) {
   const insets = useSafeAreaInsets();
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: 112 + insets.bottom }]}
+    <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8, paddingBottom: 112 + insets.bottom }]}
       scrollEnabled={!answerOpen}>
       <View style={styles.cueHero}>
         <CueMark size={34} state={busy ? 'thinking' : 'idle'} animated />

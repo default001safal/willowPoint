@@ -4,6 +4,8 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
 import Svg, { Circle, G, Rect } from 'react-native-svg';
 
+const AnimatedG = Animated.createAnimatedComponent(G);
+
 // state: 'idle' | 'listening' | 'thinking' | 'speaking'
 export default function CueMark({ size = 34, state = 'idle', color = '#ED1725', animated = false }) {
   const left = useRef(new Animated.Value(0)).current;
@@ -44,14 +46,14 @@ export default function CueMark({ size = 34, state = 'idle', color = '#ED1725', 
       <Circle cx="89" cy="101.5" r="5" fill={color} />
       <Circle cx="121" cy="101.5" r="5" fill={color} />
       <G>
-        <Animated.G style={{ transform: [translate(left)] }}>
+        <AnimatedG style={{ transform: [translate(left)] }}>
           <Rect x="85.75" y="17" width="13" height="29" rx="6.5" fill={color} />
-        </Animated.G>
+        </AnimatedG>
       </G>
       <G>
-        <Animated.G style={{ transform: [translate(right)] }}>
+        <AnimatedG style={{ transform: [translate(right)] }}>
           <Rect x="111.25" y="17" width="13" height="29" rx="6.5" fill={color} />
-        </Animated.G>
+        </AnimatedG>
       </G>
     </Svg>
   );

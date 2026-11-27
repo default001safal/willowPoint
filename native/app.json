@@ -26,12 +26,11 @@
       "expo-web-browser"
     ],
     "extra": {
-      "googleClientId": null,
+      "googleClientId": "",
       "eas": {
         "projectId": "9e09bc0c-df15-4a7d-8c61-811025dbb8b3"
       }
     },
-    "jsEngine": "jsc",
     "owner": "willowpoint"
   }
 }
